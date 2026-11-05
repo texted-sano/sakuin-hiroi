@@ -216,11 +216,43 @@ td.c-excluded { font-family: var(--font-num); color: var(--muted); }
 .state-box .msg { color: inherit; }
 .state-box .msg.warn { color: var(--on-warn-soft); }
 .viewer-verify { flex: none; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 5px 10px; border-bottom: 1px solid var(--line); background: var(--warn-soft); color: var(--on-warn-soft); font-size: 12px; }
-.verify-lines { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.verify-head { font-weight: 700; }
+.verify-lines { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.verify-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.verify-head { font-weight: 700; flex: none; }
+.verify-row.listOnly .verify-head::before { content: "◀ "; }
+.verify-row.appOnly .verify-head::before { content: "▶ "; }
+.page-chips button.missing { border-style: dashed; color: var(--muted); border-color: var(--line-strong); opacity: 1; cursor: default; }
+.page-chips button.missing::after { content: " PDFなし"; font-size: 9px; }
+.hit-menu-list { font-size: 11px; color: var(--muted); }
+.hit-menu-list.diff { color: var(--on-warn-soft); background: var(--warn-soft); border-radius: 3px; padding: 1px 6px; font-weight: 700; }
 .viewer-verify button { min-height: 24px; font-size: 11px; }
 .page-chips button.list-diff::before { content: "≠"; font-weight: 700; margin-right: 3px; color: var(--lamp); }
 .page-chips button.list-diff[aria-current="true"]::before { color: inherit; }
+
+/* ===== RULE / PROOF ===== */
+textarea { width: 100%; min-height: 96px; resize: vertical; background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--radius-s); padding: 6px 8px; font: inherit; font-size: 12px; line-height: 1.55; color: var(--ink); -webkit-user-select: text; user-select: text; }
+textarea:focus { border-color: var(--accent-text); outline: none; box-shadow: 0 0 0 1px var(--accent-text); }
+.rule-box, .proof-box { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 2px; }
+.proof-summary { font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-s); padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; }
+.proof-summary strong { font-size: 13px; }
+
+/* ===== VIEWER NAV / DROP ===== */
+.viewer-nav { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; background: var(--surface); }
+.viewer-nav .goto { display: flex; align-items: center; gap: 4px; margin: 0; }
+.viewer-nav .goto label { font-size: 12px; color: var(--muted); }
+.viewer-nav .goto input { width: 72px; }
+.viewer-nav #viewer-pick { margin-left: auto; }
+.viewer-nav #viewer-pick[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.viewer-nav .note { flex-basis: 100%; }
+.viewer-nav .note:empty { display: none; }
+.viewer-spread.picking .page-stage { cursor: crosshair; touch-action: none; }
+.viewer-spread.picking .hit { pointer-events: none; }
+.pick-rect { position: absolute; z-index: 4; border: 2px solid var(--hit-adopt-c); background: color-mix(in srgb, var(--hit-adopt-c) 14%, transparent); pointer-events: none; }
+.hit.manual { border-width: 3px; border-style: double; }
+.drop-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgba(0, 0, 0, .55); pointer-events: none; }
+.drop-overlay-box { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 40px; border: 2px dashed var(--accent-text); border-radius: var(--radius-l); background: var(--surface); color: var(--ink); font-size: 13px; }
+.drop-overlay-box strong { font-size: 16px; }
+.rule-box .seg button { flex: 1; }
 
 /* ===== DETACH ===== */
 .side-head { flex: none; }
@@ -242,6 +274,8 @@ td.c-excluded { font-family: var(--font-num); color: var(--muted); }
 .filmstrip li[data-state="active"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .filmstrip li[data-state="done"] { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
 .overall { display: flex; align-items: center; gap: 8px; flex: 1 1 320px; min-width: 200px; }
+.activity-cancel { min-height: 22px; padding: 0 10px; font-size: 11px; color: var(--danger); border-color: var(--danger); background: transparent; flex: none; }
+.activity-cancel:hover:not(:disabled) { background: var(--danger-soft); border-color: var(--danger); }
 .activity-label { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 50%; }
 .activity-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none; }
 #activity[data-state="busy"] .activity-dot { background: var(--lamp); animation: pulse 1s ease-in-out infinite; }
@@ -294,6 +328,8 @@ td.c-excluded { font-family: var(--font-num); color: var(--muted); }
 .font-row .count { font-size: 11px; font-family: var(--font-num); color: var(--muted); white-space: nowrap; }
 .tag { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 0 5px; margin-left: 4px; background: var(--accent-soft); color: var(--on-accent-soft); font-family: var(--font); }
 .tag.bold { background: var(--ink); color: var(--surface); }
+.tag.body { background: var(--warn-soft); color: var(--on-warn-soft); }
+.tag.weight { background: transparent; color: var(--muted); border: 1px solid var(--line-strong); font-family: var(--font-num); font-weight: 500; }
 
 /* ===== RESULT TABLE ===== */
 .table-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; background: var(--surface-2); }
@@ -319,6 +355,7 @@ td.c-note { white-space: pre-wrap; min-width: 16em; }
 /* ===== VIEWER ===== */
 .viewer-bar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; background: var(--surface); }
 .viewer-term { font-weight: 700; font-size: 14px; }
+.viewer-term.none { font-weight: 400; font-size: 12px; color: var(--muted); }
 .viewer-pageinfo { font-family: var(--font-num); font-size: 12px; color: var(--muted); }
 .page-chips { flex: none; display: flex; gap: 4px; flex-wrap: wrap; padding: 6px 10px; border-bottom: 1px solid var(--line); max-height: 76px; overflow: auto; background: var(--surface); }
 .page-chips button { min-height: 22px; padding: 0 8px; font-size: 11px; font-family: var(--font-num); border-radius: 999px; }
@@ -462,6 +499,8 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
         <div class="psec-body">
           <div class="font-presets" id="font-presets">
             <button data-preset="all">すべて</button>
+            <button data-preset="nonbody" title="本文フォント（いちばん多い文字サイズで、いちばん多く使われているフォント）以外">本文以外</button>
+            <button data-preset="bodybold" title="太字のフォントのうち、本文と同じ文字サイズのものだけ（見出し・図の説明文などを除く）">本文中の太字</button>
             <button data-preset="gothic-bold">ゴシック太字</button>
             <button data-preset="bold">太字</button>
             <button data-preset="gothic">ゴシック</button>
@@ -503,12 +542,16 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
               <div class="prop"><label class="prop-label" for="map-held">申し送りページ</label><select id="map-held" data-role="held"></select></div>
               <div class="prop"><label class="prop-label" for="map-excluded">対象外ページ</label><select id="map-excluded" data-role="excluded"></select></div>
               <div class="prop"><label class="prop-label" for="map-note">備考</label><select id="map-note" data-role="note"></select></div>
-              <label class="check top"><input type="checkbox" id="opt-header"><span>保存時に見出し行を書き込む</span></label>
+              <label class="check top"><input type="checkbox" id="opt-header" checked><span>保存時に見出し行を書き込む</span></label>
               <p class="note" id="header-note"></p>
               <p class="note" id="map-info"></p>
               <label class="check top"><input type="checkbox" id="opt-verify"><span>リストに書かれているページと照合する</span></label>
               <p class="note" id="verify-note"></p>
-              <button id="btn-list-apply-all" disabled>リストの内容をすべて反映</button>
+              <div class="proof-box">
+                <button class="primary" id="btn-proof" disabled>校正（リストの網羅を確認）</button>
+                <button id="btn-proof-save" disabled>校正結果をExcelで保存</button>
+                <p class="note" id="proof-note"></p>
+              </div>
             </div>
           </div>
         </div>
@@ -551,6 +594,18 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           </div>
           <button id="btn-ai-stop" hidden>中止</button>
           <button id="btn-ai-apply-all" disabled>AIの提案をすべて反映</button>
+          <div class="rule-box">
+            <span class="sub-title">AIへの指示</span>
+            <div class="seg" id="ai-rule-kind" role="group" aria-label="指示の種類">
+              <button data-kind="casual">ざっくり指示</button>
+              <button data-kind="client">先方のルール</button>
+            </div>
+            <textarea id="ai-instruction" rows="5" aria-label="AIへの指示"></textarea>
+            <div class="chip-list" id="ai-examples" aria-label="指示の例（押すと入力欄に追加）"></div>
+            <div class="prop"><label class="prop-label" for="ai-rule-scope">対象</label><select id="ai-rule-scope"><option value="all">すべての用語</option><option value="review">要確認の用語だけ</option><option value="selected">選択中の用語だけ</option></select></div>
+            <button class="primary" id="btn-ai-rule" disabled>AIに振り分けを任せる</button>
+            <p class="note" id="ai-rule-note"></p>
+          </div>
           <details>
             <summary>接続の準備</summary>
             <ul class="setup-list">
@@ -578,6 +633,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <span class="activity-label" id="activity-label" role="status" aria-live="polite"></span>
           <div class="progress"><div id="progress-bar"></div></div>
           <span class="overall-pct" id="progress-pct"></span>
+          <button class="activity-cancel" id="activity-cancel" hidden>中止</button>
         </div>
       </div>
       <p id="status" role="status"></p>
@@ -623,16 +679,27 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
               <button data-zoom="0" id="viewer-zoom-label" title="全体を表示">全体</button>
               <button data-zoom="1" aria-label="拡大">＋</button>
             </div>
-            <button id="viewer-prev" aria-label="前の該当ページ">◀</button>
-            <button id="viewer-next" aria-label="次の該当ページ">▶</button>
+            <button id="viewer-prev" aria-label="前の該当ページ" title="前の該当ページ">◀</button>
+            <button id="viewer-next" aria-label="次の該当ページ" title="次の該当ページ">▶</button>
           </div>
+        </div>
+        <div class="viewer-nav" id="viewer-nav" hidden>
+          <button id="viewer-page-prev" title="前のページ（PDFの順）">‹ 前のページ</button>
+          <form class="goto" id="viewer-goto-form" autocomplete="off">
+            <label for="viewer-goto">ページ</label>
+            <input type="text" id="viewer-goto" inputmode="numeric" placeholder="例：88">
+            <button type="submit">移動</button>
+          </form>
+          <button id="viewer-page-next" title="次のページ（PDFの順）">次のページ ›</button>
+          <button id="viewer-pick" aria-pressed="false" title="ページ上の文字をドラッグで囲むと、選択中の用語の確定ページに追加します">文字をドラッグして追加</button>
+          <span class="note" id="viewer-goto-note"></span>
         </div>
         <div class="page-chips" id="viewer-chips" hidden></div>
         <p class="viewer-ai" id="viewer-ai" hidden></p>
         <div class="viewer-rules" id="viewer-rules" hidden></div>
         <div class="viewer-verify" id="viewer-verify" hidden>
           <div class="verify-lines" id="viewer-verify-lines"></div>
-          <button id="viewer-list-apply">リストの内容をこの用語に反映</button>
+          <button id="viewer-list-apply">この用語をリストの内容に合わせる</button>
         </div>
         <div class="viewer-stage-wrap" id="viewer-wrap">
           <div class="empty-state" id="viewer-empty"></div>
@@ -651,6 +718,8 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
     </div>
   </main>
 </div>
+
+<div class="drop-overlay" id="drop-overlay" hidden><div class="drop-overlay-box"><strong>ここにドロップして読み込み</strong><span>PDFとExcel（.xlsx）は、いっしょにドロップしても読み込めます</span></div></div>
 
 <dialog id="area-editor" aria-labelledby="ed-title">
   <div class="ed-head">
@@ -822,6 +891,11 @@ const USER_SETTINGS = {
     maxTokens: 2048,
     pagesPerRequest: 20,
     contextsPerPage: 2,
+    contextsPerPageRule: 3,
+    casualSystemPrompt: "あなたは教科書の索引づくりを手伝う、経験のある編集者です。担当者のざっくりした指示（話し言葉・一言・箇条書きでもかまいません）の意図をくみ取り、索引づくりの常識で補いながら、索引語が出てくる各ページを「確定」「申し送り」「対象外」のどれかに振り分けます。指示が触れていないページは、現在の判定のまま返します。指示に当てはまるか判断がつかないページは「申し送り」にします。回答はJSONだけを出力し、説明文は書きません。",
+    casualPrompt: "【担当者からの指示（ざっくり）】\n{instruction}\n\n【索引語】「{term}」\n\n【判定のしかた】\n- 確定：索引に載せる\n- 申し送り：判断がつかない、または人の確認が必要\n- 対象外：索引に載せない\n- 指示が触れていないページは、［現在］の判定をそのまま返してください。\n- 書式（フォント・太字・文字サイズ・色）は、指示に書式の話があるときの判断材料にしてください。\n\n【ページごとの用例】（【】が索引語、［現在］はアプリの判定）\n{examples}\n\nすべてのページについて、次の形式のJSONだけを出力してください。decision は「確定」「申し送り」「対象外」のどれか、reason は30字以内の日本語で書きます。\n{\"pages\":[{\"page\":13,\"decision\":\"確定\",\"reason\":\"…\"}]}",
+    ruleSystemPrompt: "あなたは教科書の索引づくりを手伝う校正者です。先方（出版社）の指示に厳密に従い、索引語が出てくる各ページを「確定」「申し送り」「対象外」のどれかに振り分けます。指示から判断できないページは「申し送り」にします。回答はJSONだけを出力し、説明文は書きません。",
+    rulePrompt: "【先方からの指示】\n{instruction}\n\n【索引語】「{term}」\n\n【判定のしかた】\n- 確定：指示に照らして、そのページを索引に載せる\n- 申し送り：指示だけでは決められない、または人の確認が必要\n- 対象外：指示に照らして、そのページは索引に載せない\n- 書式（フォント・太字・文字サイズ・色）は、指示に書式の条件があるときの判断材料にしてください。\n\n【ページごとの用例】（【】が索引語、［現在］はアプリの判定）\n{examples}\n\n次の形式のJSONだけを出力してください。decision は「確定」「申し送り」「対象外」のどれか、reason は30字以内の日本語で、指示のどの部分に当たるかを書きます。\n{\"pages\":[{\"page\":13,\"decision\":\"確定\",\"reason\":\"…\"}]}",
     contextChars: 36,
     reasonMaxChars: 60,
     requestTimeoutMs: 180000,
@@ -834,9 +908,29 @@ const USER_SETTINGS = {
   fontSampleLength: 18,
   resizeDebounceMs: 150,
   menuWidth: 264,
+  proofSuffix: "_校正結果",
+  proofColumnWidths: [8, 22, 8, 16, 14, 18, 60],
+  boldWeight: 600,
+  contrastWeight: 500,
+  fontFamilySuffix: /(Pr6N|Pr6|Pr5N|Pr5|ProN|Pro|StdN|Std)$/i,
+  fontWeights: [
+    [/^(thin|hairline|ul)$/i, 100, "Thin"],
+    [/^(extralight|ultralight|el)$/i, 200, "ExtraLight"],
+    [/^(light|l)$/i, 300, "Light"],
+    [/^(regular|r|book|normal|roman)$/i, 400, "Regular"],
+    [/^(medium|m)$/i, 500, "Medium"],
+    [/^(demibold|debold|semibold|db|sb)$/i, 600, "DeBold"],
+    [/^(bold|b|bd)$/i, 700, "Bold"],
+    [/^(extrabold|eb|heavy|h)$/i, 800, "Heavy"],
+    [/^(ultra|black|u|e|ub)$/i, 900, "Ultra"],
+    [/^m[ab]\d+$/i, 800, "MB/MA"]
+  ],
+  cmapSuffix: /-(?:Identity|Uni[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*|(?:90ms|90pv|83pv|Add|Ext)-RKSJ|EUC|RKSJ|NWP)-[HV]$/i,
+  filterDebounceMs: 250,
   maxCanvasPixels: 16000000,
   hitColors: { adopt: "#e0262f", hold: "#1f6fe0", exclude: "#1f9d55" },
   zoomLevels: [1, 1.5, 2, 3, 4],
+  pickMinSize: 0.004,
   viewerChrome: { side: 24, vertical: 24 },
   batchSize: 20,
   stateApp: "sakuin-hiroi",
@@ -852,7 +946,7 @@ const USER_SETTINGS = {
   grade: { high: 95, mid: 80, garbledWeight: 20, nonJapaneseThreshold: 0.2, nonJapanesePenalty: 0.3 },
   radicalMap: { "⺟": "母", "⺠": "民", "⻁": "虎", "⻄": "西", "⻆": "角", "⻑": "長", "⻘": "青", "⻝": "食", "⻣": "骨", "⻤": "鬼", "⻨": "麦", "⻩": "黄", "⻫": "斉", "⻬": "斎", "⻭": "歯", "⻯": "竜", "⻲": "亀" },
   patterns: {
-    gothic: /goth|gothic|ゴシック|kaku|shingo|新ゴ|midashigo|ud.?go|jun|maru|sans|meiryo|kozgo|hirakaku|yugo|arial|helvetica|futo.?go|gbb|gb\d|-go|go-|gopro|gostd/i,
+    gothic: /goth|gothic|ゴシック|kaku|shingo|shinmgo|mgo(?=pr|pro|std|-)|新ゴ|丸ゴ|midashigo|ud.?go|jun|maru|sans|meiryo|kozgo|hirakaku|yugo|arial|helvetica|futo.?go|gbb|gb\d|-go|go-|gopro|gostd/i,
     mincho: /min|mincho|明朝|ryumin|ryu|kozmin|hiramin|yumin|serif|times|century|kyokasho|kyoukasho|教科書|kaisho|楷/i,
     bold: /bold|bd\b|heavy|black|ultra|extra|demi|semi|-b$|-db$|-e$|-h$|-eb$|-u$|w[6-9]|w1[0-2]|pro-?b|std-?b|pr6n?-?b|\bb\b|gb1|futo/i
   },
@@ -912,7 +1006,7 @@ const USER_SETTINGS = {
     colorDone: (n) => `${n}色を検出しました。押した色だけを検索します。`,
     colorError: "文字色を解析できませんでした。",
     fontChoiceCommon: "共通の設定",
-    fontPresetLabel: { all: "すべてのフォント", "gothic-bold": "ゴシック太字", bold: "太字", gothic: "ゴシック", mincho: "明朝" },
+    fontPresetLabel: { all: "すべてのフォント", nonbody: "本文以外", bodybold: "本文中の太字", "gothic-bold": "ゴシック太字", bold: "太字", gothic: "ゴシック", mincho: "明朝" },
     rowFontLabel: "この用語を検索するフォント",
     fontNote: (label) => `「${label}」のフォントだけで検索した。`,
     filterAi: "AI提案",
@@ -920,6 +1014,69 @@ const USER_SETTINGS = {
     actIdleNext: (step) => `待機中（次の手順：${step}）`,
     actIdleDone: "待機中（すべての手順が完了）",
     zoomFit: "全体",
+    ruleState: { adopt: "確定", hold: "申し送り", exclude: "対象外" },
+    ruleKindLabel: { casual: "ざっくり指示", client: "先方のルール" },
+    rulePlaceholder: {
+      casual: "例：見出しや図の説明文で出てくるのは外して。太字のところだけ拾って、あとは申し送りにしておいて。",
+      client: "例：本文中の太字の語だけを拾う。見出し・図表の説明文・側注での出現は対象外。複合語は、索引語そのものの意味で使われていれば拾う。"
+    },
+    ruleExamples: ["見出しや図の説明文で出てくるのは外して", "太字のところだけ拾って、あとは申し送り", "複合語でも意味が同じなら拾って", "人名や地名の一部になっているのは対象外", "迷うものは申し送りに"],
+    ruleNeedSelected: "「選択中の用語だけ」のときは、先に結果の表で用語を選んでください。",
+    descNormal: "通常の太さ",
+    descBodyFont: "本文フォント",
+    descLarger: "本文より大きい",
+    descSmaller: "本文より小さい",
+    descSame: "本文と同じ大きさ",
+    descColor: (c) => `色 ${c}`,
+    actRule2: "指示に従ってAIが振り分け中…",
+    ruleRunning: (d, total, term) => `指示に従って振り分け中… ${d} / ${total}「${term}」`,
+    ruleDoneMsg: (n, changed, failed) => `指示に従った振り分けが終わりました（${n}語、変更 ${changed}ページ${failed ? `、エラー ${failed}語` : ""}）。変更したページは備考に理由を記録しています。`,
+    ruleStopped: (n) => `振り分けを中止しました（${n}語まで処理）。`,
+    ruleNeedText: "AIへの指示を入力してください。",
+    ruleNeedLlm: "ローカルLLMに接続すると使えます。",
+    ruleNeedRun: "検索してから使えます。",
+    ruleHint: "指示に照らして、各ページを確定・申し送り・対象外に自動で振り分けます。目視確認で決めたページは変えません。判定が変わったページは、備考に理由が残ります。",
+    ruleChanged: (n) => `指示で${n}件`,
+    ruleNoChange: "指示どおり",
+    ruleAdopt: (p, reason, kind) => `p.${p}は${kind === "casual" ? "" : "先方指示に基づき"}AIが確定と判定（${reason}）。`,
+    ruleHold: (p, reason, kind) => `p.${p}は${kind === "casual" ? "" : "先方指示に基づき"}AIが要確認と判定（${reason}）。拾う場合、p.${p}追加。`,
+    excludeRule: (reason, kind) => `${kind === "casual" ? "" : "先方指示に基づき"}AIが対象外と判定${reason ? `：${reason}` : ""}`,
+    proofNeedList: "校正には、確定・申し送り・対象外の列にページが書かれた完成済みのリストが必要です。",
+    proofHint: "いまの設定（ノンブル・検索範囲・対象フォントなど）で検索し、リストと突き合わせます。リストの中身は変わりません。",
+    proofRestoreHint: "このリストには作業の設定が含まれています。同じ設定で校正するときは、先に「前回の作業状態を復元」を押してください。",
+    proofDone: (n, issues, c) => `校正が終わりました。用語 ${n}件中 ${issues}件に指摘があります（リストに無い ${c.appOnly}、リストのみ ${c.listOnly}、扱い違い ${c.other}）。結果表は指摘のある用語に絞り込んでいます。`,
+    proofSummary: (n, issues, c) => `用語 ${n}件中 ${issues}件に指摘（漏れの可能性 ${c.appOnly}ページ、誤りの可能性 ${c.listOnly}ページ、扱い違い ${c.other}ページ）`,
+    proofSettings: (fonts, range, area) => `対象フォント：${fonts}／検索するページ：${range}／検索範囲：${area ? "指定あり" : "ページ全体"}`,
+    proofFontsCustom: (sel, total) => `${total}種類中 ${sel}種類`,
+    proof: {
+      sheetName: "校正結果",
+      title: "さくいん拾い　校正結果",
+      at: "校正日時", pdf: "PDF", settings: "検索の設定", summary: "結果",
+      legend: "指摘の種類",
+      legendText: "漏れの可能性：PDFで見つかったが、リストに書かれていないページ／誤りの可能性：リストに書かれているが、アプリでは拾っていない、またはPDFで見つからないページ／扱い違い：申し送り・対象外の扱いが違うページ",
+      colRow: "行", colTerm: "用語", colPage: "ページ", colKind: "指摘", colList: "リストでの扱い", colApp: "アプリでの扱い", colDetail: "前後の文・理由",
+      kind: { appOnly: "漏れの可能性", listOnly: "誤りの可能性", other: "扱い違い" },
+      none: "指摘はありません。"
+    },
+    actCancelling: "中止しています…",
+    actFilter: "対象の設定を検索結果に反映中…",
+    runStopped: "検索を中止しました。",
+    restoreStopped: "復元を中止しました。",
+    pdfStopped: "PDFの読み込みを中止しました。",
+    pdfDropTitle: "教科書PDFをここにドロップ",
+    pdfDropHint: "またはクリックして選択",
+    excludeFont: (fonts) => `対象フォント外：${fonts}`,
+    menuFontMix: (list) => `フォントの内訳：${list}`,
+    menuFontSep: "このフォントを",
+    menuFontAdd: "検索対象のフォントに加える",
+    menuFontAddTerm: "検索対象に加える（この用語のフォント指定は「共通の設定」に戻す）",
+    fontAdded: (fonts) => `「${fonts}」を検索対象のフォントに加えました。`,
+    tagBody: "本文",
+    boldRelative: (w, base) => `同じ書体の ${base} より太い ${w} のため太字として扱います`,
+    boldAbsolute: (w) => `${w} は太いウエイトのため太字として扱います`,
+    boldFlag: "フォントの情報で太字と指定されています",
+    boldContrast: (w) => `本文が明朝のため、${w} 以上のゴシックとして太字に扱います`,
+    boldRelativeMost: (w, base) => `同じ書体でいちばん多く使われている ${base} より太い ${w} のため太字として扱います`,
     nombreNone: "ノンブルが1ページも読み取れていません。ノンブルの枠の位置を確認してください。",
     runCancelled: "検索中に設定が変わったため、検索を中止しました。もう一度「検索して転記」を押してください。",
     aiChanged: "AI校正中に設定が変わったため、AI校正を中止しました。",
@@ -946,11 +1103,15 @@ const USER_SETTINGS = {
     filterDiff: "照合で差分",
     verifyOk: "一致",
     verifyDiff: (n) => `差分${n}`,
-    verifyHead: (n) => `リストとの差分 ${n}件`,
     verifyLine: (p, list, app) => `p.${p}（リスト：${list}／アプリ：${app}）`,
+    verifyCat: { listOnly: "リストのみ", appOnly: "アプリのみ", other: "扱い違い" },
+    verifyGroup: { listOnly: "リストでは拾っているが、アプリでは拾っていない：", appOnly: "アプリでは拾っているが、リストには無い：", other: "申し送り・対象外の扱いが違う：" },
+    verifyNoteEmpty: "リストにページが1つも書かれていないため、照合はできません（作業前のリストです）。",
+    chipMissing: "リストに書かれているが、PDFでは見つからなかったページ",
+    menuListState: (s) => `リストでの扱い：${s}`,
     verifyState: { adopt: "確定", hold: "申し送り", exclude: "対象外", none: "記載なし", notfound: "PDFで見つからず" },
-    verifyNoteOff: "オンにすると、確定・申し送り・対象外の列に書かれているページと検索結果を比べます。",
-    verifyNoteOn: (n, total) => `リストにページの記載がある用語：${total}件中 ${n}件。検索すると差分を表示します。`,
+    verifyNoteOff: "オンにすると、リストの確定・申し送り・対象外の列に書かれたページと検索結果を比べて、違いを表示します。表示するだけで、検索結果は変わりません。",
+    verifyNoteOn: (n, total) => `リストにページの記載がある用語：${total}件中 ${n}件。違いは結果表の「照合」列と目視確認に表示します（検索結果は変わりません）。`,
     listApplied: (n) => `リストの内容を${n}件反映しました。`,
     listOnlyNote: (pages) => `p.${pages}はリスト記載のページ（PDF内で該当箇所を確認できず）。要確認。`,
     stateSheetTitle: "さくいん拾い　作業の設定",
@@ -974,7 +1135,8 @@ const USER_SETTINGS = {
       termFont: (label) => `フォント「${label}」`, termRules: (labels) => `書式で対象外「${labels}」`,
       terms: "用語の数", termCounts: (n, ok, review, ex, none) => `${n}件（確定 ${ok}、要確認 ${review}、対象外のみ ${ex}、見つからず ${none}）`,
       changes: "手動などでの変更", changeCounts: (m, a, l) => `目視確認 ${m}ページ、AI校正 ${a}ページ、リストの反映 ${l}ページ`,
-      aiModel: "AI校正のモデル", aiNone: "使用なし"
+      aiModel: "AI校正のモデル", aiNone: "使用なし",
+      instruction: "AIへの指示", ruleChanges: "指示によるAIの振り分け"
     },
     stateInfo: (at, pdf, pages, terms) => `前回の作業状態が含まれています（${at} 保存、${pdf}・${pages}ページ、用語 ${terms}件）。`,
     stateNeedPdf: "PDFを読み込むと復元できます。",
@@ -1064,9 +1226,37 @@ const USER_SETTINGS = {
     estimatedNote: (pages) => `p.${pages}はノンブルを読み取れず前後から推定した番号。要確認。`,
     notFound: "PDF内に見つからず。表記ゆれ（漢字／かな、旧字体、送り仮名など）を確認のこと。",
     notFoundFont: "選んだフォント・範囲では見つからず。表記ゆれ、またはフォントの選び方を確認のこと。",
-    viewerEmpty: "結果の用語をクリックすると、PDFの該当ページを表示して、拾った箇所を強調します。",
-    viewerNoHit: "この用語はPDF内に見つかりませんでした。",
+    viewerEmpty: "結果の用語をクリックすると、PDFの該当ページを表示して、拾った箇所を強調します。上の「ページ」にノンブルを入れると、好きなページを表示できます。",
+    viewerNoHit: "この用語はPDF内に見つかりませんでした。上の「ページ」でページを開き、「文字をドラッグして追加」で本文の文字を囲むと、確定ページに追加できます。",
     viewerPage: (no, pdf) => `p.${no}（PDF ${pdf}枚目）`,
+    viewerPageNoNombre: (pdf) => `PDF ${pdf}枚目（ノンブルなし）`,
+    viewerNoTerm: "（用語を選んでいません）",
+    viewerHintNoTerm: "結果の表で用語を選ぶと、このページで拾った箇所を強調します。",
+    viewerHintNoNombre: "このページはノンブルがないため、ページとして追加できません。",
+    viewerHintFree: (term) => `このページに「${term}」は拾われていません。「文字をドラッグして追加」で本文の文字を囲むと、確定ページに追加できます。`,
+    pickHint: (term) => `ページ上の文字をドラッグで囲むと、「${term}」の確定ページに追加します。終わったら「文字をドラッグして追加」をもう一度押してください。`,
+    pickNeedTerm: "先に結果の表で、ページを追加する用語を選んでください。",
+    pickNoNombre: (pdf) => `PDF ${pdf}枚目はノンブルがないため、ページとして追加できません。`,
+    pickEmpty: "囲んだ範囲に文字が見つかりませんでした。文字が入るように、もう少し大きく囲んでください。",
+    pickSame: (p) => `p.${p}のその文字は、すでに追加しています。`,
+    pickAdded: (term, p, text) => `「${term}」の確定ページにp.${p}を追加しました（選んだ文字：「${text}」）。`,
+    pickAddedOther: (term, p, text) => `「${term}」の確定ページにp.${p}を追加しました。選んだ文字「${text}」には「${term}」が含まれていないので、備考を確認してください。`,
+    pickRemoved: (p) => `p.${p}の手動追加を取り消しました。`,
+    pickBusy: "処理中のため追加できません。処理が終わってからもう一度囲んでください。",
+    manualAddedNote: (items) => `目視確認で追加：${items}。`,
+    manualAddedItem: (p, words) => `p.${p}（本文の「${words}」）`,
+    menuHeadManual: (text, p) => `p.${p}「${text}」（手動で追加）`,
+    menuManualRemove: "この追加を取り消す",
+    menuManualSep: "手動で追加した箇所",
+    gotoNotFound: (n) => `ノンブルがp.${n}のページは見つかりませんでした。PDFの枚数で開くときは「#12」のように入力します。`,
+    gotoOutOfRange: (n, total) => `PDFは${total}枚です（${n}枚目はありません）。`,
+    gotoInvalid: "ページ番号を数字で入力してください（例：88）。PDFの枚数で開くときは「#12」のように入力します。",
+    gotoSerial: "ノンブルが未設定のため、PDFの枚数で開きました。",
+    dropUnknown: (names) => `読み込めないファイルです（${names}）。PDFかExcel（.xlsx）をドロップしてください。`,
+    dropBusy: "処理中のため、ファイルを読み込めません。処理が終わってからもう一度ドロップしてください。",
+    dropManyPdf: "PDFが複数あったため、最初の1つだけを読み込みました。",
+    dropReplace: "保存していない作業があります。新しいファイルを読み込むと、いまの作業内容は消えます。読み込みますか？",
+    leaveConfirm: "保存していない作業があります。閉じてもよいですか？",
     viewerToAdopt: "このページを拾う（確定へ）",
     viewerToHold: "このページを外す（申し送りへ）",
     viewerHintAdopt: "強調した箇所をクリックしても外せます。",
@@ -1182,9 +1372,9 @@ class PdfReader {
     return out;
   }
   static fontGroupName(raw) {
-    return String(raw || "").replace(/^[A-Z]{6}\+/, "");
+    return String(raw || "").replace(/^[A-Z]{6}\+/, "").replace(USER_SETTINGS.cmapSuffix, "");
   }
-  async load(arrayBuffer, onProgress) {
+  async load(arrayBuffer, onProgress, isCancelled) {
     if (this.doc) await this.doc.destroy();
     this.doc = await pdfjsLib.getDocument({
       data: new Uint8Array(arrayBuffer),
@@ -1247,6 +1437,14 @@ class PdfReader {
       page.cleanup();
       onProgress?.(n, this.doc.numPages);
       if (n % USER_SETTINGS.progressYieldEvery === 0) await new Promise((r) => setTimeout(r, 0));
+      if (isCancelled?.()) {
+        await this.doc.destroy();
+        this.doc = null;
+        this.pages = [];
+        const err = new Error("cancelled");
+        err.cancelled = true;
+        throw err;
+      }
     }
     this.stats = stats;
     return this.pages.length;
@@ -1459,6 +1657,31 @@ class PdfReader {
     if (!best) return null;
     const q = (v) => Math.round(v / c.levelStep) * c.levelStep;
     return `#${best.map((v) => q(v).toString(16).padStart(2, "0")).join("")}`;
+  }
+  charsInRect(pageIndex, rect, skipRuby) {
+    const d = this.dims[pageIndex];
+    const refs = [];
+    if (!d) return refs;
+    (this.pages[pageIndex] || []).forEach((item, idx) => {
+      if (skipRuby && item.ruby) return;
+      const n = item.s.length;
+      for (let k = 0; k < n; k++) {
+        const ch = item.s[k];
+        if (ch === TextNormalizer.GAP || !ch.trim()) continue;
+        let cx, cy;
+        if (!item.vertical) {
+          cx = item.px + (k + 0.5) * (item.pw / n);
+          cy = item.py + item.size * 0.5;
+        } else {
+          cx = item.px;
+          cy = item.py - (k + 0.5) * ((item.ph || item.size * n) / n);
+        }
+        const x = (cx - d.x0) / d.width;
+        const y = (cy - d.y0) / d.height;
+        if (x >= rect.left && x <= rect.right && y >= rect.bottom && y <= rect.top) refs.push({ item, off: k, idx });
+      }
+    });
+    return refs;
   }
   numberInRect(pageIndex, rect) {
     if (!rect) return null;
@@ -1957,7 +2180,8 @@ class AreaEditor {
 
 // ===== FONT FILTER =====
 class FontFilter {
-  static PRESETS = ["all", "gothic-bold", "bold", "gothic", "mincho"];
+  static PRESETS = ["all", "nonbody", "bodybold", "gothic-bold", "bold", "gothic", "mincho"];
+  static TERM_PRESETS = ["all", "nonbody", "gothic-bold", "bold", "gothic", "mincho"];
   constructor(listEl, statusEl, presetsEl, onChange) {
     this.listEl = listEl;
     this.statusEl = statusEl;
@@ -1980,16 +2204,111 @@ class FontFilter {
     this.presetsEl.addEventListener("click", this.handlers.preset);
     this.listEl.addEventListener("change", this.handlers.change);
   }
-  static classify(font) {
+  static parseWeight(name) {
+    const comma = String(name).split(",");
+    if (comma.length > 1) {
+      const style = comma[comma.length - 1].replace(/italic|oblique/gi, "") || "Regular";
+      for (const [re, weight, label] of USER_SETTINGS.fontWeights) {
+        if (re.test(style)) return { weight, label, fromTail: false };
+      }
+    }
+    const parts = String(name).split("-");
+    const tail = parts.length > 1 ? parts[parts.length - 1] : "";
+    const wt = tail.match(/^W(\d{1,2})$/i);
+    if (wt) {
+      const n = Math.min(9, parseInt(wt[1], 10));
+      return { weight: n * 100, label: `W${n}`, fromTail: true };
+    }
+    for (const [re, weight, label] of USER_SETTINGS.fontWeights) {
+      if (re.test(tail)) return { weight, label, fromTail: true };
+    }
+    const w = String(name).match(/W(\d{1,2})(?!\d)/);
+    if (w) {
+      const n = Math.min(9, parseInt(w[1], 10));
+      return { weight: n * 100, label: `W${n}`, fromTail: false };
+    }
+    return null;
+  }
+  static familyOf(name) {
+    const base = String(name).split(",")[0];
+    const parts = base.split("-");
+    if (parts.length > 1 && FontFilter.parseWeight(base)?.fromTail) parts.pop();
+    return parts.join("-").replace(USER_SETTINGS.fontFamilySuffix, "");
+  }
+  static classify(font, familyBase, bodyIsMincho) {
     const p = USER_SETTINGS.patterns;
     const isMincho = p.mincho.test(font.name);
-    return { gothic: !isMincho && p.gothic.test(font.name), mincho: isMincho, bold: font.bold || p.bold.test(font.name) };
+    const w = FontFilter.parseWeight(font.name);
+    const family = FontFilter.familyOf(font.name);
+    const min = familyBase.get(family);
+    let boldReason = "";
+    if (w && w.weight >= USER_SETTINGS.boldWeight) boldReason = "absolute";
+    else if (w && min !== undefined && w.weight >= USER_SETTINGS.contrastWeight && w.weight > min.weight) boldReason = "relative";
+    else if (w && bodyIsMincho && !isMincho && p.gothic.test(font.name) && w.weight >= USER_SETTINGS.contrastWeight) boldReason = "contrast";
+    else if (!w && (font.bold || p.bold.test(font.name))) boldReason = "flag";
+    return {
+      gothic: !isMincho && p.gothic.test(font.name),
+      mincho: isMincho,
+      bold: !!boldReason,
+      boldReason,
+      boldBase: boldReason === "relative" ? min.label : "",
+      weightLabel: w?.label || "",
+      family
+    };
   }
   static rule(preset) {
-    return { all: () => true, "gothic-bold": (f) => f.gothic && f.bold, bold: (f) => f.bold, gothic: (f) => f.gothic, mincho: (f) => f.mincho }[preset];
+    return { all: () => true, nonbody: (f) => !f.body, bodybold: (f) => f.bold, "gothic-bold": (f) => f.gothic && f.bold, bold: (f) => f.bold, gothic: (f) => f.gothic, mincho: (f) => f.mincho }[preset];
   }
-  load(fontMap) {
-    this.fonts = [...fontMap.values()].sort((a, b) => b.chars - a.chars).map((f) => ({ ...f, ...FontFilter.classify(f) }));
+  static bodyFontName(list, pages) {
+    FontFilter.lastBodySize = "";
+    if (!pages?.length) return list[0]?.name || "";
+    const bySize = new Map();
+    const byFontSize = new Map();
+    for (const items of pages) {
+      for (const it of items) {
+        if (it.ruby) continue;
+        const n = TextNormalizer.strip(it.s).length;
+        const size = StyleFilter.sizeKey(it.size);
+        bySize.set(size, (bySize.get(size) || 0) + n);
+        const key = `${it.font}\u0000${size}`;
+        byFontSize.set(key, (byFontSize.get(key) || 0) + n);
+      }
+    }
+    const bodySize = [...bySize].sort((a, b) => b[1] - a[1])[0]?.[0];
+    FontFilter.lastBodySize = bodySize || "";
+    let best = list[0]?.name || "";
+    let bestChars = -1;
+    for (const f of list) {
+      const n = byFontSize.get(`${f.name}\u0000${bodySize}`) || 0;
+      if (n > bestChars) { best = f.name; bestChars = n; }
+    }
+    return best;
+  }
+  load(fontMap, pages) {
+    const list = [...fontMap.values()].sort((a, b) => b.chars - a.chars);
+    const bodyName = FontFilter.bodyFontName(list, pages);
+    const bodyIsMincho = USER_SETTINGS.patterns.mincho.test(bodyName);
+    this.bodySize = FontFilter.lastBodySize;
+    const usage = new Map();
+    for (const f of list) {
+      const w = FontFilter.parseWeight(f.name);
+      if (!w) continue;
+      const fam = FontFilter.familyOf(f.name);
+      if (!usage.has(fam)) usage.set(fam, new Map());
+      const byWeight = usage.get(fam);
+      const cur = byWeight.get(w.weight) || { w, chars: 0 };
+      cur.chars += f.chars;
+      byWeight.set(w.weight, cur);
+    }
+    const familyBase = new Map();
+    for (const [fam, byWeight] of usage) {
+      const best = [...byWeight.values()].sort((a, b) => b.chars - a.chars || a.w.weight - b.w.weight)[0];
+      familyBase.set(fam, best.w);
+    }
+    const bodyFamily = FontFilter.familyOf(bodyName);
+    const bodyWeight = FontFilter.parseWeight(bodyName)?.weight ?? null;
+    const isBody = (f) => f.name === bodyName || (FontFilter.familyOf(f.name) === bodyFamily && (FontFilter.parseWeight(f.name)?.weight ?? null) === bodyWeight);
+    this.fonts = list.map((f) => ({ ...f, ...FontFilter.classify(f, familyBase, bodyIsMincho), body: isBody(f) }));
     this.selected = new Set(this.fonts.map((f) => f.name));
     this.render();
   }
@@ -1999,11 +2318,18 @@ class FontFilter {
   }
   applyPreset(preset) {
     this.selected = this.presetSet(preset);
+    if (this.sizeHook) this.sizeHook.set(preset === "bodybold" ? this.bodySize : null);
     this.render();
   }
   matchingPreset() {
     const same = (a, b) => a.size === b.size && [...a].every((x) => b.has(x));
-    return FontFilter.PRESETS.find((p) => same(this.presetSet(p), this.selected)) || null;
+    const bodyOnly = !!(this.sizeHook && this.bodySize && this.sizeHook.isOnly(this.bodySize));
+    const sizeAll = !this.sizeHook || this.sizeHook.isAll();
+    return FontFilter.PRESETS.find((p) => {
+      if (!same(this.presetSet(p), this.selected)) return false;
+      if (p === "bodybold") return bodyOnly;
+      return sizeAll;
+    }) || null;
   }
   render() {
     const t = USER_SETTINGS.text;
@@ -2024,11 +2350,13 @@ class FontFilter {
       const name = document.createElement("div");
       name.className = "name";
       name.textContent = f.name;
-      for (const [on, label, cls] of [[f.gothic, t.tagGothic, ""], [f.mincho, t.tagMincho, ""], [f.bold, t.tagBold, "bold"]]) {
+      const boldTitle = f.boldReason === "relative" ? t.boldRelativeMost(f.weightLabel, f.boldBase) : f.boldReason === "absolute" ? t.boldAbsolute(f.weightLabel) : f.boldReason === "contrast" ? t.boldContrast(f.weightLabel) : f.boldReason === "flag" ? t.boldFlag : "";
+      for (const [on, label, cls, title] of [[f.body, t.tagBody, "body", ""], [f.gothic, t.tagGothic, "", ""], [f.mincho, t.tagMincho, "", ""], [!!f.weightLabel, f.weightLabel, "weight", ""], [f.bold, t.tagBold, "bold", boldTitle]]) {
         if (!on) continue;
         const tag = document.createElement("span");
         tag.className = `tag ${cls}`;
         tag.textContent = label;
+        if (title) tag.title = title;
         name.append(tag);
       }
       mid.append(sample, name);
@@ -2158,6 +2486,11 @@ class StyleFilter {
       ...this.colors.map((c) => this.chip(c.key, c.key === StyleFilter.UNKNOWN ? t.colorUnknown : c.key, c.chars, !allColor && this.colorSel.has(c.key), c.key === StyleFilter.UNKNOWN ? "" : c.key))
     ] : []));
   }
+  selectSizes(keys) {
+    const valid = (keys || []).filter((k) => this.sizes.some((s) => s.key === k));
+    this.sizeSel = new Set(valid.length ? valid : this.sizes.map((s) => s.key));
+    this.render();
+  }
   isNarrowed() {
     return this.sizeSel.size !== this.sizes.length || (this.colors.length > 0 && this.colorSel.size !== this.colors.length);
   }
@@ -2210,6 +2543,24 @@ class TermMatcher {
     while (joinsRight && right < text.length && right - end < limit && TextNormalizer.charClass(text[right]) === lastClass) right++;
     return TextNormalizer.strip(text.slice(left, right));
   }
+  static makeOcc(reader, { pageIndex, pageNo, refs, kind, word, scope, matched }) {
+    let boxes = null;
+    let context = null;
+    const parts = new Map();
+    for (const ref of refs) parts.set(ref.item, (parts.get(ref.item) || 0) + 1);
+    const main = [...parts].sort((a, b) => b[1] - a[1])[0]?.[0] || refs[0]?.item;
+    return {
+      pageIndex,
+      pageNo,
+      kind,
+      word,
+      scope,
+      parts,
+      get style() { return { font: main?.font || "", size: main ? StyleFilter.sizeKey(main.size) : "", color: main?.color || null }; },
+      get boxes() { return boxes || (boxes = reader.boxesFor(pageIndex, refs)); },
+      get context() { return context ?? (context = reader.contextAround(pageIndex, refs[0], refs[refs.length - 1], matched)); }
+    };
+  }
   collect(entry, pageTexts, allKeys, nombre, scopeOf) {
     const key = entry.searchKey;
     if (!key) return [];
@@ -2226,21 +2577,7 @@ class TermMatcher {
         const scope = scopeOf ? scopeOf(pageIndex, refs) : "in";
         const word = this.compoundWordAt(raw, rawStart, rawEnd);
         if (scope && (word === null || !longerKeys.some((k) => word.includes(k)))) {
-          const item = refs[0]?.item;
-          const reader = this.reader;
-          const matched = compact.slice(pos, pos + key.length);
-          let boxes = null;
-          let context = null;
-          occurrences.push({
-            pageIndex,
-            pageNo,
-            kind: word === null ? "plain" : "compound",
-            word,
-            scope,
-            style: { font: item?.font || "", size: item ? StyleFilter.sizeKey(item.size) : "", color: item?.color || null },
-            get boxes() { return boxes || (boxes = reader.boxesFor(pageIndex, refs)); },
-            get context() { return context ?? (context = reader.contextAround(pageIndex, refs[0], refs[refs.length - 1], matched)); }
-          });
+          occurrences.push(TermMatcher.makeOcc(this.reader, { pageIndex, pageNo, refs, kind: word === null ? "plain" : "compound", word, scope, matched: compact.slice(pos, pos + key.length) }));
         }
         pos = compact.indexOf(key, pos + 1);
       }
@@ -2250,31 +2587,62 @@ class TermMatcher {
 }
 
 class TermResult {
-  constructor(entry, occurrences, nombre, fontChoice, rulesFn) {
+  constructor(entry, occurrences, nombre, fontChoice, ctx) {
     this.entry = entry;
     this.occurrences = occurrences;
     this.nombre = nombre;
     this.fontChoice = fontChoice || "";
     this.fontLabel = "";
-    this.rulesFn = rulesFn || (() => []);
+    this.ctx = ctx || { rules: () => [], filterReason: () => null, version: () => "" };
+    this.rulesFn = this.ctx.rules;
     this.overrides = new Map();
     this.listOnly = new Map();
     this.ai = null;
+    this.indexPages();
+    this.inactiveKey = null;
+    this.inactive = new Map();
+  }
+  indexPages() {
     this.byPage = new Map();
-    for (const o of occurrences) {
+    for (const o of this.occurrences) {
       if (!this.byPage.has(o.pageNo)) this.byPage.set(o.pageNo, []);
       this.byPage.get(o.pageNo).push(o);
     }
     this.pageList = [...this.byPage.keys()].sort((a, b) => a - b);
+  }
+  manualOccs() {
+    return this.occurrences.filter((o) => o.manual);
+  }
+  addManual(occ) {
+    this.occurrences.push(occ);
+    this.indexPages();
     this.inactiveKey = null;
-    this.inactive = new Set();
+  }
+  removeManual(occ) {
+    const i = this.occurrences.indexOf(occ);
+    if (i < 0) return;
+    this.occurrences.splice(i, 1);
+    this.indexPages();
+    this.inactiveKey = null;
+    if (!this.byPage.has(occ.pageNo)) this.overrides.delete(occ.pageNo);
+  }
+  hasAuto(pageNo) {
+    return this.onPage(pageNo).some((o) => !o.manual);
   }
   inactiveSet() {
     const rules = this.rulesFn();
-    const key = rules.map((r) => StyleRule.label(r)).join("|");
+    const key = `${this.ctx.version()}|${this.fontChoice}|${rules.map((r) => StyleRule.label(r)).join("|")}`;
     if (key !== this.inactiveKey) {
       this.inactiveKey = key;
-      this.inactive = new Set(this.occurrences.filter((o) => o.scope !== "in" || rules.some((r) => StyleRule.matches(r, o))));
+      this.inactive = new Map();
+      for (const o of this.occurrences) {
+        if (o.manual) continue;
+        if (o.scope !== "in") { this.inactive.set(o, { key: o.scope }); continue; }
+        const filtered = this.ctx.filterReason(o, this.fontChoice);
+        if (filtered) { this.inactive.set(o, filtered); continue; }
+        const rule = rules.find((r) => StyleRule.matches(r, o));
+        if (rule) this.inactive.set(o, { key: "style", rule });
+      }
     }
     return this.inactive;
   }
@@ -2301,11 +2669,13 @@ class TermResult {
       if (lv === "none" && av === "notfound") continue;
       if (lv === "none" && av === "hold" && !opts.listCols.hold) continue;
       if (lv === "none" && av === "exclude") continue;
-      diffs.push({ page: p, list: lv, app: av });
+      const cat = lv === "adopt" ? "listOnly" : av === "adopt" ? "appOnly" : "other";
+      diffs.push({ page: p, list: lv, app: av, cat });
     }
     return diffs;
   }
   applyList(opts) {
+    if (!this.entry.list?.hasAny) return 0;
     const diffs = this.verify(opts);
     for (const d of diffs) {
       if (d.list === "none") {
@@ -2326,9 +2696,7 @@ class TermResult {
     return !this.inactiveSet().has(occ);
   }
   exclusionReason(occ) {
-    if (occ.scope !== "in") return { key: occ.scope };
-    const rule = this.ruleFor(occ);
-    return rule ? { key: "style", rule } : null;
+    return this.inactiveSet().get(occ) || null;
   }
   pageNumbers() {
     return this.pageList;
@@ -2345,15 +2713,15 @@ class TermResult {
   stateOf(pageNo, opts) {
     return this.overrides.get(pageNo)?.state || this.defaultState(pageNo, opts);
   }
-  setState(pageNo, state, opts, source, reason) {
+  setState(pageNo, state, opts, source, reason, kind) {
     if (state === this.defaultState(pageNo, opts)) this.overrides.delete(pageNo);
-    else this.overrides.set(pageNo, { state, source, reason: reason || "" });
+    else this.overrides.set(pageNo, kind ? { state, source, reason: reason || "", kind } : { state, source, reason: reason || "" });
   }
   firstPdfIndexOf(pageNo) {
     return this.occurrences.find((o) => o.pageNo === pageNo)?.pageIndex ?? null;
   }
   aiPages(opts) {
-    return this.pageNumbers().filter((p) => this.stateOf(p, opts) !== "exclude");
+    return this.pageNumbers().filter((p) => this.stateOf(p, opts) !== "exclude" && this.hasAuto(p));
   }
   aiVerdict(pageNo) {
     return this.ai?.pages?.get(pageNo) || null;
@@ -2375,6 +2743,8 @@ class TermResult {
   }
   aiSummary(opts) {
     const t = USER_SETTINGS.text;
+    const ruled = [...this.overrides.values()].filter((o) => o.source === "rule").length;
+    if (!this.ai && this.ruleDone) return { label: ruled ? t.ruleChanged(ruled) : t.ruleNoChange, cls: "ok" };
     if (!this.ai) return { label: "", cls: "" };
     if (this.ai.error) return { label: t.aiError, cls: "err" };
     const n = this.aiSuggestions(opts).length;
@@ -2382,6 +2752,18 @@ class TermResult {
     if (n) return { label: t.aiSuggest(n), cls: "warn" };
     if (unsure) return { label: t.aiUnsure(unsure), cls: "warn" };
     return { label: t.aiAgree, cls: "ok" };
+  }
+  static verifyLabel(diffs) {
+    const t = USER_SETTINGS.text;
+    if (!diffs.length) return t.verifyOk;
+    const n = (cat) => diffs.filter((d) => d.cat === cat).length;
+    return [[n("listOnly"), t.verifyCat.listOnly], [n("appOnly"), t.verifyCat.appOnly], [n("other"), t.verifyCat.other]].filter(([k]) => k).map(([k, label]) => `${label}${k}`).join("・");
+  }
+  static reasonLabel(reason) {
+    const t = USER_SETTINGS.text;
+    if (reason.key === "style") return t.excludeStyle(StyleRule.label(reason.rule));
+    if (reason.key === "font" && reason.detail) return t.excludeFont(reason.detail);
+    return t.excludeReason[reason.key];
   }
   static formatPages(nums, opts) {
     const sorted = [...new Set(nums)].sort((a, b) => a - b);
@@ -2404,9 +2786,10 @@ class TermResult {
       if (o && o.source === "manual") label = t.excludeReason.manual;
       else if (o && o.source === "list") label = t.excludeReason.list;
       else if (o && o.source === "ai") label = t.excludeReason.ai;
+      else if (o && o.source === "rule") label = t.excludeRule(o.reason, o.kind);
       else {
         const occ = this.onPage(p).map((x) => this.exclusionReason(x)).find(Boolean);
-        label = !occ ? t.excludeReason.manual : occ.key === "style" ? t.excludeStyle(StyleRule.label(occ.rule)) : t.excludeReason[occ.key];
+        label = !occ ? t.excludeReason.manual : TermResult.reasonLabel(occ);
       }
       if (!groups.has(label)) groups.set(label, []);
       groups.get(label).push(p);
@@ -2436,12 +2819,22 @@ class TermResult {
       notes.push(opts.compoundMode === "include" ? t.compoundIncluded(word, fmt([...set])) : t.compoundNote(word, this.entry.term, fmt([...set])));
     }
     const bySource = (source, state) => [...this.overrides].filter(([, o]) => o.source === source && o.state === state).map(([p]) => p);
+    const added = new Map();
+    for (const o of this.manualOccs()) {
+      if (this.stateOf(o.pageNo, opts) !== "adopt") continue;
+      if (!added.has(o.pageNo)) added.set(o.pageNo, []);
+      added.get(o.pageNo).push(o.text);
+    }
     const manualHold = bySource("manual", "hold");
-    const manualIn = bySource("manual", "adopt");
+    const manualIn = bySource("manual", "adopt").filter((p) => !added.has(p));
     if (manualHold.length) notes.push(t.manualExcluded(fmt(manualHold)));
     if (manualIn.length) notes.push(t.manualAdopted(fmt(manualIn)));
+    if (added.size) notes.push(t.manualAddedNote([...added].sort((a, b) => a[0] - b[0]).map(([p, ws]) => t.manualAddedItem(p, [...new Set(ws)].join("」「"))).join("、")));
     for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "ai").sort((a, b) => a[0] - b[0])) {
       notes.push(o.state === "hold" ? t.aiExcluded(p, o.reason) : t.aiAdopted(p, o.reason));
+    }
+    for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "rule" && o.state !== "exclude").sort((a, b) => a[0] - b[0])) {
+      notes.push(o.state === "hold" ? t.ruleHold(p, o.reason, o.kind) : t.ruleAdopt(p, o.reason, o.kind));
     }
     const excludedFound = excluded.filter((p) => !this.listOnly.has(p));
     if (excludedFound.length) notes.push(...this.exclusionNotes(excludedFound, fmt));
@@ -2457,7 +2850,7 @@ class TermResult {
       row: this.entry.row, term: this.entry.term,
       pages: fmt(adopt), held: fmt(held), excluded: fmt(excluded),
       status, note: notes.join("\n"), fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
-      verifyLabel: opts.verify ? (diffs.length ? t.verifyDiff(diffs.length) : t.verifyOk) : "", verifyCls: diffs.length ? "warn" : "ok"
+      verifyLabel: opts.verify ? TermResult.verifyLabel(diffs) : "", verifyCls: diffs.length ? "warn" : "ok"
     };
   }
 }
@@ -2467,7 +2860,7 @@ class ExcelIO {
   static STATE_SHEET = "さくいん拾い_設定";
   static LEGACY_STATE_SHEET = "_sakuin_state";
   static isStateSheet(name) {
-    return name === ExcelIO.STATE_SHEET || name === ExcelIO.LEGACY_STATE_SHEET;
+    return name === ExcelIO.STATE_SHEET || name === ExcelIO.LEGACY_STATE_SHEET || name === USER_SETTINGS.text.proof.sheetName;
   }
   constructor() {
     this.buffer = null;
@@ -2636,6 +3029,53 @@ class ExcelIO {
       cell.font = { ...(cell.font || {}), bold: true };
     }
     return offset;
+  }
+  async exportProof(report, { pdfName }) {
+    const t = USER_SETTINGS.text;
+    const P = t.proof;
+    const wb = await this.openWorkbook();
+    const old = wb.getWorksheet(P.sheetName);
+    if (old) wb.removeWorksheet(old.id);
+    const ws = wb.addWorksheet(P.sheetName);
+    ws.columns = USER_SETTINGS.proofColumnWidths.map((width) => ({ width }));
+    const top = { vertical: "top", wrapText: true };
+    let r = 1;
+    ws.getCell(r, 1).value = P.title;
+    ws.getCell(r, 1).font = { bold: true, size: 13 };
+    r += 2;
+    const meta = [
+      [P.at, report.at.toLocaleString("ja-JP")],
+      [P.pdf, pdfName],
+      [P.settings, report.settings],
+      [P.summary, t.proofSummary(report.terms, report.issueTerms, report.counts)],
+      [P.legend, P.legendText]
+    ];
+    for (const [k, v] of meta) {
+      ws.getCell(r, 1).value = k;
+      ws.getCell(r, 1).font = { bold: true };
+      ws.getCell(r, 2).value = v;
+      ws.mergeCells(r, 2, r, 7);
+      ws.getCell(r, 2).alignment = top;
+      r++;
+    }
+    r++;
+    const head = [P.colRow, P.colTerm, P.colPage, P.colKind, P.colList, P.colApp, P.colDetail];
+    head.forEach((h, i) => {
+      const c = ws.getCell(r, i + 1);
+      c.value = h;
+      c.font = { bold: true };
+      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: USER_SETTINGS.stateSheetHeadFill } };
+    });
+    r++;
+    for (const row of report.rows) {
+      const vals = [row.row, row.term, row.page, P.kind[row.cat], t.verifyState[row.list], t.verifyState[row.app], row.detail];
+      vals.forEach((v, i) => { const c = ws.getCell(r, i + 1); c.value = v; c.alignment = top; });
+      r++;
+    }
+    if (!report.rows.length) ws.getCell(r, 1).value = P.none;
+    const out = await wb.xlsx.writeBuffer();
+    const base = this.name.replace(/\.xlsx$/i, "");
+    return { blob: new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), name: `${base}${USER_SETTINGS.proofSuffix}.xlsx` };
   }
   async export(rows, { header, buildState } = {}) {
     const wb = await this.openWorkbook();
@@ -2936,7 +3376,10 @@ class PageViewer {
     this.spreadEl = this.$("viewer-spread");
     this.result = null;
     this.pageNo = null;
+    this.pageIndex = null;
     this.menu = null;
+    this.drag = null;
+    this.pickMode = false;
     this.resizeTimer = 0;
     this.renderToken = 0;
     this.layoutMode = Prefs.get("viewerLayout", "single");
@@ -2944,18 +3387,31 @@ class PageViewer {
     this.handlers = {
       prev: () => this.step(-1),
       next: () => this.step(1),
+      pagePrev: () => this.stepPdf(-1),
+      pageNext: () => this.stepPdf(1),
+      goto: (e) => { e.preventDefault(); this.gotoInput(); },
+      pick: () => this.setPickMode(!this.pickMode),
+      down: (e) => this.onPickDown(e),
+      move: (e) => this.onPickMove(e),
+      up: (e) => this.onPickUp(e),
       chip: (e) => {
         const btn = e.target.closest("button[data-page]");
         if (btn) this.showPage(parseInt(btn.dataset.page, 10));
       },
       stage: (e) => {
+        if (this.pickMode) return;
         const action = e.target.closest("[data-action]");
         if (action) { this.onMenuAction(action); return; }
         const hit = e.target.closest("button.hit");
         if (hit) { this.openMenu(parseInt(hit.dataset.occ, 10), hit); return; }
         if (!e.target.closest(".hit-menu")) this.closeMenu();
       },
-      stageKey: (e) => { if (e.key === "Escape") this.closeMenu(); },
+      stageKey: (e) => {
+        if (e.key !== "Escape") return;
+        this.closeMenu();
+        if (this.drag) this.cancelDrag();
+        else if (this.pickMode) this.setPickMode(false);
+      },
       state: (e) => {
         const btn = e.target.closest("button[data-state]");
         if (btn) this.app.setPageState(this.pageNo, btn.dataset.state);
@@ -2970,7 +3426,7 @@ class PageViewer {
         this.layoutMode = btn.dataset.layout;
         Prefs.set("viewerLayout", this.layoutMode);
         this.renderToolbar();
-        if (this.result && this.pageNo !== null) this.showPage(this.pageNo);
+        this.redraw(false);
       },
       zoom: (e) => {
         const btn = e.target.closest("button[data-zoom]");
@@ -2979,7 +3435,7 @@ class PageViewer {
         const max = USER_SETTINGS.zoomLevels.length - 1;
         this.zoomIndex = step === 0 ? 0 : Math.max(0, Math.min(max, this.zoomIndex + step));
         this.renderToolbar();
-        if (this.result && this.pageNo !== null) this.showPage(this.pageNo);
+        this.redraw(false);
       },
       applyAi: () => this.app.applyAi(this.app.selectedIndex),
       applyList: () => this.app.applyList(this.app.selectedIndex),
@@ -2989,9 +3445,17 @@ class PageViewer {
     this.bindings = [
       [this.$("viewer-prev"), "click", this.handlers.prev],
       [this.$("viewer-next"), "click", this.handlers.next],
+      [this.$("viewer-page-prev"), "click", this.handlers.pagePrev],
+      [this.$("viewer-page-next"), "click", this.handlers.pageNext],
+      [this.$("viewer-goto-form"), "submit", this.handlers.goto],
+      [this.$("viewer-pick"), "click", this.handlers.pick],
       [this.$("viewer-chips"), "click", this.handlers.chip],
       [this.spreadEl, "click", this.handlers.stage],
       [this.spreadEl, "keydown", this.handlers.stageKey],
+      [this.spreadEl, "pointerdown", this.handlers.down],
+      [this.spreadEl, "pointermove", this.handlers.move],
+      [this.spreadEl, "pointerup", this.handlers.up],
+      [this.spreadEl, "pointercancel", this.handlers.up],
       [this.$("viewer-state"), "click", this.handlers.state],
       [this.$("viewer-rules"), "click", this.handlers.rules],
       [this.$("viewer-layout"), "click", this.handlers.layout],
@@ -3008,6 +3472,9 @@ class PageViewer {
   zoom() {
     return USER_SETTINGS.zoomLevels[this.zoomIndex];
   }
+  total() {
+    return this.app.pdfReady ? this.app.pdf.pages.length : 0;
+  }
   renderToolbar() {
     const t = USER_SETTINGS.text;
     for (const b of this.$("viewer-layout").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.layout === this.layoutMode));
@@ -3015,19 +3482,39 @@ class PageViewer {
     this.$("viewer-zoom").querySelector('[data-zoom="-1"]').disabled = this.zoomIndex === 0;
     this.$("viewer-zoom").querySelector('[data-zoom="1"]').disabled = this.zoomIndex >= USER_SETTINGS.zoomLevels.length - 1;
   }
+  redraw(keepScroll) {
+    if (this.pageIndex !== null && this.total()) this.showIndex(this.pageIndex, { keepScroll });
+  }
   scheduleRender() {
     clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(() => this.result && this.pageNo !== null && this.showPage(this.pageNo, { keepScroll: true }), USER_SETTINGS.resizeDebounceMs);
+    this.resizeTimer = setTimeout(() => this.redraw(true), USER_SETTINGS.resizeDebounceMs);
   }
-  clear() {
+  clear({ resetPage } = {}) {
+    const t = USER_SETTINGS.text;
+    const keep = !resetPage && this.pageIndex !== null && this.total() ? this.pageIndex : null;
     this.result = null;
     this.pageNo = null;
+    this.pageIndex = null;
     this.closeMenu();
-    this.$("viewer-empty").textContent = USER_SETTINGS.text.viewerEmpty;
+    this.cancelDrag();
+    this.pickMode = false;
+    this.spreadEl.classList.remove("picking");
+    this.$("viewer-empty").textContent = t.viewerEmpty;
     this.$("viewer-empty").hidden = false;
     this.spreadEl.hidden = true;
     this.spreadEl.replaceChildren();
-    for (const id of ["viewer-bar", "viewer-chips", "viewer-foot", "viewer-ai", "viewer-rules", "viewer-verify"]) this.$(id).hidden = true;
+    for (const id of ["viewer-chips", "viewer-foot", "viewer-ai", "viewer-rules", "viewer-verify"]) this.$(id).hidden = true;
+    this.$("viewer-goto-note").textContent = "";
+    this.renderHead();
+    this.renderNav();
+    if (keep !== null) this.showIndex(keep, { keepScroll: true });
+  }
+  renderHead() {
+    const t = USER_SETTINGS.text;
+    this.$("viewer-bar").hidden = !this.result && !this.total();
+    this.$("viewer-term").textContent = this.result ? this.result.entry.term : t.viewerNoTerm;
+    this.$("viewer-term").classList.toggle("none", !this.result);
+    this.$("viewer-font").hidden = !this.result;
   }
   renderFontSelect() {
     const sel = this.$("viewer-font");
@@ -3035,31 +3522,151 @@ class PageViewer {
   }
   open(result, keepPage) {
     this.result = result;
-    this.$("viewer-term").textContent = result.entry.term;
-    this.$("viewer-bar").hidden = false;
+    this.renderHead();
     this.renderFontSelect();
     this.renderRules();
     this.renderVerify();
     const pages = result.pageNumbers();
-    if (!pages.length) {
-      this.pageNo = null;
-      this.closeMenu();
-      this.$("viewer-empty").textContent = USER_SETTINGS.text.viewerNoHit;
-      this.$("viewer-empty").hidden = false;
-      this.spreadEl.hidden = true;
-      for (const id of ["viewer-chips", "viewer-foot", "viewer-ai"]) this.$(id).hidden = true;
-      this.$("viewer-pageinfo").textContent = "";
-      this.$("viewer-prev").disabled = true;
-      this.$("viewer-next").disabled = true;
-      return;
-    }
-    this.showPage(keepPage && pages.includes(this.pageNo) ? this.pageNo : pages[0]);
+    if (keepPage && this.pageIndex !== null) { this.showIndex(this.pageIndex, { keepScroll: true }); return; }
+    if (pages.length) { this.showPage(pages[0]); return; }
+    if (this.pageIndex !== null) { this.showIndex(this.pageIndex, { keepScroll: true }); return; }
+    this.closeMenu();
+    this.$("viewer-empty").textContent = USER_SETTINGS.text.viewerNoHit;
+    this.$("viewer-empty").hidden = false;
+    this.spreadEl.hidden = true;
+    for (const id of ["viewer-chips", "viewer-foot", "viewer-ai"]) this.$(id).hidden = true;
+    this.renderNav();
+  }
+  hitIndices() {
+    if (!this.result) return [];
+    return [...new Set(this.result.pageNumbers().map((p) => this.result.firstPdfIndexOf(p)).filter((i) => i !== null))].sort((a, b) => a - b);
+  }
+  visibleIndices() {
+    if (this.pageIndex === null) return [];
+    return this.spreadIndices(this.pageIndex).filter((i) => i !== null);
+  }
+  hitTarget(dir) {
+    const vis = this.visibleIndices();
+    if (!vis.length) return this.hitIndices()[0] ?? null;
+    const lo = Math.min(...vis);
+    const hi = Math.max(...vis);
+    const list = this.hitIndices();
+    return dir < 0 ? list.filter((i) => i < lo).pop() ?? null : list.find((i) => i > hi) ?? null;
   }
   step(dir) {
-    const pages = this.result.pageNumbers();
-    const i = pages.indexOf(this.pageNo);
-    const next = pages[Math.max(0, Math.min(pages.length - 1, i + dir))];
-    if (next !== undefined) this.showPage(next);
+    const target = this.hitTarget(dir);
+    if (target !== null) this.showIndex(target);
+  }
+  pdfTarget(dir) {
+    const total = this.total();
+    if (!total || this.pageIndex === null) return null;
+    if (this.layoutMode !== "spread") {
+      const i = this.pageIndex + dir;
+      return i >= 0 && i < total ? i : null;
+    }
+    const left = this.app.layout.sideOf(this.pageIndex) === "left" ? this.pageIndex : this.pageIndex - 1;
+    const next = left + dir * 2;
+    if (next + 1 < 0 || next > total - 1) return null;
+    return Math.max(0, next);
+  }
+  stepPdf(dir) {
+    const target = this.pdfTarget(dir);
+    if (target !== null) this.showIndex(target);
+  }
+  gotoInput() {
+    const t = USER_SETTINGS.text;
+    const note = this.$("viewer-goto-note");
+    const total = this.total();
+    if (!total) return;
+    const raw = String(this.$("viewer-goto").value).normalize("NFKC").trim();
+    const m = raw.match(/^(#|pdf\s*)?\s*p?\.?\s*(\d+)\s*(枚目)?$/i);
+    if (!m) { note.textContent = t.gotoInvalid; return; }
+    const n = parseInt(m[2], 10);
+    let index;
+    let msg = "";
+    if (m[1] || m[3]) {
+      if (n < 1 || n > total) { note.textContent = t.gotoOutOfRange(n, total); return; }
+      index = n - 1;
+    } else if (this.app.nombreResult) {
+      index = this.app.indexOfPageNo(n);
+      if (index === null) { note.textContent = t.gotoNotFound(n); return; }
+    } else {
+      if (n < 1 || n > total) { note.textContent = t.gotoOutOfRange(n, total); return; }
+      index = n - 1;
+      msg = t.gotoSerial;
+    }
+    note.textContent = msg;
+    this.showIndex(index);
+  }
+  setPickMode(on) {
+    this.pickMode = !!on && !!this.result;
+    if (!this.pickMode) this.cancelDrag();
+    this.closeMenu();
+    this.spreadEl.classList.toggle("picking", this.pickMode);
+    this.renderNav();
+    if (this.pageIndex !== null) this.renderStateSeg();
+  }
+  stageFromEvent(e) {
+    return e.target.closest?.(".page-stage[data-page-index]") || null;
+  }
+  pointIn(stage, e) {
+    const r = stage.getBoundingClientRect();
+    return { x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) };
+  }
+  onPickDown(e) {
+    if (!this.pickMode || e.button !== 0) return;
+    const stage = this.stageFromEvent(e);
+    if (!stage) return;
+    e.preventDefault();
+    this.cancelDrag();
+    const p = this.pointIn(stage, e);
+    const el = stage.ownerDocument.createElement("div");
+    el.className = "pick-rect";
+    stage.append(el);
+    this.drag = { stage, el, x0: p.x, y0: p.y, x1: p.x, y1: p.y, pointerId: e.pointerId };
+    try { stage.setPointerCapture(e.pointerId); } catch (_) { }
+    this.drawDrag();
+  }
+  onPickMove(e) {
+    if (!this.drag || e.pointerId !== this.drag.pointerId) return;
+    const p = this.pointIn(this.drag.stage, e);
+    this.drag.x1 = p.x;
+    this.drag.y1 = p.y;
+    this.drawDrag();
+  }
+  drawDrag() {
+    const d = this.drag;
+    const st = d.el.style;
+    st.left = `${Math.min(d.x0, d.x1) * 100}%`;
+    st.top = `${Math.min(d.y0, d.y1) * 100}%`;
+    st.width = `${Math.abs(d.x1 - d.x0) * 100}%`;
+    st.height = `${Math.abs(d.y1 - d.y0) * 100}%`;
+  }
+  cancelDrag() {
+    if (!this.drag) return;
+    try { this.drag.stage.releasePointerCapture(this.drag.pointerId); } catch (_) { }
+    this.drag.el.remove();
+    this.drag = null;
+  }
+  onPickUp(e) {
+    if (!this.drag || e.pointerId !== this.drag.pointerId) return;
+    const d = this.drag;
+    if (e.type === "pointerup") {
+      const p = this.pointIn(d.stage, e);
+      d.x1 = p.x;
+      d.y1 = p.y;
+    }
+    this.cancelDrag();
+    if (e.type !== "pointerup") return;
+    const min = USER_SETTINGS.pickMinSize;
+    if (Math.abs(d.x1 - d.x0) < min && Math.abs(d.y1 - d.y0) < min) return;
+    const rect = { left: Math.min(d.x0, d.x1), right: Math.max(d.x0, d.x1), top: 1 - Math.min(d.y0, d.y1), bottom: 1 - Math.max(d.y0, d.y1) };
+    const pageIndex = parseInt(d.stage.dataset.pageIndex, 10);
+    if (this.app.addManualHit(pageIndex, rect)) {
+      this.pageIndex = pageIndex;
+      this.pageNo = this.app.pageNoOf(pageIndex);
+      this.refreshState();
+    }
   }
   renderVerify() {
     const t = USER_SETTINGS.text;
@@ -3067,12 +3674,22 @@ class PageViewer {
     const diffs = this.result.verify(this.app.currentOptions);
     if (!this.app.currentOptions?.verify || !diffs.length) { box.hidden = true; return; }
     const lines = this.$("viewer-verify-lines");
-    const head = document.createElement("div");
-    head.className = "verify-head";
-    head.textContent = t.verifyHead(diffs.length);
-    const list = document.createElement("div");
-    list.textContent = diffs.map((d) => t.verifyLine(d.page, t.verifyState[d.list], t.verifyState[d.app])).join("　");
-    lines.replaceChildren(head, list);
+    const groups = [];
+    for (const cat of ["listOnly", "appOnly", "other"]) {
+      const items = diffs.filter((d) => d.cat === cat);
+      if (!items.length) continue;
+      const row = document.createElement("div");
+      row.className = `verify-row ${cat}`;
+      const head = document.createElement("span");
+      head.className = "verify-head";
+      head.textContent = t.verifyGroup[cat];
+      const list = document.createElement("span");
+      list.textContent = items.map((d) => t.verifyLine(d.page, t.verifyState[d.list], t.verifyState[d.app])).join("、");
+      row.append(head, list);
+      groups.push(row);
+    }
+    lines.replaceChildren(...groups);
+    this.$("viewer-list-apply").hidden = !this.result.entry.list?.hasAny;
     box.hidden = false;
   }
   renderRules() {
@@ -3097,11 +3714,22 @@ class PageViewer {
     box.hidden = false;
   }
   renderChips() {
+    if (!this.result) { this.$("viewer-chips").hidden = true; return; }
     const opts = this.app.currentOptions;
     const suggested = new Set(this.result.aiSuggestions(opts).map((s) => s.pageNo));
     const listDiff = new Set(this.result.verify(opts).map((d) => d.page));
-    const chips = this.result.pageNumbers().map((p) => {
+    const missing = opts?.verify ? this.result.verify(opts).filter((d) => d.app === "notfound").map((d) => d.page) : [];
+    const all = [...new Set([...this.result.pageNumbers(), ...missing])].sort((a, b) => a - b);
+    const found = new Set(this.result.pageNumbers());
+    const chips = all.map((p) => {
       const b = document.createElement("button");
+      if (!found.has(p)) {
+        b.className = "missing";
+        b.disabled = true;
+        b.title = USER_SETTINGS.text.chipMissing;
+        b.textContent = `p.${p}`;
+        return b;
+      }
       b.dataset.page = p;
       b.className = `${this.result.stateOf(p, opts)}${suggested.has(p) ? " ai-diff" : ""}${listDiff.has(p) ? " list-diff" : ""}`;
       b.textContent = `p.${p}`;
@@ -3109,7 +3737,7 @@ class PageViewer {
       return b;
     });
     this.$("viewer-chips").replaceChildren(...chips);
-    this.$("viewer-chips").hidden = false;
+    this.$("viewer-chips").hidden = !chips.length;
   }
   spreadIndices(pageIndex) {
     if (this.layoutMode !== "spread") return [pageIndex];
@@ -3117,21 +3745,38 @@ class PageViewer {
     const left = this.app.layout.sideOf(pageIndex) === "left" ? pageIndex : pageIndex - 1;
     return [left, left + 1].map((i) => (i >= 0 && i < total ? i : null));
   }
-  renderPageInfo() {
+  renderNav() {
     const t = USER_SETTINGS.text;
-    const pageIndex = this.result.firstPdfIndexOf(this.pageNo);
-    const pages = this.result.pageNumbers();
-    const i = pages.indexOf(this.pageNo);
-    this.$("viewer-prev").disabled = i <= 0;
-    this.$("viewer-next").disabled = i >= pages.length - 1;
-    this.$("viewer-pageinfo").textContent = t.viewerPage(this.pageNo, pageIndex + 1);
+    const total = this.total();
+    this.$("viewer-nav").hidden = !total;
+    this.$("viewer-page-prev").disabled = this.pdfTarget(-1) === null;
+    this.$("viewer-page-next").disabled = this.pdfTarget(1) === null;
+    const hasHits = this.hitIndices().length > 0;
+    this.$("viewer-prev").disabled = !hasHits || (this.pageIndex !== null && this.hitTarget(-1) === null);
+    this.$("viewer-next").disabled = !hasHits || (this.pageIndex !== null && this.hitTarget(1) === null);
+    const pick = this.$("viewer-pick");
+    pick.disabled = !this.result || !total;
+    pick.setAttribute("aria-pressed", String(this.pickMode));
+    pick.title = this.result ? t.pickHint(this.result.entry.term) : t.pickNeedTerm;
+    const shown = this.pageIndex;
+    this.$("viewer-pageinfo").textContent = shown === null || !total ? "" : this.pageNo !== null ? t.viewerPage(this.pageNo, shown + 1) : t.viewerPageNoNombre(shown + 1);
   }
-  async showPage(pageNo, { keepScroll } = {}) {
+  showPage(pageNo, opts) {
+    const idx = this.result?.firstPdfIndexOf(pageNo) ?? this.app.indexOfPageNo(pageNo);
+    if (idx === null || idx === undefined) return;
+    return this.showIndex(idx, opts);
+  }
+  async showIndex(pageIndex, { keepScroll } = {}) {
+    const total = this.total();
+    if (!total) return;
+    pageIndex = Math.max(0, Math.min(total - 1, pageIndex));
     const token = ++this.renderToken;
     this.closeMenu();
-    this.pageNo = pageNo;
-    const pageIndex = this.result.firstPdfIndexOf(pageNo);
-    this.renderPageInfo();
+    this.cancelDrag();
+    this.pageIndex = pageIndex;
+    this.pageNo = this.app.pageNoOf(pageIndex);
+    this.renderHead();
+    this.renderNav();
     this.renderChips();
     this.renderAi();
     this.renderStateSeg();
@@ -3170,7 +3815,7 @@ class PageViewer {
     const wrap = this.$("viewer-wrap");
     if (this.zoomIndex === 0) { wrap.scrollTo(0, 0); return; }
     const hit = this.spreadEl.querySelector(`.page-stage[data-page-index="${pageIndex}"] .hit`);
-    if (!hit) return;
+    if (!hit) { wrap.scrollTo(0, 0); return; }
     const w = wrap.getBoundingClientRect();
     const h = hit.getBoundingClientRect();
     wrap.scrollBy({ left: h.left + h.width / 2 - (w.left + w.width / 2), top: h.top + h.height / 2 - (w.top + w.height / 2) });
@@ -3178,7 +3823,8 @@ class PageViewer {
   renderAi() {
     const t = USER_SETTINGS.text;
     const box = this.$("viewer-ai");
-    const v = this.result.aiVerdict(this.pageNo);
+    if (!this.result) { box.hidden = true; this.$("viewer-ai-apply").hidden = true; return; }
+    const v = this.pageNo === null ? null : this.result.aiVerdict(this.pageNo);
     const suggestions = this.result.aiSuggestions(this.app.currentOptions);
     this.$("viewer-ai-apply").hidden = !suggestions.length;
     this.$("viewer-ai-apply").textContent = t.aiApplyTerm(suggestions.length);
@@ -3194,16 +3840,24 @@ class PageViewer {
     box.hidden = false;
   }
   renderStateSeg() {
-    const state = this.result.stateOf(this.pageNo, this.app.currentOptions);
-    for (const b of this.$("viewer-state").querySelectorAll("button[data-state]")) b.setAttribute("aria-pressed", String(b.dataset.state === state));
-    this.$("viewer-hint").textContent = USER_SETTINGS.text.viewerHint;
+    const t = USER_SETTINGS.text;
+    const seg = this.$("viewer-state");
+    const has = !!this.result && this.pageNo !== null && this.result.onPage(this.pageNo).length > 0;
+    seg.hidden = !has;
+    if (has) {
+      const state = this.result.stateOf(this.pageNo, this.app.currentOptions);
+      for (const b of seg.querySelectorAll("button[data-state]")) b.setAttribute("aria-pressed", String(b.dataset.state === state));
+    }
+    const hint = this.pickMode ? t.pickHint(this.result.entry.term) : !this.result ? t.viewerHintNoTerm : this.pageNo === null ? t.viewerHintNoNombre : has ? t.viewerHint : t.viewerHintFree(this.result.entry.term);
+    this.$("viewer-hint").textContent = hint;
   }
   refreshState() {
     if (!this.result) return;
     this.renderRules();
     this.renderVerify();
-    if (this.pageNo === null) return;
+    if (this.pageIndex === null) { this.renderNav(); return; }
     this.closeMenu();
+    this.renderNav();
     this.renderChips();
     this.renderAi();
     this.renderStateSeg();
@@ -3217,18 +3871,21 @@ class PageViewer {
     const t = USER_SETTINGS.text;
     const doc = this.spreadEl.ownerDocument;
     this.spreadEl.querySelectorAll(".hit").forEach((el) => el.remove());
+    if (!this.result) return;
     const stages = new Map([...this.spreadEl.querySelectorAll(".page-stage[data-page-index]")].map((s) => [parseInt(s.dataset.pageIndex, 10), s]));
     this.result.occurrences.forEach((occ, index) => {
       const stage = stages.get(occ.pageIndex);
       if (!stage) return;
       const cls = this.hitClass(occ);
       const focus = occ.pageNo === this.pageNo ? " focus" : "";
+      const manual = occ.manual ? " manual" : "";
+      const label = occ.manual ? occ.text : occ.word || this.result.entry.term;
       for (const b of occ.boxes) {
         const btn = doc.createElement("button");
-        btn.className = `hit ${cls}${focus}`;
+        btn.className = `hit ${cls}${focus}${manual}`;
         btn.dataset.occ = index;
-        btn.setAttribute("aria-label", t.hitLabel(occ.word || this.result.entry.term));
-        btn.title = t.hitTitle(occ.word || this.result.entry.term, StyleRule.label(StyleRule.of(occ)));
+        btn.setAttribute("aria-label", t.hitLabel(label));
+        btn.title = occ.manual ? t.menuHeadManual(label, occ.pageNo) : t.hitTitle(label, StyleRule.label(StyleRule.of(occ)));
         btn.style.left = `${b.left * 100}%`;
         btn.style.width = `${(b.right - b.left) * 100}%`;
         btn.style.top = `${(1 - b.top) * 100}%`;
@@ -3237,10 +3894,11 @@ class PageViewer {
       }
     });
   }
-  focusPage(pageNo) {
+  focusPage(pageNo, pageIndex) {
     if (pageNo === this.pageNo) return;
     this.pageNo = pageNo;
-    this.renderPageInfo();
+    if (pageIndex !== undefined) this.pageIndex = pageIndex;
+    this.renderNav();
     this.renderChips();
     this.renderAi();
     this.renderStateSeg();
@@ -3249,7 +3907,8 @@ class PageViewer {
     const t = USER_SETTINGS.text;
     this.closeMenu();
     const occ = this.result.occurrences[occIndex];
-    this.focusPage(occ.pageNo);
+    if (!occ) return;
+    this.focusPage(occ.pageNo, occ.pageIndex);
     const state = this.result.stateOf(occ.pageNo, this.app.currentOptions);
     const reason = this.result.exclusionReason(occ);
     const stage = anchor.closest(".page-stage");
@@ -3259,16 +3918,31 @@ class PageViewer {
     menu.setAttribute("role", "menu");
     const head = doc.createElement("div");
     head.className = "hit-menu-head";
-    head.textContent = t.menuHead(occ.word || this.result.entry.term, occ.pageNo);
+    head.textContent = occ.manual ? t.menuHeadManual(occ.text, occ.pageNo) : t.menuHead(occ.word || this.result.entry.term, occ.pageNo);
     const style = doc.createElement("div");
     style.className = "hit-menu-style";
     style.textContent = StyleRule.label(StyleRule.of(occ));
     menu.append(head, style);
+    if (!occ.manual && occ.parts && new Set([...occ.parts.keys()].map((it) => it.font)).size > 1) {
+      const counts = new Map();
+      for (const [it, n] of occ.parts) counts.set(it.font, (counts.get(it.font) || 0) + n);
+      const mix = doc.createElement("div");
+      mix.className = "hit-menu-style";
+      mix.textContent = t.menuFontMix([...counts].map(([f, n]) => `${f} ${n}字`).join("／"));
+      menu.append(mix);
+    }
     if (reason) {
       const r = doc.createElement("div");
       r.className = "hit-menu-reason";
-      r.textContent = reason.key === "style" ? t.excludeStyle(StyleRule.label(reason.rule)) : t.excludeReason[reason.key];
+      r.textContent = TermResult.reasonLabel(reason);
       menu.append(r);
+    }
+    if (this.app.currentOptions?.verify && this.result.entry.list) {
+      const lv = this.result.listStateOf(occ.pageNo);
+      const l = doc.createElement("div");
+      l.className = `hit-menu-list${lv !== state ? " diff" : ""}`;
+      l.textContent = t.menuListState(t.verifyState[lv]);
+      menu.append(l);
     }
     const add = (action, label, pressed) => {
       const b = doc.createElement("button");
@@ -3289,11 +3963,20 @@ class PageViewer {
     add("adopt", t.stateAdopt, state === "adopt");
     add("hold", t.stateHold, state === "hold");
     add("exclude", t.stateExclude, state === "exclude");
-    sep(t.menuStyle);
-    if (reason?.key === "style") add("rule-off", t.menuRuleOff);
-    else if (!reason) {
-      add("rule-term", t.menuRuleTerm);
-      add("rule-global", t.menuRuleGlobal);
+    if (occ.manual) {
+      sep(t.menuManualSep);
+      add("manual-remove", t.menuManualRemove);
+    } else {
+      if (reason?.key === "font") {
+        sep(t.menuFontSep);
+        add("font-add", this.result.fontChoice ? t.menuFontAddTerm : t.menuFontAdd);
+      }
+      sep(t.menuStyle);
+      if (reason?.key === "style") add("rule-off", t.menuRuleOff);
+      else if (!reason) {
+        add("rule-term", t.menuRuleTerm);
+        add("rule-global", t.menuRuleGlobal);
+      }
     }
     const r = anchor.getBoundingClientRect();
     const s = stage.getBoundingClientRect();
@@ -3311,32 +3994,42 @@ class PageViewer {
     const occ = this.result.occurrences[parseInt(btn.dataset.occ, 10)];
     const action = btn.dataset.action;
     this.closeMenu();
+    if (!occ) return;
     if (action === "adopt" || action === "hold" || action === "exclude") this.app.setPageState(occ.pageNo, action);
+    else if (action === "manual-remove") this.app.removeManualHit(occ);
     else if (action === "rule-term") this.app.addStyleRule("term", StyleRule.of(occ));
     else if (action === "rule-global") this.app.addStyleRule("global", StyleRule.of(occ));
     else if (action === "rule-off") this.app.removeStyleRuleFor(occ);
+    else if (action === "font-add") this.app.addFontsFor(occ);
   }
   destroy() {
     for (const [el, ev, fn] of this.bindings) el.removeEventListener(ev, fn);
+    this.cancelDrag();
     clearTimeout(this.resizeTimer);
   }
 }
 
 // ===== FILE DROP =====
 class FileDrop {
-  constructor(zone, input, onFile) {
+  constructor(zone, input, onFiles) {
     this.zone = zone;
     this.input = input;
-    this.onFile = onFile;
+    this.onFiles = onFiles;
     this.handlers = {
-      change: () => this.input.files[0] && this.onFile(this.input.files[0]),
+      change: () => {
+        const files = [...this.input.files];
+        this.input.value = "";
+        if (files.length) this.onFiles(files);
+      },
       dragover: (e) => { e.preventDefault(); this.zone.classList.add("over"); },
       dragleave: () => this.zone.classList.remove("over"),
       drop: (e) => {
         e.preventDefault();
+        e.stopPropagation();
         this.zone.classList.remove("over");
-        const f = e.dataTransfer.files[0];
-        if (f) this.onFile(f);
+        this.zone.ownerDocument.defaultView?.dispatchEvent(new CustomEvent("sakuin-drop-end"));
+        const files = [...(e.dataTransfer?.files || [])];
+        if (files.length) this.onFiles(files);
       }
     };
     this.input.addEventListener("change", this.handlers.change);
@@ -3348,17 +4041,97 @@ class FileDrop {
   }
 }
 
+class GlobalDrop {
+  constructor(overlay, onFiles) {
+    this.overlay = overlay;
+    this.onFiles = onFiles;
+    this.targets = new Map();
+    this.depth = 0;
+  }
+  static hasFiles(e) {
+    return [...(e.dataTransfer?.types || [])].includes("Files");
+  }
+  attach(win) {
+    if (this.targets.has(win)) return;
+    const h = {
+      enter: (e) => {
+        if (!GlobalDrop.hasFiles(e)) return;
+        e.preventDefault();
+        this.depth++;
+        if (win === window) this.overlay.hidden = false;
+      },
+      over: (e) => {
+        if (!GlobalDrop.hasFiles(e)) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+      },
+      leave: (e) => {
+        if (!GlobalDrop.hasFiles(e)) return;
+        this.depth = Math.max(0, this.depth - 1);
+        if (!this.depth) this.overlay.hidden = true;
+      },
+      drop: (e) => {
+        if (!GlobalDrop.hasFiles(e)) return;
+        e.preventDefault();
+        this.end();
+        const files = [...(e.dataTransfer?.files || [])];
+        if (files.length) this.onFiles(files);
+      },
+      end: () => this.end()
+    };
+    win.addEventListener("dragenter", h.enter);
+    win.addEventListener("dragover", h.over);
+    win.addEventListener("dragleave", h.leave);
+    win.addEventListener("drop", h.drop);
+    win.addEventListener("sakuin-drop-end", h.end);
+    this.targets.set(win, h);
+  }
+  end() {
+    this.depth = 0;
+    this.overlay.hidden = true;
+  }
+  detach(win) {
+    const h = this.targets.get(win);
+    if (!h) return;
+    try {
+      win.removeEventListener("dragenter", h.enter);
+      win.removeEventListener("dragover", h.over);
+      win.removeEventListener("dragleave", h.leave);
+      win.removeEventListener("drop", h.drop);
+      win.removeEventListener("sakuin-drop-end", h.end);
+    } catch (_) { }
+    this.targets.delete(win);
+  }
+  destroy() {
+    for (const win of [...this.targets.keys()]) this.detach(win);
+  }
+}
+
 // ===== ACTIVITY =====
 class Activity {
   constructor(app) {
     this.app = app;
     this.busy = 0;
+    this.cancels = [];
+    this.onCancel = () => this.cancel();
+    this.el("activity-cancel").addEventListener("click", this.onCancel);
   }
   el(id) {
     return UI.byId(id);
   }
-  start(label) {
+  cancel() {
+    const list = this.cancels.filter(Boolean);
+    if (!list.length) return;
+    this.el("activity-label").textContent = USER_SETTINGS.text.actCancelling;
+    this.el("activity-cancel").disabled = true;
+    for (const fn of list) fn();
+  }
+  start(label, onCancel) {
     this.busy++;
+    this.cancels.push(onCancel || null);
+    const btn = this.el("activity-cancel");
+    btn.hidden = !this.cancels.some(Boolean);
+    btn.disabled = false;
     this.el("activity").dataset.state = "busy";
     this.el("activity-label").textContent = label;
     this.set(0, 0);
@@ -3383,7 +4156,10 @@ class Activity {
   }
   end() {
     this.busy = Math.max(0, this.busy - 1);
+    this.cancels.pop();
+    this.el("activity-cancel").hidden = !this.cancels.some(Boolean);
     if (this.busy) return;
+    this.el("activity-cancel").disabled = false;
     this.idle();
     this.app.refreshButtons?.();
   }
@@ -3687,8 +4463,54 @@ class LlmPanel {
 }
 
 class AiReviewer {
-  constructor(client) {
+  constructor(client, describe) {
     this.client = client;
+    this.describe = describe || (() => "");
+  }
+  static decisionLabel(state) {
+    return USER_SETTINGS.text.ruleState[state];
+  }
+  buildRuleMessages(result, opts, pages, instruction, kind) {
+    const cfg = USER_SETTINGS.ai;
+    const lines = [];
+    for (const p of pages) {
+      lines.push(`p.${p}［現在：${AiReviewer.decisionLabel(result.stateOf(p, opts))}］`);
+      const occ = result.onPage(p).filter((o) => o.scope === "in" && !o.manual).slice(0, cfg.contextsPerPageRule);
+      occ.forEach((o, i) => {
+        lines.push(`  ${i + 1}. ${o.context}`);
+        lines.push(`     書式：${this.describe(o)}${o.kind === "compound" ? `／複合語「${o.word}」の一部` : ""}`);
+      });
+    }
+    const casual = kind === "casual";
+    const user = (casual ? cfg.casualPrompt : cfg.rulePrompt).replace("{instruction}", instruction.trim()).replace("{term}", result.entry.term).replace("{examples}", lines.join("\n"));
+    return [{ role: "system", content: casual ? cfg.casualSystemPrompt : cfg.ruleSystemPrompt }, { role: "user", content: user }];
+  }
+  static parseRule(text) {
+    const cleaned = String(text).replace(/<think>[\s\S]*?<\/think>/g, "").replace(/```(?:json)?/g, "");
+    const start = cleaned.indexOf("{");
+    const end = cleaned.lastIndexOf("}");
+    if (start < 0 || end <= start) throw new Error(USER_SETTINGS.text.aiParseError);
+    const json = JSON.parse(cleaned.slice(start, end + 1));
+    const out = new Map();
+    for (const item of json.pages || []) {
+      const page = parseInt(String(item.page).replace(/\D/g, ""), 10);
+      if (!Number.isFinite(page)) continue;
+      const v = String(item.decision || item.verdict || "");
+      const state = v.includes("対象外") || /exclude/i.test(v) ? "exclude" : v.includes("申し送り") || v.includes("要確認") || /hold/i.test(v) ? "hold" : v.includes("確定") || /adopt/i.test(v) ? "adopt" : null;
+      if (state) out.set(page, { state, reason: String(item.reason || "").slice(0, USER_SETTINGS.ai.reasonMaxChars) });
+    }
+    return out;
+  }
+  async classify(result, opts, instruction, signal, kind) {
+    const pages = result.pageNumbers().filter((p) => result.onPage(p).some((o) => o.scope === "in" && !o.manual));
+    const merged = new Map();
+    const size = USER_SETTINGS.ai.pagesPerRequest;
+    for (let i = 0; i < pages.length; i += size) {
+      const chunk = pages.slice(i, i + size);
+      const text = await this.client.chat(this.buildRuleMessages(result, opts, chunk, instruction, kind), signal);
+      for (const [p, v] of AiReviewer.parseRule(text)) if (chunk.includes(p)) merged.set(p, v);
+    }
+    return merged;
   }
   static stateLabel(state) {
     return state === "adopt" ? USER_SETTINGS.text.aiStateAdopt : USER_SETTINGS.text.aiStateHold;
@@ -3748,7 +4570,7 @@ class PanelDetacher {
     this.onUnload = () => { for (const { w } of this.windows.values()) if (!w.closed) w.close(); };
     this.buttons = [...document.querySelectorAll("[data-detach]")];
     for (const b of this.buttons) b.addEventListener("click", this.onClick);
-    window.addEventListener("beforeunload", this.onUnload);
+    window.addEventListener("pagehide", this.onUnload);
   }
   detach(id) {
     const t = USER_SETTINGS.text;
@@ -3780,6 +4602,7 @@ class PanelDetacher {
     panel.classList.add("detached-panel");
     d.body.append(panel);
     UI.docs.add(d);
+    this.app.globalDrop?.attach(w);
     this.app.hitColors?.apply();
     const onHide = () => this.attach(id);
     const onResize = () => this.app.viewer.scheduleRender();
@@ -3799,6 +4622,7 @@ class PanelDetacher {
     entry.placeholder.replaceWith(entry.panel);
     entry.panel.classList.remove("detached-panel");
     UI.docs.delete(entry.d);
+    this.app.globalDrop?.detach(entry.w);
     if (!entry.w.closed) entry.w.close();
     this.updateButtons();
     this.applyLayout();
@@ -3819,7 +4643,7 @@ class PanelDetacher {
   }
   destroy() {
     for (const b of this.buttons) b.removeEventListener("click", this.onClick);
-    window.removeEventListener("beforeunload", this.onUnload);
+    window.removeEventListener("pagehide", this.onUnload);
     this.onUnload();
   }
 }
@@ -3838,6 +4662,8 @@ class App {
     this.entries = [];
     this.results = [];
     this.termFonts = new Map();
+    this.filterVersion = 0;
+    this.fontSetCache = { version: -1, map: new Map() };
     this.globalRules = [];
     this.termRules = new Map();
     this.textCache = new Map();
@@ -3857,17 +4683,25 @@ class App {
     this.mapper = new ColumnMapper(this);
     this.sizer = new LayoutSizer(this);
     this.fontFilter = new FontFilter(this.$("font-list"), this.$("font-status"), this.$("font-presets"), () => this.onFontChange());
-    this.styleFilter = new StyleFilter(this.$("size-list"), this.$("color-list"), () => this.onFontChange());
+    this.styleFilter = new StyleFilter(this.$("size-list"), this.$("color-list"), () => { this.fontFilter.highlightPreset(); this.onFontChange(); });
+    this.fontFilter.sizeHook = {
+      set: (size) => this.styleFilter.selectSizes(size ? [size] : null),
+      isOnly: (size) => this.styleFilter.sizeSel.size === 1 && this.styleFilter.sizeSel.has(size),
+      isAll: () => this.styleFilter.sizeSel.size === this.styleFilter.sizes.length
+    };
     this.llm = new LlmClient();
-    this.reviewer = new AiReviewer(this.llm);
+    this.reviewer = new AiReviewer(this.llm, (occ) => this.describeOcc(occ));
     this.llmPanel = new LlmPanel(this);
     this.detacher = new PanelDetacher(this);
     this.hitColors = new HitColors(this);
     this.$("tagline").textContent = USER_SETTINGS.text.tagline;
     this.drops = [
-      new FileDrop(this.$("drop-pdf"), this.$("file-pdf"), (f) => this.loadPdf(f)),
-      new FileDrop(this.$("drop-xlsx"), this.$("file-xlsx"), (f) => this.loadExcel(f))
+      new FileDrop(this.$("drop-pdf"), this.$("file-pdf"), (files) => this.loadFiles(files)),
+      new FileDrop(this.$("drop-xlsx"), this.$("file-xlsx"), (files) => this.loadFiles(files))
     ];
+    this.globalDrop = new GlobalDrop(this.$("drop-overlay"), (files) => this.loadFiles(files));
+    this.globalDrop.attach(window);
+    this.ruleKind = Prefs.get("aiRuleKind", "casual") === "client" ? "client" : "casual";
     this.handlers = {
       run: () => { if (!this.activity.isBusy()) this.run(); },
       save: () => { if (!this.activity.isBusy()) this.save(); },
@@ -3894,14 +4728,36 @@ class App {
       aiAll: () => this.runAi("all"),
       aiStop: () => this.aiAbort?.abort(),
       aiApplyAll: () => this.applyAllAi(),
+      aiRule: () => { if (!this.activity.isBusy()) this.runRule(); },
+      instruction: () => { Prefs.set("aiInstruction", this.$("ai-instruction").value); this.refreshButtons(); },
+      ruleKind: (e) => {
+        const btn = e.target.closest("button[data-kind]");
+        if (btn) this.setRuleKind(btn.dataset.kind);
+      },
+      example: (e) => {
+        const btn = e.target.closest("button[data-example]");
+        if (!btn) return;
+        const ta = this.$("ai-instruction");
+        ta.value = ta.value.trim() ? `${ta.value.replace(/\s+$/, "")}\n${btn.dataset.example}` : btn.dataset.example;
+        this.handlers.instruction();
+        ta.focus();
+      },
+      leave: (e) => {
+        if (!this.hasUnsavedWork()) return;
+        e.preventDefault();
+        e.returnValue = USER_SETTINGS.text.leaveConfirm;
+        return USER_SETTINGS.text.leaveConfirm;
+      },
+      proof: () => { if (!this.activity.isBusy()) this.runProof(); },
+      proofSave: () => { if (!this.activity.isBusy()) this.saveProof(); },
       header: () => this.renderHeaderNote(),
       restore: async () => {
         if (this.activity.isBusy()) return;
-        this.activity.start(USER_SETTINGS.text.restoring);
+        this.restoreToken = { cancelled: false };
+        this.activity.start(USER_SETTINGS.text.restoring, () => { this.restoreToken.cancelled = true; });
         try { await this.restoreState(); } finally { this.activity.end(); }
       },
       verify: () => this.onVerifyToggle(),
-      listApplyAll: () => this.applyAllList(),
       globalRule: (e) => {
         const btn = e.target.closest("button[data-rule]");
         if (btn) this.removeStyleRule("global", parseInt(btn.dataset.rule, 10));
@@ -3925,17 +4781,123 @@ class App {
       [this.$("btn-ai-all"), "click", this.handlers.aiAll],
       [this.$("btn-ai-stop"), "click", this.handlers.aiStop],
       [this.$("btn-ai-apply-all"), "click", this.handlers.aiApplyAll],
+      [this.$("btn-ai-rule"), "click", this.handlers.aiRule],
+      [this.$("ai-instruction"), "input", this.handlers.instruction],
+      [this.$("ai-rule-kind"), "click", this.handlers.ruleKind],
+      [this.$("ai-examples"), "click", this.handlers.example],
+      [window, "beforeunload", this.handlers.leave],
+      [this.$("btn-proof"), "click", this.handlers.proof],
+      [this.$("btn-proof-save"), "click", this.handlers.proofSave],
       [this.$("opt-header"), "change", this.handlers.header],
       [this.$("btn-restore"), "click", this.handlers.restore],
       [this.$("opt-verify"), "change", this.handlers.verify],
-      [this.$("btn-list-apply-all"), "click", this.handlers.listApplyAll],
       [this.$("global-rules"), "click", this.handlers.globalRule]
     ];
     for (const [el, ev, fn] of this.bindings) el.addEventListener(ev, fn);
+    this.$("ai-instruction").value = Prefs.get("aiInstruction", "");
+    this.$("ai-examples").replaceChildren(...USER_SETTINGS.text.ruleExamples.map((ex) => {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.dataset.example = ex;
+      b.textContent = ex;
+      return b;
+    }));
+    this.setRuleKind(this.ruleKind);
     this.view.show(USER_SETTINGS.sample, true);
     this.renderAreaSummary();
     this.renderRangeNote();
     this.activity.idle();
+    this.refreshButtons();
+  }
+  setRuleKind(kind) {
+    this.ruleKind = kind === "client" ? "client" : "casual";
+    Prefs.set("aiRuleKind", this.ruleKind);
+    for (const b of this.$("ai-rule-kind").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.kind === this.ruleKind));
+    this.$("ai-instruction").placeholder = USER_SETTINGS.text.rulePlaceholder[this.ruleKind];
+    this.$("ai-examples").hidden = this.ruleKind !== "casual";
+  }
+  hasUnsavedWork() {
+    if (this.activity?.isBusy()) return true;
+    return this.results.length > 0 && !this.pipeline.done.has(App.STEP.save);
+  }
+  async loadFiles(files) {
+    const t = USER_SETTINGS.text;
+    const list = [...(files || [])];
+    if (!list.length) return;
+    if (this.activity.isBusy() || this.aiAbort) { this.setStatus(t.dropBusy, true); return; }
+    const isPdf = (f) => /\.pdf$/i.test(f.name) || f.type === "application/pdf";
+    const isXlsx = (f) => /\.xlsx$/i.test(f.name) || f.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    const pdfs = list.filter(isPdf);
+    const xlsx = list.filter(isXlsx);
+    const unknown = list.filter((f) => !isPdf(f) && !isXlsx(f));
+    if (!pdfs.length && !xlsx.length) { this.setStatus(t.dropUnknown(unknown.map((f) => f.name).join("、")), true); return; }
+    if (this.hasUnsavedWork() && !window.confirm(t.dropReplace)) return;
+    if (pdfs.length) await this.loadPdf(pdfs[0]);
+    if (xlsx.length) await this.loadExcel(xlsx[0]);
+    const notes = [];
+    if (pdfs.length > 1) notes.push(t.dropManyPdf);
+    if (unknown.length) notes.push(t.dropUnknown(unknown.map((f) => f.name).join("、")));
+    if (notes.length) this.setStatus(notes.join(" "), true);
+  }
+  pageNoOf(pageIndex) {
+    const n = this.nombreResult?.numbers[pageIndex];
+    return n === null || n === undefined || n < 1 ? null : n;
+  }
+  indexOfPageNo(pageNo) {
+    if (this.nombreResult) {
+      const i = this.nombreResult.numbers.indexOf(pageNo);
+      return i >= 0 ? i : null;
+    }
+    return pageNo >= 1 && pageNo <= this.pdf.pages.length ? pageNo - 1 : null;
+  }
+  makeManualOcc(pageIndex, pageNo, refs) {
+    const text = refs.map((r) => r.item.s[r.off]).join("");
+    const occ = TermMatcher.makeOcc(this.pdf, { pageIndex, pageNo, refs, kind: "plain", word: null, scope: "in", matched: text });
+    occ.manual = true;
+    occ.text = text;
+    occ.refKeys = refs.map((r) => [r.idx, r.off]);
+    return occ;
+  }
+  restoreManualOcc(saved) {
+    const items = this.pdf.pages[saved?.pageIndex];
+    const pageNo = this.pageNoOf(saved?.pageIndex);
+    if (!items || pageNo === null || !Array.isArray(saved.refs)) return null;
+    const refs = [];
+    for (const [idx, off] of saved.refs) {
+      const item = items[idx];
+      if (!item || typeof item.s !== "string" || off < 0 || off >= item.s.length) return null;
+      refs.push({ item, off, idx });
+    }
+    return refs.length ? this.makeManualOcc(saved.pageIndex, pageNo, refs) : null;
+  }
+  addManualHit(pageIndex, rect) {
+    const t = USER_SETTINGS.text;
+    const result = this.results[this.selectedIndex];
+    if (!result) { this.setStatus(t.pickNeedTerm, true); return false; }
+    if (this.activity.isBusy() || this.aiAbort) { this.setStatus(t.pickBusy, true); return false; }
+    const pageNo = this.pageNoOf(pageIndex);
+    if (pageNo === null) { this.setStatus(t.pickNoNombre(pageIndex + 1), true); return false; }
+    const refs = this.pdf.charsInRect(pageIndex, rect, this.currentOptions?.excludeRuby);
+    if (!refs.length) { this.setStatus(t.pickEmpty, true); return false; }
+    const occ = this.makeManualOcc(pageIndex, pageNo, refs);
+    if (result.manualOccs().some((o) => o.pageIndex === pageIndex && o.text === occ.text)) { this.setStatus(t.pickSame(pageNo), true); return false; }
+    result.addManual(occ);
+    result.setState(pageNo, "adopt", this.currentOptions, "manual");
+    this.refreshTerm(this.selectedIndex);
+    this.pipeline.set(App.STEP.save, false);
+    const term = result.entry.term;
+    const key = result.entry.searchKey || TextNormalizer.normalize(term);
+    this.setStatus(TextNormalizer.normalize(occ.text).includes(key) ? t.pickAdded(term, pageNo, occ.text) : t.pickAddedOther(term, pageNo, occ.text));
+    this.refreshButtons();
+    return true;
+  }
+  removeManualHit(occ) {
+    const result = this.results[this.selectedIndex];
+    if (!result || !occ?.manual) return;
+    result.removeManual(occ);
+    this.refreshTerm(this.selectedIndex);
+    this.pipeline.set(App.STEP.save, false);
+    this.setStatus(USER_SETTINGS.text.pickRemoved(occ.pageNo));
     this.refreshButtons();
   }
   setStatus(msg, isError = false) {
@@ -3953,18 +4915,21 @@ class App {
     const aiReady = this.llmPanel?.isReady() && this.results.length > 0 && !busy;
     this.$("btn-ai-review").disabled = !aiReady;
     this.$("btn-ai-all").disabled = !aiReady;
+    this.$("btn-ai-rule").disabled = !aiReady || !this.$("ai-instruction").value.trim();
+    this.$("ai-rule-note").textContent = !this.llmPanel?.isReady() ? USER_SETTINGS.text.ruleNeedLlm : !this.results.length ? USER_SETTINGS.text.ruleNeedRun : USER_SETTINGS.text.ruleHint;
+    this.$("btn-proof").disabled = busy || !(this.pdfReady && this.nombreResult && this.entries.some((e) => e.list.hasAny));
+    this.$("btn-proof-save").disabled = busy || !this.proofReport;
     this.$("btn-ai-stop").hidden = !busy;
     const pending = this.results.reduce((n, r) => n + r.aiSuggestions(this.currentOptions).length, 0);
     this.$("btn-ai-apply-all").disabled = busy || !pending;
     this.$("btn-ai-apply-all").textContent = USER_SETTINGS.text.aiApplyAll(pending);
-    const diffs = this.currentOptions?.verify ? this.results.reduce((n, r) => n + r.verify(this.currentOptions).length, 0) : 0;
-    this.$("btn-list-apply-all").disabled = busy || !diffs;
     this.$("btn-restore").disabled = busy || !(this.pdfReady && this.excel.savedState && this.entries.length);
     this.$("btn-analyze-color").disabled = !this.pdfReady || (busy && !this.colorRunning);
     if (this.mappingProblem()) this.$("btn-save").disabled = true;
   }
   invalidateResults() {
     this.gen = (this.gen || 0) + 1;
+    if (this.proofReport) { this.proofReport = null; this.renderProofNote?.(); }
     this.textCache.clear();
     if (this.results.length) {
       this.results = [];
@@ -3986,7 +4951,8 @@ class App {
     this.colorAbort = true;
     for (const s of ["pdf", "judge", "nombre", "font"]) this.pipeline.set(App.STEP[s], false);
     this.invalidateResults();
-    this.activity.start(t.actPdf);
+    const loadToken = { cancelled: false };
+    this.activity.start(t.actPdf, () => { loadToken.cancelled = true; });
     const zone = this.$("drop-pdf");
     const hint = this.$("hint-pdf");
     zone.classList.remove("loaded");
@@ -4009,7 +4975,7 @@ class App {
         this.setStatus(t.readingPdf(d, total));
         this.activity.label(t.actPdfPages(d, total));
         this.activity.set(d, total);
-      });
+      }, () => loadToken.cancelled);
       endLoading();
       zone.classList.add("loaded");
       hint.textContent = t.pdfLoaded(file.name, count);
@@ -4024,7 +4990,7 @@ class App {
         this.pdfReady = true;
         this.$("sec-area").classList.remove("locked");
         this.$("sec-font").classList.remove("locked");
-        this.fontFilter.load(this.pdf.fonts);
+        this.fontFilter.load(this.pdf.fonts, this.pdf.pages);
         this.styleFilter.loadSizes(this.pdf.pages);
         this.$("color-status").textContent = t.colorNotAnalyzed;
         this.$("btn-analyze-color").disabled = false;
@@ -4033,11 +4999,19 @@ class App {
       }
       this.updateNombre();
       this.renderStateBox();
+      this.viewer.clear({ resetPage: true });
     } catch (err) {
       console.error(err);
       endLoading();
-      hint.textContent = t.pdfError;
-      this.setStatus(t.pdfError, true);
+      if (err?.cancelled) {
+        zone.classList.remove("loaded");
+        hint.replaceChildren(Object.assign(document.createElement("strong"), { textContent: t.pdfDropTitle }), t.pdfDropHint);
+        this.setStatus(t.pdfStopped, true);
+        this.setPill("pill-pdf", "");
+      } else {
+        hint.textContent = t.pdfError;
+        this.setStatus(t.pdfError, true);
+      }
     }
     this.refreshButtons();
   }
@@ -4047,7 +5021,7 @@ class App {
     this.colorAbort = false;
     this.colorRunning = true;
     btn.textContent = t.colorStop;
-    this.activity.start(t.actColor);
+    this.activity.start(t.actColor, () => { this.colorAbort = true; });
     try {
       const done = await this.pdf.analyzeColors((d, total) => {
         this.$("color-status").textContent = t.colorAnalyzing(d, total);
@@ -4142,7 +5116,15 @@ class App {
     if (!this.pdfReady) return;
     this.setPill("pill-font", this.fontFilter.selected.size ? "ok" : "warn");
     this.pipeline.set(App.STEP.font, this.fontFilter.selected.size > 0);
-    this.invalidateResults();
+    this.filterVersion = (this.filterVersion || 0) + 1;
+    if (this.results.length && this.fontFilter.selected.size) {
+      clearTimeout(this.filterTimer);
+      this.filterTimer = setTimeout(() => {
+        this.pipeline.set(App.STEP.save, false);
+        this.recomputeAll(USER_SETTINGS.text.actFilter);
+      }, USER_SETTINGS.filterDebounceMs);
+    }
+    this.refreshButtons();
   }
   async loadExcel(file) {
     const t = USER_SETTINGS.text;
@@ -4179,6 +5161,7 @@ class App {
     this.renderHeaderNote();
     this.renderVerifyNote();
     this.invalidateResults();
+    this.renderProofNote();
   }
   mappingProblem() {
     const t = USER_SETTINGS.text;
@@ -4195,7 +5178,10 @@ class App {
   renderVerifyNote() {
     const t = USER_SETTINGS.text;
     const n = this.entries.filter((e) => e.list.hasAny).length;
-    this.$("verify-note").textContent = this.$("opt-verify").checked ? t.verifyNoteOn(n, this.entries.length) : t.verifyNoteOff;
+    const box = this.$("opt-verify");
+    box.disabled = n === 0;
+    if (n === 0) box.checked = false;
+    this.$("verify-note").textContent = n === 0 ? t.verifyNoteEmpty : box.checked ? t.verifyNoteOn(n, this.entries.length) : t.verifyNoteOff;
   }
   onVerifyToggle() {
     this.renderVerifyNote();
@@ -4208,17 +5194,11 @@ class App {
   }
   applyList(index) {
     const result = this.results[index];
-    if (!result) return;
+    if (!result || !result.entry.list?.hasAny) return;
     result.applyList(this.currentOptions);
     this.refreshTerm(index);
     this.pipeline.set(App.STEP.save, false);
     this.refreshButtons();
-  }
-  applyAllList() {
-    let n = 0;
-    this.results.forEach((r) => { n += r.applyList(this.currentOptions); });
-    this.pipeline.set(App.STEP.save, false);
-    this.recomputeAll(USER_SETTINGS.text.actApplyList).then(() => this.setStatus(USER_SETTINGS.text.listApplied(n)));
   }
   renderStateBox() {
     const t = USER_SETTINGS.text;
@@ -4280,12 +5260,15 @@ class App {
     const computed = this.results.map((r) => r.compute(this.currentOptions));
     const count = (status) => computed.filter((r) => r.status === status).length;
     rows.push([L.terms, L.termCounts(computed.length, count("ok"), count("review"), count("excluded"), count("none"))]);
-    const manual = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "manual").length, 0);
+    const manual = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "manual").length + (x.added?.length || 0), 0);
     const ai = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "ai").length, 0);
     const list = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "list").length + x.listOnly.length, 0);
     rows.push([L.changes, L.changeCounts(manual, ai, list)]);
     const aiModels = [...new Set(st.terms.map((x) => x.ai?.model).filter(Boolean))];
     rows.push([L.aiModel, aiModels.length ? aiModels.join("、") : L.aiNone]);
+    rows.push([L.instruction, s.aiInstruction ? `［${t.ruleKindLabel[s.aiRuleKind] || t.ruleKindLabel.client}］\n${s.aiInstruction}` : L.none]);
+    const ruled = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "rule").length, 0);
+    rows.push([L.ruleChanges, `${ruled}ページ`]);
     return rows;
   }
   stateObject(offset, originalNotes) {
@@ -4311,7 +5294,9 @@ class App {
         separator: this.$("opt-sep").value,
         useRanges: this.$("opt-range").checked,
         header: this.$("opt-header").checked,
-        verify: this.$("opt-verify").checked
+        verify: this.$("opt-verify").checked,
+        aiInstruction: this.$("ai-instruction").value,
+        aiRuleKind: this.ruleKind
       },
       mapping: { ...this.excel.mapping, sheetName: this.excel.sheet().name, start: this.excel.mapping.start + offset },
       globalRules: this.globalRules,
@@ -4322,6 +5307,8 @@ class App {
         rules: this.termRulesFor(r.entry.row),
         overrides: [...r.overrides],
         listOnly: [...r.listOnly],
+        added: r.manualOccs().map((o) => ({ pageIndex: o.pageIndex, refs: o.refKeys })),
+        ruleDone: !!r.ruleDone,
         ai: r.ai ? { pages: [...(r.ai.pages || new Map())], error: r.ai.error || "", model: r.ai.model || "" } : null
       })),
       originalNotes: [...originalNotes]
@@ -4346,12 +5333,15 @@ class App {
     this.$("opt-ruby").checked = s.ruby !== false;
     if (s.separator) this.$("opt-sep").value = s.separator;
     this.$("opt-range").checked = !!s.useRanges;
-    this.$("opt-header").checked = false;
+    if (s.aiInstruction) { this.$("ai-instruction").value = s.aiInstruction; Prefs.set("aiInstruction", s.aiInstruction); }
+    this.setRuleKind(s.aiRuleKind || (s.aiInstruction ? "client" : this.ruleKind));
+    this.$("opt-header").checked = s.header !== false;
     const fontNames = new Set(this.fontFilter.fonts.map((f) => f.name));
     const fonts = (s.fonts || []).filter((n) => fontNames.has(n));
     this.fontFilter.selected = new Set(fonts.length ? fonts : fontNames);
     this.fontFilter.render();
     if (s.colorAnalyzed && !this.styleFilter.colors.length) await this.analyzeColors();
+    if (this.restoreToken?.cancelled) { this.setStatus(t.restoreStopped, true); return; }
     const sizeKeys = new Set(this.styleFilter.sizes.map((x) => x.key));
     const sizes = (s.sizes || []).filter((k) => sizeKeys.has(k));
     this.styleFilter.sizeSel = new Set(sizes.length ? sizes : sizeKeys);
@@ -4376,13 +5366,20 @@ class App {
     this.renderGlobalRules();
     this.renderRangeNote();
     this.updateNombre();
+    if (this.restoreToken?.cancelled) { this.setStatus(t.restoreStopped, true); return; }
     await this.run();
+    if (this.restoreToken?.cancelled || !this.results.length) { this.setStatus(t.restoreStopped, true); return; }
     let missing = 0;
     for (const saved of st.terms || []) {
       const result = this.results.find((r) => r.entry.row === saved.row && r.entry.term === saved.term) || this.results.find((r) => r.entry.term === saved.term);
       if (!result) { missing++; continue; }
+      for (const a of saved.added || []) {
+        const occ = this.restoreManualOcc(a);
+        if (occ) result.addManual(occ);
+      }
       result.overrides = new Map(saved.overrides || []);
       result.listOnly = new Map(saved.listOnly || []);
+      result.ruleDone = !!saved.ruleDone;
       result.ai = saved.ai ? { pages: new Map(saved.ai.pages || []), error: saved.ai.error || "", model: saved.ai.model || "" } : null;
       if (result.ai && !result.ai.error) delete result.ai.error;
     }
@@ -4400,7 +5397,7 @@ class App {
   fontChoices() {
     const t = USER_SETTINGS.text;
     const list = [{ value: "", label: t.fontChoiceCommon }];
-    for (const p of FontFilter.PRESETS) list.push({ value: `preset:${p}`, label: t.fontPresetLabel[p] });
+    for (const p of FontFilter.TERM_PRESETS) list.push({ value: `preset:${p}`, label: t.fontPresetLabel[p] });
     for (const f of this.fontFilter.fonts) list.push({ value: `font:${f.name}`, label: f.name });
     return list;
   }
@@ -4428,18 +5425,53 @@ class App {
       narrowed: !!fontSet || this.searchAreas.hasAny() || this.styleFilter.isNarrowed()
     };
   }
-  textsFor(choice, opts) {
-    const key = choice || "";
+  textsFor(opts) {
+    const key = "\u0000search";
     if (this.textCache.has(key)) return this.textCache.get(key);
-    const fontSet = this.fontSetFor(choice);
     const texts = this.pdf.pageTexts({
       excludeRuby: opts.excludeRuby,
-      allow: (it) => (!fontSet || fontSet.has(it.font)) && this.styleFilter.allows(it),
+      allow: null,
       areaFor: this.searchAreas.hasAny() ? (i) => this.searchAreas.rectFor(i, this.layout) : null,
       skip: (i) => !this.inSearch(i)
     });
     this.textCache.set(key, texts);
     return texts;
+  }
+  cachedFontSet(choice) {
+    const key = choice || "";
+    if (this.fontSetCache.version !== this.filterVersion) this.fontSetCache = { version: this.filterVersion, map: new Map() };
+    if (!this.fontSetCache.map.has(key)) this.fontSetCache.map.set(key, this.fontSetFor(choice));
+    return this.fontSetCache.map.get(key);
+  }
+  filterReason(occ, fontChoice) {
+    const fontSet = this.cachedFontSet(fontChoice);
+    let total = 0;
+    let ok = 0;
+    const badFonts = new Map();
+    let badSize = 0;
+    let badColor = 0;
+    for (const [it, n] of occ.parts || []) {
+      total += n;
+      const fontOut = fontSet && !fontSet.has(it.font);
+      const style = this.styleFilter.reasonFor(it);
+      if (!fontOut && !style) { ok += n; continue; }
+      if (fontOut) badFonts.set(it.font, (badFonts.get(it.font) || 0) + n);
+      else if (style === "size") badSize += n;
+      else badColor += n;
+    }
+    if (!total || ok * 2 >= total) return null;
+    const badFontChars = [...badFonts.values()].reduce((a, b) => a + b, 0);
+    if (badFontChars >= badSize && badFontChars >= badColor) return { key: "font", detail: [...badFonts.keys()].join("・"), fonts: [...badFonts.keys()] };
+    return { key: badSize >= badColor ? "size" : "color" };
+  }
+  addFontsFor(occ) {
+    const result = this.results[this.selectedIndex];
+    const reason = result?.exclusionReason(occ);
+    if (!reason?.fonts) return;
+    if (result.fontChoice) this.setTermFont(this.selectedIndex, "");
+    for (const f of reason.fonts) this.fontFilter.selected.add(f);
+    this.fontFilter.render();
+    this.setStatus(USER_SETTINGS.text.fontAdded(reason.fonts.join("・")));
   }
   fullTexts(opts) {
     const key = "\u0000full";
@@ -4449,16 +5481,10 @@ class App {
     this.textCache.set(key, texts);
     return texts;
   }
-  scopeOf(pageIndex, refs, fontSet) {
+  scopeOf(pageIndex, refs) {
     if (!this.inSearch(pageIndex)) return "pageRange";
     const area = this.searchAreas.hasAny() ? this.searchAreas.rectFor(pageIndex, this.layout) : null;
-    for (const ref of refs) {
-      const it = ref.item;
-      if (area && !PdfReader.inRect(it, area)) return "area";
-      if (fontSet && !fontSet.has(it.font)) return "font";
-      const style = this.styleFilter.reasonFor(it);
-      if (style) return style;
-    }
+    if (area && refs.some((ref) => !PdfReader.inRect(ref.item, area))) return "area";
     return null;
   }
   termRulesFor(row) {
@@ -4470,10 +5496,13 @@ class App {
   buildResult(entry, choice, opts) {
     const keys = this.entries.map((e) => e.searchKey).filter(Boolean);
     const matcher = new TermMatcher(this.pdf);
-    const fontSet = this.fontSetFor(choice);
-    const inScope = matcher.collect(entry, this.textsFor(choice, opts), keys, this.nombreResult);
-    const outScope = matcher.collect(entry, this.fullTexts(opts), keys, this.nombreResult, (i, refs) => this.scopeOf(i, refs, fontSet));
-    const result = new TermResult(entry, inScope.concat(outScope), this.nombreResult, choice, () => this.rulesFor(entry.row));
+    const inScope = matcher.collect(entry, this.textsFor(opts), keys, this.nombreResult);
+    const outScope = matcher.collect(entry, this.fullTexts(opts), keys, this.nombreResult, (i, refs) => this.scopeOf(i, refs));
+    const result = new TermResult(entry, inScope.concat(outScope), this.nombreResult, choice, {
+      rules: () => this.rulesFor(entry.row),
+      filterReason: (occ, fontChoice) => this.filterReason(occ, fontChoice),
+      version: () => String(this.filterVersion)
+    });
     result.fontLabel = this.fontChoiceLabel(choice);
     return result;
   }
@@ -4484,7 +5513,8 @@ class App {
     if (!this.pageRange.valid) { this.setStatus(t.rangeInvalid, true); return; }
     if (this.nombreResult && !this.nombreResult.serial && this.nombreResult.found === 0) { this.setStatus(t.nombreNone, true); return; }
     const opts = this.readOptions();
-    this.activity.start(t.actPrepare);
+    const token = { cancelled: false };
+    this.activity.start(t.actPrepare, () => { token.cancelled = true; });
     this.setStatus(t.matching);
     await tick();
     const gen = this.gen;
@@ -4501,14 +5531,17 @@ class App {
           this.activity.label(t.actSearch(i + 1, total, this.entries[i].term));
           this.activity.set(i, total);
           await tick();
+          if (token.cancelled) { this.setStatus(t.runStopped, true); return; }
           if (gen !== this.gen) { this.setStatus(t.runCancelled, true); return; }
         }
       }
       if (gen !== this.gen) { this.setStatus(t.runCancelled, true); return; }
-      this.results = results;
-      this.selectedIndex = -1;
       this.activity.label(t.actRender);
       await tick();
+      if (token.cancelled) { this.setStatus(t.runStopped, true); return; }
+      if (gen !== this.gen) { this.setStatus(t.runCancelled, true); return; }
+      this.results = results;
+      this.selectedIndex = -1;
       this.view.show(this.results.map((r) => r.compute(opts)), false);
       this.viewer.clear();
       this.pipeline.set(App.STEP.run, true);
@@ -4547,11 +5580,9 @@ class App {
     const old = this.results[index];
     if (!old) return;
     if (choice) this.termFonts.set(old.entry.row, choice); else this.termFonts.delete(old.entry.row);
-    const result = this.buildResult(old.entry, choice, this.currentOptions);
-    const pages = new Set(result.pageNumbers());
-    for (const [p, o] of old.overrides) if (pages.has(p)) result.overrides.set(p, o);
-    result.listOnly = new Map(old.listOnly);
-    this.results[index] = result;
+    const result = old;
+    result.fontChoice = choice || "";
+    result.fontLabel = this.fontChoiceLabel(choice);
     this.view.updateRow(index, result.compute(this.currentOptions));
     this.view.select(this.selectedIndex);
     if (index === this.selectedIndex) this.viewer.open(result, true);
@@ -4631,12 +5662,141 @@ class App {
       return span;
     }));
   }
+  describeOcc(occ) {
+    const t = USER_SETTINGS.text;
+    const st = occ.style;
+    const font = this.fontFilter.fonts.find((f) => f.name === st.font);
+    const kind = font ? [font.gothic ? t.tagGothic : font.mincho ? t.tagMincho : "", font.bold ? t.tagBold : t.descNormal, font.body ? t.descBodyFont : ""].filter(Boolean).join("・") : "";
+    const body = this.fontFilter.bodySize;
+    const size = parseFloat(st.size);
+    const rel = body && Number.isFinite(size) ? (size > parseFloat(body) ? t.descLarger : size < parseFloat(body) ? t.descSmaller : t.descSame) : "";
+    const color = st.color ? t.descColor(st.color) : "";
+    return [`${st.font}（${kind}）`, `${st.size}pt${rel ? `（${rel}）` : ""}`, color].filter(Boolean).join("、");
+  }
+  async runRule() {
+    const t = USER_SETTINGS.text;
+    const instruction = this.$("ai-instruction").value.trim();
+    if (!instruction) { this.setStatus(t.ruleNeedText, true); return; }
+    const scope = this.$("ai-rule-scope").value;
+    if (scope === "selected" && !this.results[this.selectedIndex]) { this.setStatus(t.ruleNeedSelected, true); return; }
+    const kind = this.ruleKind;
+    const targets = this.results.map((r, i) => [r, i]).filter(([r, i]) => r.occurrences.some((o) => o.scope === "in" && !o.manual) && (scope !== "review" || r.compute(this.currentOptions).status === "review") && (scope !== "selected" || i === this.selectedIndex));
+    if (!targets.length) { this.setStatus(t.aiNothing); return; }
+    Prefs.set("aiInstruction", instruction);
+    this.aiAbort = new AbortController();
+    this.activity.start(t.actRule2, () => this.aiAbort?.abort());
+    const gen = this.gen;
+    let done = 0;
+    let failed = 0;
+    let changed = 0;
+    let stoppedByChange = false;
+    try {
+      for (const [result, index] of targets) {
+        if (gen !== this.gen) { stoppedByChange = true; break; }
+        if (this.aiAbort.signal.aborted) break;
+        this.activity.label(t.ruleRunning(done + 1, targets.length, result.entry.term));
+        this.activity.set(done, targets.length);
+        try {
+          const decisions = await this.reviewer.classify(result, this.currentOptions, instruction, this.aiAbort.signal, kind);
+          for (const [p, d] of decisions) {
+            if (result.overrides.get(p)?.source === "manual") continue;
+            if (!result.hasAuto(p)) continue;
+            const before = result.stateOf(p, this.currentOptions);
+            if (kind === "casual" && before === d.state) continue;
+            result.setState(p, d.state, this.currentOptions, "rule", d.reason, kind);
+            if (before !== d.state) changed++;
+          }
+          result.ruleDone = true;
+        } catch (err) {
+          if (this.aiAbort.signal.aborted) break;
+          failed++;
+          result.ai = { pages: new Map(), error: String(err?.message || err) };
+        }
+        done++;
+        if (gen !== this.gen) { stoppedByChange = true; break; }
+        this.refreshTerm(index);
+      }
+    } finally {
+      const stopped = this.aiAbort?.signal.aborted;
+      this.aiAbort = null;
+      this.activity.end();
+      this.pipeline.set(App.STEP.save, false);
+      this.setStatus(stoppedByChange ? t.aiChanged : stopped ? t.ruleStopped(done) : t.ruleDoneMsg(done, changed, failed), failed > 0 || stoppedByChange);
+      this.refreshButtons();
+    }
+  }
+  async runProof() {
+    const t = USER_SETTINGS.text;
+    if (!this.entries.some((e) => e.list.hasAny)) { this.setStatus(t.proofNeedList, true); return; }
+    if (!this.nombreResult) { this.setStatus(t.needNombre, true); return; }
+    this.$("opt-verify").disabled = false;
+    this.$("opt-verify").checked = true;
+    this.renderVerifyNote();
+    await this.run();
+    if (!this.results.length) return;
+    this.currentOptions = { ...this.currentOptions, verify: true, listCols: this.listCols() };
+    await this.recomputeAll(t.actVerify);
+    const rows = [];
+    const counts = { listOnly: 0, appOnly: 0, other: 0 };
+    let terms = 0;
+    for (const r of this.results) {
+      const diffs = r.verify(this.currentOptions);
+      if (!diffs.length) continue;
+      terms++;
+      for (const d of diffs) {
+        counts[d.cat]++;
+        const occ = r.onPage(d.page)[0];
+        const reason = occ ? r.exclusionReason(occ) : null;
+        rows.push({ row: r.entry.row, term: r.entry.term, page: d.page, cat: d.cat, list: d.list, app: d.app, detail: reason ? TermResult.reasonLabel(reason) : occ ? occ.context : "" });
+      }
+    }
+    this.proofReport = { at: new Date(), terms: this.results.length, issueTerms: terms, counts, rows, settings: this.proofSettingsText() };
+    this.view.filter = rows.length ? "diff" : "all";
+    this.view.render();
+    this.renderProofNote();
+    this.setStatus(t.proofDone(this.results.length, terms, counts), rows.length > 0);
+    this.refreshButtons();
+  }
+  proofSettingsText() {
+    const t = USER_SETTINGS.text;
+    const preset = this.fontFilter.matchingPreset();
+    const fonts = preset ? t.fontPresetLabel[preset] : t.proofFontsCustom(this.fontFilter.selected.size, this.fontFilter.fonts.length);
+    return t.proofSettings(fonts, this.pageRange.isActive() ? this.pageRange.label() : t.sum.all, this.searchAreas.hasAny());
+  }
+  renderProofNote() {
+    const t = USER_SETTINGS.text;
+    const el = this.$("proof-note");
+    const r = this.proofReport;
+    if (!r) { el.textContent = !this.entries.some((e) => e.list.hasAny) ? t.proofNeedList : this.excel.savedState ? `${t.proofHint}${t.proofRestoreHint}` : t.proofHint; return; }
+    el.textContent = t.proofSummary(r.terms, r.issueTerms, r.counts);
+  }
+  async saveProof() {
+    const t = USER_SETTINGS.text;
+    if (!this.proofReport) return;
+    this.activity.start(t.actSave);
+    await tick();
+    let out;
+    try {
+      out = await this.excel.exportProof(this.proofReport, { pdfName: this.pdfName || "" });
+    } finally {
+      this.activity.end();
+    }
+    const url = URL.createObjectURL(out.blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = out.name;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    this.setStatus(t.saved(out.name));
+  }
   async runAi(scope) {
     const t = USER_SETTINGS.text;
     const targets = this.results.map((r, i) => [r, i]).filter(([r]) => r.occurrences.length && (scope === "all" || r.compute(this.currentOptions).status === "review"));
     if (!targets.length) { this.setStatus(t.aiNothing); return; }
     this.aiAbort = new AbortController();
-    this.activity.start(t.actAi);
+    this.activity.start(t.actAi, () => this.aiAbort?.abort());
     const gen = this.gen;
     let done = 0;
     let failed = 0;
@@ -4702,6 +5862,7 @@ class App {
   }
   destroy() {
     this.drops.forEach((d) => d.destroy());
+    this.globalDrop.destroy();
     for (const [el, ev, fn] of this.bindings) el.removeEventListener(ev, fn);
     this.aiAbort?.abort();
     this.view.destroy();
