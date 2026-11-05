@@ -252,7 +252,6 @@ textarea:focus { border-color: var(--accent-text); outline: none; box-shadow: 0 
 .drop-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgba(0, 0, 0, .55); pointer-events: none; }
 .drop-overlay-box { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 40px; border: 2px dashed var(--accent-text); border-radius: var(--radius-l); background: var(--surface); color: var(--ink); font-size: 13px; }
 .drop-overlay-box strong { font-size: 16px; }
-.rule-box .seg button { flex: 1; }
 
 /* ===== DETACH ===== */
 .side-head { flex: none; }
@@ -595,15 +594,10 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <button id="btn-ai-stop" hidden>中止</button>
           <button id="btn-ai-apply-all" disabled>AIの提案をすべて反映</button>
           <div class="rule-box">
-            <span class="sub-title">AIへの指示</span>
-            <div class="seg" id="ai-rule-kind" role="group" aria-label="指示の種類">
-              <button data-kind="casual">ざっくり指示</button>
-              <button data-kind="client">先方のルール</button>
-            </div>
-            <textarea id="ai-instruction" rows="5" aria-label="AIへの指示"></textarea>
-            <div class="chip-list" id="ai-examples" aria-label="指示の例（押すと入力欄に追加）"></div>
+            <label class="sub-title" for="ai-instruction">AIへの作業指示</label>
+            <textarea id="ai-instruction" rows="6" placeholder="例：本文中の太字の語だけを拾う。見出し・図表の説明文・側注での出現は対象外。複合語は、索引語そのものの意味で使われていれば拾う。"></textarea>
             <div class="prop"><label class="prop-label" for="ai-rule-scope">対象</label><select id="ai-rule-scope"><option value="all">すべての用語</option><option value="review">要確認の用語だけ</option><option value="selected">選択中の用語だけ</option></select></div>
-            <button class="primary" id="btn-ai-rule" disabled>AIに振り分けを任せる</button>
+            <button class="primary" id="btn-ai-rule" disabled>作業指示を実行</button>
             <p class="note" id="ai-rule-note"></p>
           </div>
           <details>
@@ -685,12 +679,12 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
         </div>
         <div class="viewer-nav" id="viewer-nav" hidden>
           <button id="viewer-page-prev" title="前のページ（PDFの順）">‹ 前のページ</button>
+          <button id="viewer-page-next" title="次のページ（PDFの順）">次のページ ›</button>
           <form class="goto" id="viewer-goto-form" autocomplete="off">
             <label for="viewer-goto">ページ</label>
             <input type="text" id="viewer-goto" inputmode="numeric" placeholder="例：88">
             <button type="submit">移動</button>
           </form>
-          <button id="viewer-page-next" title="次のページ（PDFの順）">次のページ ›</button>
           <button id="viewer-pick" aria-pressed="false" title="ページ上の文字をドラッグで囲むと、選択中の用語の確定ページに追加します">文字をドラッグして追加</button>
           <span class="note" id="viewer-goto-note"></span>
         </div>
@@ -892,10 +886,8 @@ const USER_SETTINGS = {
     pagesPerRequest: 20,
     contextsPerPage: 2,
     contextsPerPageRule: 3,
-    casualSystemPrompt: "あなたは教科書の索引づくりを手伝う、経験のある編集者です。担当者のざっくりした指示（話し言葉・一言・箇条書きでもかまいません）の意図をくみ取り、索引づくりの常識で補いながら、索引語が出てくる各ページを「確定」「申し送り」「対象外」のどれかに振り分けます。指示が触れていないページは、現在の判定のまま返します。指示に当てはまるか判断がつかないページは「申し送り」にします。回答はJSONだけを出力し、説明文は書きません。",
-    casualPrompt: "【担当者からの指示（ざっくり）】\n{instruction}\n\n【索引語】「{term}」\n\n【判定のしかた】\n- 確定：索引に載せる\n- 申し送り：判断がつかない、または人の確認が必要\n- 対象外：索引に載せない\n- 指示が触れていないページは、［現在］の判定をそのまま返してください。\n- 書式（フォント・太字・文字サイズ・色）は、指示に書式の話があるときの判断材料にしてください。\n\n【ページごとの用例】（【】が索引語、［現在］はアプリの判定）\n{examples}\n\nすべてのページについて、次の形式のJSONだけを出力してください。decision は「確定」「申し送り」「対象外」のどれか、reason は30字以内の日本語で書きます。\n{\"pages\":[{\"page\":13,\"decision\":\"確定\",\"reason\":\"…\"}]}",
-    ruleSystemPrompt: "あなたは教科書の索引づくりを手伝う校正者です。先方（出版社）の指示に厳密に従い、索引語が出てくる各ページを「確定」「申し送り」「対象外」のどれかに振り分けます。指示から判断できないページは「申し送り」にします。回答はJSONだけを出力し、説明文は書きません。",
-    rulePrompt: "【先方からの指示】\n{instruction}\n\n【索引語】「{term}」\n\n【判定のしかた】\n- 確定：指示に照らして、そのページを索引に載せる\n- 申し送り：指示だけでは決められない、または人の確認が必要\n- 対象外：指示に照らして、そのページは索引に載せない\n- 書式（フォント・太字・文字サイズ・色）は、指示に書式の条件があるときの判断材料にしてください。\n\n【ページごとの用例】（【】が索引語、［現在］はアプリの判定）\n{examples}\n\n次の形式のJSONだけを出力してください。decision は「確定」「申し送り」「対象外」のどれか、reason は30字以内の日本語で、指示のどの部分に当たるかを書きます。\n{\"pages\":[{\"page\":13,\"decision\":\"確定\",\"reason\":\"…\"}]}",
+    ruleSystemPrompt: "あなたは教科書の索引づくりを手伝う校正者です。作業指示に従い、索引語が出てくる各ページを「確定」「申し送り」「対象外」のどれかに振り分けます。指示が触れていないページは、現在の判定のまま返します。指示に当てはまるか判断がつかないページは「申し送り」にします。回答はJSONだけを出力し、説明文は書きません。",
+    rulePrompt: "【作業指示】\n{instruction}\n\n【索引語】「{term}」\n\n【判定のしかた】\n- 確定：指示に照らして、そのページを索引に載せる\n- 申し送り：指示だけでは決められない、または人の確認が必要\n- 対象外：指示に照らして、そのページは索引に載せない\n- 指示が触れていないページは、［現在］の判定をそのまま返してください。\n- 書式（フォント・太字・文字サイズ・色）は、指示に書式の条件があるときの判断材料にしてください。\n\n【ページごとの用例】（【】が索引語、［現在］はアプリの判定）\n{examples}\n\nすべてのページについて、次の形式のJSONだけを出力してください。decision は「確定」「申し送り」「対象外」のどれか、reason は30字以内の日本語で、指示のどの部分に当たるかを書きます。\n{\"pages\":[{\"page\":13,\"decision\":\"確定\",\"reason\":\"…\"}]}",
     contextChars: 36,
     reasonMaxChars: 60,
     requestTimeoutMs: 180000,
@@ -1015,12 +1007,6 @@ const USER_SETTINGS = {
     actIdleDone: "待機中（すべての手順が完了）",
     zoomFit: "全体",
     ruleState: { adopt: "確定", hold: "申し送り", exclude: "対象外" },
-    ruleKindLabel: { casual: "ざっくり指示", client: "先方のルール" },
-    rulePlaceholder: {
-      casual: "例：見出しや図の説明文で出てくるのは外して。太字のところだけ拾って、あとは申し送りにしておいて。",
-      client: "例：本文中の太字の語だけを拾う。見出し・図表の説明文・側注での出現は対象外。複合語は、索引語そのものの意味で使われていれば拾う。"
-    },
-    ruleExamples: ["見出しや図の説明文で出てくるのは外して", "太字のところだけ拾って、あとは申し送り", "複合語でも意味が同じなら拾って", "人名や地名の一部になっているのは対象外", "迷うものは申し送りに"],
     ruleNeedSelected: "「選択中の用語だけ」のときは、先に結果の表で用語を選んでください。",
     descNormal: "通常の太さ",
     descBodyFont: "本文フォント",
@@ -1028,19 +1014,19 @@ const USER_SETTINGS = {
     descSmaller: "本文より小さい",
     descSame: "本文と同じ大きさ",
     descColor: (c) => `色 ${c}`,
-    actRule2: "指示に従ってAIが振り分け中…",
+    actRule2: "作業指示に従ってAIが振り分け中…",
     ruleRunning: (d, total, term) => `指示に従って振り分け中… ${d} / ${total}「${term}」`,
     ruleDoneMsg: (n, changed, failed) => `指示に従った振り分けが終わりました（${n}語、変更 ${changed}ページ${failed ? `、エラー ${failed}語` : ""}）。変更したページは備考に理由を記録しています。`,
     ruleStopped: (n) => `振り分けを中止しました（${n}語まで処理）。`,
-    ruleNeedText: "AIへの指示を入力してください。",
+    ruleNeedText: "AIへの作業指示を入力してください。",
     ruleNeedLlm: "ローカルLLMに接続すると使えます。",
     ruleNeedRun: "検索してから使えます。",
     ruleHint: "指示に照らして、各ページを確定・申し送り・対象外に自動で振り分けます。目視確認で決めたページは変えません。判定が変わったページは、備考に理由が残ります。",
     ruleChanged: (n) => `指示で${n}件`,
     ruleNoChange: "指示どおり",
-    ruleAdopt: (p, reason, kind) => `p.${p}は${kind === "casual" ? "" : "先方指示に基づき"}AIが確定と判定（${reason}）。`,
-    ruleHold: (p, reason, kind) => `p.${p}は${kind === "casual" ? "" : "先方指示に基づき"}AIが要確認と判定（${reason}）。拾う場合、p.${p}追加。`,
-    excludeRule: (reason, kind) => `${kind === "casual" ? "" : "先方指示に基づき"}AIが対象外と判定${reason ? `：${reason}` : ""}`,
+    ruleAdopt: (p, reason) => `p.${p}は作業指示に基づきAIが確定と判定（${reason}）。`,
+    ruleHold: (p, reason) => `p.${p}は作業指示に基づきAIが要確認と判定（${reason}）。拾う場合、p.${p}追加。`,
+    excludeRule: (reason) => `作業指示に基づきAIが対象外と判定${reason ? `：${reason}` : ""}`,
     proofNeedList: "校正には、確定・申し送り・対象外の列にページが書かれた完成済みのリストが必要です。",
     proofHint: "いまの設定（ノンブル・検索範囲・対象フォントなど）で検索し、リストと突き合わせます。リストの中身は変わりません。",
     proofRestoreHint: "このリストには作業の設定が含まれています。同じ設定で校正するときは、先に「前回の作業状態を復元」を押してください。",
@@ -1136,7 +1122,7 @@ const USER_SETTINGS = {
       terms: "用語の数", termCounts: (n, ok, review, ex, none) => `${n}件（確定 ${ok}、要確認 ${review}、対象外のみ ${ex}、見つからず ${none}）`,
       changes: "手動などでの変更", changeCounts: (m, a, l) => `目視確認 ${m}ページ、AI校正 ${a}ページ、リストの反映 ${l}ページ`,
       aiModel: "AI校正のモデル", aiNone: "使用なし",
-      instruction: "AIへの指示", ruleChanges: "指示によるAIの振り分け"
+      instruction: "AIへの作業指示", ruleChanges: "指示によるAIの振り分け"
     },
     stateInfo: (at, pdf, pages, terms) => `前回の作業状態が含まれています（${at} 保存、${pdf}・${pages}ページ、用語 ${terms}件）。`,
     stateNeedPdf: "PDFを読み込むと復元できます。",
@@ -2713,9 +2699,9 @@ class TermResult {
   stateOf(pageNo, opts) {
     return this.overrides.get(pageNo)?.state || this.defaultState(pageNo, opts);
   }
-  setState(pageNo, state, opts, source, reason, kind) {
+  setState(pageNo, state, opts, source, reason) {
     if (state === this.defaultState(pageNo, opts)) this.overrides.delete(pageNo);
-    else this.overrides.set(pageNo, kind ? { state, source, reason: reason || "", kind } : { state, source, reason: reason || "" });
+    else this.overrides.set(pageNo, { state, source, reason: reason || "" });
   }
   firstPdfIndexOf(pageNo) {
     return this.occurrences.find((o) => o.pageNo === pageNo)?.pageIndex ?? null;
@@ -2786,7 +2772,7 @@ class TermResult {
       if (o && o.source === "manual") label = t.excludeReason.manual;
       else if (o && o.source === "list") label = t.excludeReason.list;
       else if (o && o.source === "ai") label = t.excludeReason.ai;
-      else if (o && o.source === "rule") label = t.excludeRule(o.reason, o.kind);
+      else if (o && o.source === "rule") label = t.excludeRule(o.reason);
       else {
         const occ = this.onPage(p).map((x) => this.exclusionReason(x)).find(Boolean);
         label = !occ ? t.excludeReason.manual : TermResult.reasonLabel(occ);
@@ -2834,7 +2820,7 @@ class TermResult {
       notes.push(o.state === "hold" ? t.aiExcluded(p, o.reason) : t.aiAdopted(p, o.reason));
     }
     for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "rule" && o.state !== "exclude").sort((a, b) => a[0] - b[0])) {
-      notes.push(o.state === "hold" ? t.ruleHold(p, o.reason, o.kind) : t.ruleAdopt(p, o.reason, o.kind));
+      notes.push(o.state === "hold" ? t.ruleHold(p, o.reason) : t.ruleAdopt(p, o.reason));
     }
     const excludedFound = excluded.filter((p) => !this.listOnly.has(p));
     if (excludedFound.length) notes.push(...this.exclusionNotes(excludedFound, fmt));
@@ -4470,7 +4456,7 @@ class AiReviewer {
   static decisionLabel(state) {
     return USER_SETTINGS.text.ruleState[state];
   }
-  buildRuleMessages(result, opts, pages, instruction, kind) {
+  buildRuleMessages(result, opts, pages, instruction) {
     const cfg = USER_SETTINGS.ai;
     const lines = [];
     for (const p of pages) {
@@ -4481,9 +4467,8 @@ class AiReviewer {
         lines.push(`     書式：${this.describe(o)}${o.kind === "compound" ? `／複合語「${o.word}」の一部` : ""}`);
       });
     }
-    const casual = kind === "casual";
-    const user = (casual ? cfg.casualPrompt : cfg.rulePrompt).replace("{instruction}", instruction.trim()).replace("{term}", result.entry.term).replace("{examples}", lines.join("\n"));
-    return [{ role: "system", content: casual ? cfg.casualSystemPrompt : cfg.ruleSystemPrompt }, { role: "user", content: user }];
+    const user = cfg.rulePrompt.replace("{instruction}", instruction.trim()).replace("{term}", result.entry.term).replace("{examples}", lines.join("\n"));
+    return [{ role: "system", content: cfg.ruleSystemPrompt }, { role: "user", content: user }];
   }
   static parseRule(text) {
     const cleaned = String(text).replace(/<think>[\s\S]*?<\/think>/g, "").replace(/```(?:json)?/g, "");
@@ -4501,13 +4486,13 @@ class AiReviewer {
     }
     return out;
   }
-  async classify(result, opts, instruction, signal, kind) {
+  async classify(result, opts, instruction, signal) {
     const pages = result.pageNumbers().filter((p) => result.onPage(p).some((o) => o.scope === "in" && !o.manual));
     const merged = new Map();
     const size = USER_SETTINGS.ai.pagesPerRequest;
     for (let i = 0; i < pages.length; i += size) {
       const chunk = pages.slice(i, i + size);
-      const text = await this.client.chat(this.buildRuleMessages(result, opts, chunk, instruction, kind), signal);
+      const text = await this.client.chat(this.buildRuleMessages(result, opts, chunk, instruction), signal);
       for (const [p, v] of AiReviewer.parseRule(text)) if (chunk.includes(p)) merged.set(p, v);
     }
     return merged;
@@ -4701,7 +4686,6 @@ class App {
     ];
     this.globalDrop = new GlobalDrop(this.$("drop-overlay"), (files) => this.loadFiles(files));
     this.globalDrop.attach(window);
-    this.ruleKind = Prefs.get("aiRuleKind", "casual") === "client" ? "client" : "casual";
     this.handlers = {
       run: () => { if (!this.activity.isBusy()) this.run(); },
       save: () => { if (!this.activity.isBusy()) this.save(); },
@@ -4730,18 +4714,6 @@ class App {
       aiApplyAll: () => this.applyAllAi(),
       aiRule: () => { if (!this.activity.isBusy()) this.runRule(); },
       instruction: () => { Prefs.set("aiInstruction", this.$("ai-instruction").value); this.refreshButtons(); },
-      ruleKind: (e) => {
-        const btn = e.target.closest("button[data-kind]");
-        if (btn) this.setRuleKind(btn.dataset.kind);
-      },
-      example: (e) => {
-        const btn = e.target.closest("button[data-example]");
-        if (!btn) return;
-        const ta = this.$("ai-instruction");
-        ta.value = ta.value.trim() ? `${ta.value.replace(/\s+$/, "")}\n${btn.dataset.example}` : btn.dataset.example;
-        this.handlers.instruction();
-        ta.focus();
-      },
       leave: (e) => {
         if (!this.hasUnsavedWork()) return;
         e.preventDefault();
@@ -4783,8 +4755,6 @@ class App {
       [this.$("btn-ai-apply-all"), "click", this.handlers.aiApplyAll],
       [this.$("btn-ai-rule"), "click", this.handlers.aiRule],
       [this.$("ai-instruction"), "input", this.handlers.instruction],
-      [this.$("ai-rule-kind"), "click", this.handlers.ruleKind],
-      [this.$("ai-examples"), "click", this.handlers.example],
       [window, "beforeunload", this.handlers.leave],
       [this.$("btn-proof"), "click", this.handlers.proof],
       [this.$("btn-proof-save"), "click", this.handlers.proofSave],
@@ -4795,26 +4765,11 @@ class App {
     ];
     for (const [el, ev, fn] of this.bindings) el.addEventListener(ev, fn);
     this.$("ai-instruction").value = Prefs.get("aiInstruction", "");
-    this.$("ai-examples").replaceChildren(...USER_SETTINGS.text.ruleExamples.map((ex) => {
-      const b = document.createElement("button");
-      b.className = "chip";
-      b.dataset.example = ex;
-      b.textContent = ex;
-      return b;
-    }));
-    this.setRuleKind(this.ruleKind);
     this.view.show(USER_SETTINGS.sample, true);
     this.renderAreaSummary();
     this.renderRangeNote();
     this.activity.idle();
     this.refreshButtons();
-  }
-  setRuleKind(kind) {
-    this.ruleKind = kind === "client" ? "client" : "casual";
-    Prefs.set("aiRuleKind", this.ruleKind);
-    for (const b of this.$("ai-rule-kind").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.kind === this.ruleKind));
-    this.$("ai-instruction").placeholder = USER_SETTINGS.text.rulePlaceholder[this.ruleKind];
-    this.$("ai-examples").hidden = this.ruleKind !== "casual";
   }
   hasUnsavedWork() {
     if (this.activity?.isBusy()) return true;
@@ -5266,7 +5221,7 @@ class App {
     rows.push([L.changes, L.changeCounts(manual, ai, list)]);
     const aiModels = [...new Set(st.terms.map((x) => x.ai?.model).filter(Boolean))];
     rows.push([L.aiModel, aiModels.length ? aiModels.join("、") : L.aiNone]);
-    rows.push([L.instruction, s.aiInstruction ? `［${t.ruleKindLabel[s.aiRuleKind] || t.ruleKindLabel.client}］\n${s.aiInstruction}` : L.none]);
+    rows.push([L.instruction, s.aiInstruction ? s.aiInstruction : L.none]);
     const ruled = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "rule").length, 0);
     rows.push([L.ruleChanges, `${ruled}ページ`]);
     return rows;
@@ -5295,8 +5250,7 @@ class App {
         useRanges: this.$("opt-range").checked,
         header: this.$("opt-header").checked,
         verify: this.$("opt-verify").checked,
-        aiInstruction: this.$("ai-instruction").value,
-        aiRuleKind: this.ruleKind
+        aiInstruction: this.$("ai-instruction").value
       },
       mapping: { ...this.excel.mapping, sheetName: this.excel.sheet().name, start: this.excel.mapping.start + offset },
       globalRules: this.globalRules,
@@ -5334,7 +5288,6 @@ class App {
     if (s.separator) this.$("opt-sep").value = s.separator;
     this.$("opt-range").checked = !!s.useRanges;
     if (s.aiInstruction) { this.$("ai-instruction").value = s.aiInstruction; Prefs.set("aiInstruction", s.aiInstruction); }
-    this.setRuleKind(s.aiRuleKind || (s.aiInstruction ? "client" : this.ruleKind));
     this.$("opt-header").checked = s.header !== false;
     const fontNames = new Set(this.fontFilter.fonts.map((f) => f.name));
     const fonts = (s.fonts || []).filter((n) => fontNames.has(n));
@@ -5679,7 +5632,6 @@ class App {
     if (!instruction) { this.setStatus(t.ruleNeedText, true); return; }
     const scope = this.$("ai-rule-scope").value;
     if (scope === "selected" && !this.results[this.selectedIndex]) { this.setStatus(t.ruleNeedSelected, true); return; }
-    const kind = this.ruleKind;
     const targets = this.results.map((r, i) => [r, i]).filter(([r, i]) => r.occurrences.some((o) => o.scope === "in" && !o.manual) && (scope !== "review" || r.compute(this.currentOptions).status === "review") && (scope !== "selected" || i === this.selectedIndex));
     if (!targets.length) { this.setStatus(t.aiNothing); return; }
     Prefs.set("aiInstruction", instruction);
@@ -5697,13 +5649,13 @@ class App {
         this.activity.label(t.ruleRunning(done + 1, targets.length, result.entry.term));
         this.activity.set(done, targets.length);
         try {
-          const decisions = await this.reviewer.classify(result, this.currentOptions, instruction, this.aiAbort.signal, kind);
+          const decisions = await this.reviewer.classify(result, this.currentOptions, instruction, this.aiAbort.signal);
           for (const [p, d] of decisions) {
             if (result.overrides.get(p)?.source === "manual") continue;
             if (!result.hasAuto(p)) continue;
             const before = result.stateOf(p, this.currentOptions);
-            if (kind === "casual" && before === d.state) continue;
-            result.setState(p, d.state, this.currentOptions, "rule", d.reason, kind);
+            if (before === d.state) continue;
+            result.setState(p, d.state, this.currentOptions, "rule", d.reason);
             if (before !== d.state) changed++;
           }
           result.ruleDone = true;
