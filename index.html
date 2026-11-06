@@ -453,6 +453,13 @@ th { position: sticky; top: 0; z-index: 1; background: var(--head); color: var(-
 .result-table.cc-10 td:nth-child(10) > *,
 .result-table.cc-11 td:nth-child(11) > *,
 .result-table.cc-12 td:nth-child(12) > * { display: none; }
+.result-table td.edited { box-shadow: inset 3px 0 0 var(--hit-pending-c); background: color-mix(in srgb, var(--hit-pending-c) 9%, transparent); }
+.result-table td.edited::before { content: "手"; display: inline-block; margin-right: 4px; padding: 0 3px; border-radius: 2px; background: var(--hit-pending-c); color: #fff; font-size: 9px; font-weight: 700; line-height: 1.5; vertical-align: 1px; }
+.cell-editor { display: flex; flex-direction: column; gap: 4px; min-width: 14em; }
+.cell-editor textarea { width: 100%; min-height: 2.4em; font: inherit; resize: vertical; }
+.cell-editor .row-btns { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.cell-editor .row-btns button { min-height: 22px; font-size: 11px; padding: 0 8px; }
+.cell-editor .row-btns span { font-size: 10px; color: var(--muted); }
 .result-table tr.search-hit td.c-term { background: color-mix(in srgb, var(--lamp) 28%, transparent); }
 .term-search { display: flex; align-items: center; gap: 4px; }
 .term-search input { width: 150px; min-height: 26px; }
@@ -915,6 +922,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <li>「別ウィンドウ」を押すと、そのパネルを別のウィンドウに切り離せます。画面が2枚あるときに便利です。</li>
           <li>結果の上の「用語を検索」に語を入れると、その用語までジャンプしてPDFを開きます。Enterで次の候補へ移ります。ひらがなで読みを入れても探せます。</li>
           <li>結果の表の列の見出しをクリックすると、その列だけを細く折りたためます。もう一度クリックすると元に戻ります。</li>
+          <li>結果の表のセルをダブルクリックすると、その場で書き換えられます（用語・確定ページ・申し送り・対象外・備考・対象外の理由・訂正箇所）。書き換えたセルには「手」の印が付き、Excelでは薄いオレンジで塗られます。</li>
           <li>右上の丸いマーク（PDF・ノンブル・Excelなど）が緑になれば、その準備ができています。</li>
         </ul>
       </section>
@@ -1253,6 +1261,7 @@ const USER_SETTINGS = {
   pickMinSize: 0.004,
   guideSpyOffset: 80,
   termSearchDebounceMs: 250,
+  editFill: "FFFDE3C8",
   maxTableColumns: 12,
   pagePrefixes: { before: ["巻頭", "口絵"], after: ["巻末", "付録"] },
   pageGroupSpan: 100000,
@@ -1437,7 +1446,7 @@ const USER_SETTINGS = {
       ruby: "ルビ", rubyExclude: "除いて検索する", rubyInclude: "含めて検索する", hidden: "見えない文字（透明テキスト）",
       format: "ページの書き方", separator: (sep) => `区切り「${sep.trim() || sep}」`, ranges: "、連続ページは範囲でまとめる",
       globalRules: "書式で対象外（全用語）", perTerm: "用語ごとの設定", none: "なし",
-      secExcluded: "対象外にした書式", noNombre: "ノンブルのないページ", secTarget: "対象にした書式", preset: "選んだ絞り込み", custom: "個別に選択", allCount: (n) => `すべて（${n}種類）`, someCount: (n, total) => `${total}種類中 ${n}種類`, exFonts: "対象外のフォント", exSizes: "対象外の文字サイズ", exColors: "対象外の文字色", exByReason: "対象外になった箇所（理由別）",
+      secExcluded: "対象外にした書式", edited: "手修正したセル", editedCount: (n) => `${n}か所（Excelでは薄いオレンジで塗っています）`, noNombre: "ノンブルのないページ", secTarget: "対象にした書式", preset: "選んだ絞り込み", custom: "個別に選択", allCount: (n) => `すべて（${n}種類）`, someCount: (n, total) => `${total}種類中 ${n}種類`, exFonts: "対象外のフォント", exSizes: "対象外の文字サイズ", exColors: "対象外の文字色", exByReason: "対象外になった箇所（理由別）",
       termFont: (label) => `フォント「${label}」`, termRules: (labels) => `書式で対象外「${labels}」`,
       terms: "用語の数", termCounts: (n, ok, review, ex, none) => `${n}件（確定 ${ok}、要確認 ${review}、対象外のみ ${ex}、見つからず ${none}）`,
       changes: "手動などでの変更", changeCounts: (m, a, p) => `目視確認 ${m}ページ、AI校正 ${a}ページ、未振り分けの保留 ${p}ページ`,
@@ -1452,7 +1461,7 @@ const USER_SETTINGS = {
     stateRestored: "前回の作業状態から続けています。",
     restoring: "前回の作業状態を復元しています…",
     restored: (n, missing) => `前回の作業状態を復元しました（用語 ${n}件）。${missing ? `リストから見つからなかった用語：${missing}件。` : ""}`,
-    excludeReason: { pageRange: "検索ページ外", area: "検索範囲外", font: "対象フォント外", size: "対象サイズ外", color: "対象色外", manual: "目視確認で対象外", ai: "AI校正で対象外", list: "リストの記載に従い対象外" },
+    excludeReason: { edit: "手修正で対象外", pageRange: "検索ページ外", area: "検索範囲外", font: "対象フォント外", size: "対象サイズ外", color: "対象色外", manual: "目視確認で対象外", ai: "AI校正で対象外", list: "リストの記載に従い対象外" },
     excludeStyle: (label) => `書式「${label}」で対象外`,
     excludedNote: (pages, label) => `p.${pages}　${label}`,
     excludedSummary: (terms, pages, names) => `${terms}語・${pages}ページ（${names}）`,
@@ -1581,6 +1590,15 @@ const USER_SETTINGS = {
     estimatedNote: (pages) => `p.${pages}はノンブルを読み取れず前後から推定した番号。要確認。`,
     noNombreNote: (pdfPages) => `PDF ${pdfPages}枚目　ノンブルがないページのため対象外（索引から参照できない）`,
     termSearchNone: "見つかりません",
+    editMark: "手修正",
+    editOk: "決定",
+    editRevert: "自動の内容に戻す",
+    editHint: "Enterで決定、Escでやめる（改行はShift+Enter）",
+    editPagesInvalid: "ページ番号の書き方を確認してください。例：12, 14-16, 巻頭3",
+    cellEdited: (term, col) => `「${term}」の${col}を手修正しました。`,
+    cellReverted: (term, col) => `「${term}」の${col}を自動の内容に戻しました。`,
+    editPagesRemovedExcluded: "対象外の列から消したページは、アプリの判定に戻しました。",
+    colName: { term: "用語", pages: "確定ページ", held: "申し送り", excluded: "対象外", note: "備考", exclNote: "対象外の理由", fixes: "訂正箇所" },
     termSearchCount: (n, total) => `${n} / ${total}`,
     colToggle: (label) => `クリックで「${label}」の列を折りたたむ／広げる`,
     notFound: "PDF内に見つからず。表記ゆれ（漢字／かな、旧字体、送り仮名など）を確認のこと。",
@@ -3055,6 +3073,9 @@ class TermResult {
     this.ctx = ctx || { rules: () => [], filterReason: () => null, version: () => "" };
     this.rulesFn = this.ctx.rules;
     this.overrides = new Map();
+    this.editedCols = new Set();
+    this.textEdits = {};
+    this.extraPages = new Set();
     this.ai = null;
     this.indexPages();
     this.inactiveKey = null;
@@ -3122,8 +3143,8 @@ class TermResult {
     return this.listStateOf(pageNo) !== "none" || this.listPending(pageNo);
   }
   allPages(opts) {
-    if (!opts?.listBase) return this.pageList;
-    return [...new Set([...this.pageList, ...this.listPages()])].sort((a, b) => a - b);
+    if (!opts?.listBase && !this.extraPages.size) return this.pageList;
+    return [...new Set([...this.pageList, ...this.extraPages, ...(opts?.listBase ? this.listPages() : [])])].sort((a, b) => a - b);
   }
   pendingTag(pageNo) {
     const t = USER_SETTINGS.text;
@@ -3243,6 +3264,7 @@ class TermResult {
       const o = this.overrides.get(p);
       let label;
       if (o && o.source === "manual") label = t.excludeReason.manual;
+      else if (o && o.source === "edit") label = t.excludeReason.edit;
       else if (o && o.source === "list") label = t.excludeReason.list;
       else if (o && o.source === "ai") label = t.excludeReason.ai;
       else if (o && o.source === "rule") label = t.excludeRule(o.reason);
@@ -3314,12 +3336,15 @@ class TermResult {
     const status = pendingPages.length ? "pending" : held.length || estimatedHits.length ? "review" : adopt.length ? "ok" : excluded.length || noNombre.length ? "excluded" : "none";
     const ai = this.aiSummary(opts);
     const raw = { adopt, hold: held, exclude: excluded, pending: pendingItems, exclGroups, noNombre: noNombreAll };
+    const ed = this.textEdits;
+    const editedCols = [...this.editedCols];
+    if (this.entry.edited || this.entry.added || this.ctx.termEdited?.()) editedCols.push("term");
     return {
-      row: this.entry.row, term: this.entry.term, termChanged: !!(this.entry.edited || this.entry.added),
+      row: this.entry.row, term: this.entry.term, termChanged: !!(this.entry.edited || this.entry.added), editedCols,
       pages: fmt(adopt), held: fmt(held), excluded: fmt(excluded),
       pending: pendingItems.map(([p, tag]) => t.pendingItem(p, tag.label)).join("、"), pendingCount: pendingItems.length,
-      status, note: notes.join("\n"), exclNote, fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
-      fixes: this.ctx.fixes ? this.ctx.fixes(this, raw) : "", raw
+      status, note: ed.note ?? notes.join("\n"), exclNote: ed.exclNote ?? exclNote, fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
+      fixes: ed.fixes ?? (this.ctx.fixes ? this.ctx.fixes(this, raw) : ""), raw
     };
   }
 }
@@ -3603,6 +3628,14 @@ class ExcelIO {
       if (held) row.getCell(held).value = r.held;
       if (excluded) row.getCell(excluded).value = r.excluded;
       if (r.termChanged && term) row.getCell(term).value = r.term;
+      for (const role of ["term", "pages", "held", "excluded", "note", "exclNote", "fixes"]) {
+        const col = this.mapping[role];
+        if (!col) continue;
+        const cell = row.getCell(col);
+        const mine = cell.fill?.fgColor?.argb === USER_SETTINGS.editFill;
+        if ((r.editedCols || []).includes(role)) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: USER_SETTINGS.editFill } };
+        else if (mine) cell.fill = { type: "pattern", pattern: "none" };
+      }
       if (pending) row.getCell(pending).value = r.pending || null;
       if (exclNote) {
         const cell = row.getCell(exclNote);
@@ -3690,6 +3723,7 @@ class ColumnMapper {
 
 // ===== RESULT VIEW =====
 class ResultView {
+  static EDIT_ROLES = { "c-term": "term", "c-pages": "pages", "c-held": "held", "c-excluded": "excluded", "c-note": "note", "c-exnote": "exclNote", "c-fixes": "fixes" };
   constructor(app) {
     this.app = app;
     this.filter = "all";
@@ -3733,6 +3767,16 @@ class ResultView {
       Prefs.set("collapsedCols", [...this.collapsed]);
       this.applyCollapse();
     };
+    this.editing = null;
+    this.handlers.dbl = (e) => {
+      const td = e.target.closest("td");
+      const tr = e.target.closest("tr[data-index]");
+      if (!td || !tr || this.isSample || td.querySelector(".cell-editor")) return;
+      const role = ResultView.EDIT_ROLES[[...td.classList].find((c) => ResultView.EDIT_ROLES[c])];
+      if (!role) return;
+      e.preventDefault();
+      this.startEdit(td, parseInt(tr.dataset.index, 10), role);
+    };
     this.handlers.searchInput = () => {
       clearTimeout(this.searchTimer);
       this.searchTimer = setTimeout(() => this.search(0), USER_SETTINGS.termSearchDebounceMs);
@@ -3749,6 +3793,7 @@ class ResultView {
     this.head = UI.byId("result-head");
     this.searchInput = UI.byId("term-search");
     this.head.addEventListener("click", this.handlers.head);
+    this.body.addEventListener("dblclick", this.handlers.dbl);
     this.searchInput.addEventListener("input", this.handlers.searchInput);
     this.searchInput.addEventListener("keydown", this.handlers.searchKey);
     for (const th of this.head.querySelectorAll("th")) th.title = USER_SETTINGS.text.colToggle(th.textContent);
@@ -3757,6 +3802,62 @@ class ResultView {
     this.body.addEventListener("click", this.handlers.row);
     this.body.addEventListener("keydown", this.handlers.key);
     this.body.addEventListener("change", this.handlers.font);
+  }
+  startEdit(td, index, role) {
+    const t = USER_SETTINGS.text;
+    this.cancelEdit();
+    const r = this.rows[index];
+    if (!r) return;
+    const doc = td.ownerDocument;
+    const box = doc.createElement("div");
+    box.className = "cell-editor";
+    const ta = doc.createElement("textarea");
+    ta.value = String(r[role] ?? "");
+    ta.rows = Math.min(8, Math.max(1, ta.value.split("\n").length));
+    ta.setAttribute("aria-label", t.colName[role]);
+    const btns = doc.createElement("div");
+    btns.className = "row-btns";
+    const ok = doc.createElement("button");
+    ok.className = "primary";
+    ok.textContent = t.editOk;
+    btns.append(ok);
+    if (role !== "term" && (r.editedCols || []).includes(role)) {
+      const revert = doc.createElement("button");
+      revert.textContent = t.editRevert;
+      revert.addEventListener("mousedown", (e) => e.preventDefault());
+      revert.addEventListener("click", () => { this.editing = null; this.app.revertCell(index, role); });
+      btns.append(revert);
+    }
+    const hint = doc.createElement("span");
+    hint.textContent = t.editHint;
+    btns.append(hint);
+    box.append(ta, btns);
+    td.replaceChildren(box);
+    td.classList.remove("edited");
+    const commit = () => {
+      if (this.editing?.ta !== ta) return;
+      this.editing = null;
+      this.app.editCell(index, role, ta.value);
+    };
+    ok.addEventListener("mousedown", (e) => e.preventDefault());
+    ok.addEventListener("click", commit);
+    ta.addEventListener("keydown", (e) => {
+      e.stopPropagation();
+      if (e.key === "Escape") { e.preventDefault(); this.cancelEdit(); }
+      else if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); commit(); }
+    });
+    ta.addEventListener("click", (e) => e.stopPropagation());
+    ta.addEventListener("blur", () => setTimeout(commit, 0));
+    this.editing = { ta, index };
+    ta.focus();
+    ta.select();
+  }
+  cancelEdit() {
+    const ed = this.editing;
+    if (!ed) return;
+    this.editing = null;
+    if (this.rows[ed.index]) this.updateRow(ed.index, this.rows[ed.index]);
+    this.select(this.selected);
   }
   applyCollapse() {
     for (let n = 1; n <= USER_SETTINGS.maxTableColumns; n++) this.table.classList.toggle(`cc-${n}`, this.collapsed.has(n));
@@ -3861,9 +3962,15 @@ class ResultView {
     if (this.isSample) tr.className = "sample"; else tr.tabIndex = 0;
     tr.setAttribute("aria-selected", String(index === this.selected));
     const cells = [["c-row", r.row], ["c-term", r.term], ["c-font", null], ["c-pages", r.pages || "—"], ["c-held", r.held || ""], ["c-excluded", r.excluded || ""], ["c-state", null], ["c-ai", null], ["c-pending", null], ["c-note", r.note], ["c-exnote", r.exclNote || ""], ["c-fixes", r.fixes || ""]];
+    const edited = new Set(r.editedCols || []);
     for (const [cls, val] of cells) {
       const td = document.createElement("td");
       td.className = cls;
+      const role = ResultView.EDIT_ROLES[cls];
+      if (role && edited.has(role)) {
+        td.classList.add("edited");
+        td.title = USER_SETTINGS.text.editMark;
+      }
       if (cls === "c-state") {
         const s = document.createElement("span");
         s.className = `state ${r.status}`;
@@ -3896,6 +4003,7 @@ class ResultView {
   destroy() {
     clearTimeout(this.searchTimer);
     this.head.removeEventListener("click", this.handlers.head);
+    this.body.removeEventListener("dblclick", this.handlers.dbl);
     this.searchInput.removeEventListener("input", this.handlers.searchInput);
     this.searchInput.removeEventListener("keydown", this.handlers.searchKey);
     this.summary.removeEventListener("click", this.handlers.filter);
@@ -5999,6 +6107,9 @@ class App {
     Object.assign(entry, { term: fresh.term, searchKey: fresh.searchKey, bracketStripped: fresh.bracketStripped, edited: true });
     const result = this.buildResult(entry, old.fontChoice, this.currentOptions);
     result.overrides = old.overrides;
+    result.editedCols = old.editedCols;
+    result.textEdits = old.textEdits;
+    result.extraPages = old.extraPages;
     for (const o of old.manualOccs()) result.addManual(o);
     this.results[index] = result;
     this.refreshTerm(index);
@@ -6024,6 +6135,73 @@ class App {
     this.renderPendingBox();
     this.pipeline.set(App.STEP.save, false);
     this.setStatus(t.termAdded(value, row, result.pageNumbers().length));
+    this.refreshButtons();
+  }
+  editCell(index, role, text) {
+    const t = USER_SETTINGS.text;
+    const result = this.results[index];
+    if (!result) return;
+    if (this.activity.isBusy() || this.aiAbort) { this.setStatus(t.termBusy, true); this.refreshTerm(index); return; }
+    const value = String(text ?? "").replace(/\r/g, "");
+    const opts = this.currentOptions;
+    const row = result.compute(opts);
+    if (role === "term") {
+      const term = value.trim();
+      if (!term || term === result.entry.term) { this.refreshTerm(index); return; }
+      const key = TextNormalizer.normalize(term);
+      if (this.entries.some((e) => e !== result.entry && TextNormalizer.normalize(e.term) === key)) { this.setStatus(t.termDuplicate(term), true); this.refreshTerm(index); return; }
+      this.editTerm(index, term);
+      return;
+    }
+    if (value === String(row[role] ?? "")) { this.refreshTerm(index); return; }
+    let extra = "";
+    if (role === "pages" || role === "held" || role === "excluded") {
+      const range = new PageRange(value.replace(/[、，]/g, ",").replace(/—/g, ""));
+      if (value.trim() && value.trim() !== "—" && !range.valid) { this.setStatus(t.editPagesInvalid, true); this.refreshTerm(index); return; }
+      const state = { pages: "adopt", held: "hold", excluded: "exclude" }[role];
+      const next = new Set(value.trim() && value.trim() !== "—" ? range.numbers() : []);
+      const prev = new Set(row.raw[{ pages: "adopt", held: "hold", excluded: "exclude" }[role]]);
+      for (const p of next) {
+        if (!result.byPage.has(p) && !(opts.listBase && result.isListPage(p))) result.extraPages.add(p);
+        result.overrides.set(p, { state, source: "edit", reason: "" });
+      }
+      for (const p of prev) {
+        if (next.has(p)) continue;
+        if (state === "exclude") {
+          result.overrides.delete(p);
+          result.extraPages.delete(p);
+          extra = t.editPagesRemovedExcluded;
+        } else {
+          result.overrides.set(p, { state: "exclude", source: "edit", reason: "" });
+        }
+      }
+    } else {
+      result.textEdits[role] = value;
+    }
+    result.editedCols.add(role);
+    this.refreshTerm(index);
+    this.pipeline.set(App.STEP.save, false);
+    this.setStatus(`${t.cellEdited(result.entry.term, t.colName[role])}${extra}`);
+    this.refreshButtons();
+  }
+  revertCell(index, role) {
+    const t = USER_SETTINGS.text;
+    const result = this.results[index];
+    if (!result) return;
+    if (role === "pages" || role === "held" || role === "excluded") {
+      for (const [p, o] of [...result.overrides]) {
+        if (o.source !== "edit") continue;
+        result.overrides.delete(p);
+        if (!result.byPage.has(p)) result.extraPages.delete(p);
+      }
+      for (const r of ["pages", "held", "excluded"]) result.editedCols.delete(r);
+    } else {
+      delete result.textEdits[role];
+      result.editedCols.delete(role);
+    }
+    this.refreshTerm(index);
+    this.pipeline.set(App.STEP.save, false);
+    this.setStatus(t.cellReverted(result.entry.term, t.colName[role]));
     this.refreshButtons();
   }
   stateMismatch() {
@@ -6128,6 +6306,8 @@ class App {
     const pendingTotal = computed.reduce((n, r) => n + r.pendingCount, 0);
     rows.push([L.listBase, s.listBase ? L.listBaseOn : L.listBaseOff]);
     rows.push([L.changes, L.changeCounts(manual, ai, pendingTotal)]);
+    const editedTotal = computed.reduce((n, r) => n + (r.editedCols?.length || 0), 0);
+    rows.push([L.edited, editedTotal ? L.editedCount(editedTotal) : L.none]);
     const aiModels = [...new Set(st.terms.map((x) => x.ai?.model).filter(Boolean))];
     rows.push([L.aiModel, aiModels.length ? aiModels.join("、") : L.aiNone]);
     rows.push([L.instruction, s.aiInstruction ? s.aiInstruction : L.none]);
@@ -6173,6 +6353,7 @@ class App {
         overrides: [...r.overrides],
         added: r.manualOccs().map((o) => ({ pageIndex: o.pageIndex, refs: o.refKeys })),
         ruleDone: !!r.ruleDone,
+        edits: { cols: [...r.editedCols], texts: r.textEdits, extra: [...r.extraPages] },
         ai: r.ai ? { pages: [...(r.ai.pages || new Map())], error: r.ai.error || "", model: r.ai.model || "" } : null
       })),
       originalNotes: [...originalNotes],
@@ -6246,6 +6427,9 @@ class App {
       const listBase = this.$("opt-listbase").checked;
       result.overrides = new Map((saved.overrides || []).filter(([p, o]) => !listBase || (o.state === "pending" ? result.listPending(p) : result.listStateOf(p) === o.state && !result.listPending(p))));
       result.ruleDone = !!saved.ruleDone;
+      result.editedCols = new Set(saved.edits?.cols || []);
+      result.textEdits = { ...(saved.edits?.texts || {}) };
+      result.extraPages = new Set(saved.edits?.extra || []);
       result.ai = saved.ai ? { pages: new Map(saved.ai.pages || []), error: saved.ai.error || "", model: saved.ai.model || "" } : null;
       if (result.ai && !result.ai.error) delete result.ai.error;
     }
@@ -6378,7 +6562,12 @@ class App {
       rules: () => this.rulesFor(entry.row),
       filterReason: (occ, fontChoice) => this.filterReason(occ, fontChoice),
       version: () => String(this.filterVersion),
-      fixes: (r, raw) => this.fixesFor(r, raw)
+      fixes: (r, raw) => this.fixesFor(r, raw),
+      termEdited: () => {
+        if (!this.baseline.size) return false;
+        const b = this.baseline.get(entry.row);
+        return !b || b.term !== entry.term;
+      }
     });
     result.fontLabel = this.fontChoiceLabel(choice);
     const key = TextNormalizer.fold(entry.searchKey || "");
