@@ -2002,7 +2002,7 @@ class PdfReader {
   async render(pageIndex, canvas, maxWidth, maxHeight, group) {
     const page = await this.doc.getPage(pageIndex + 1);
     const base = page.getViewport({ scale: 1 });
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = canvas.ownerDocument.defaultView?.devicePixelRatio || window.devicePixelRatio || 1;
     const fit = Math.max(0.1, Math.min(maxWidth / base.width, maxHeight / base.height));
     let scale = fit * dpr;
     const pixels = base.width * base.height * scale * scale;
@@ -2014,12 +2014,25 @@ class PdfReader {
     canvas.height = Math.round(viewport.height);
     canvas.style.width = `${Math.floor(base.width * fit)}px`;
     canvas.style.height = `${Math.floor(base.height * fit)}px`;
-    const task = page.render({ canvasContext: canvas.getContext("2d"), viewport });
+    const foreign = canvas.ownerDocument !== document;
+    const draw = foreign ? document.createElement("canvas") : canvas;
+    if (foreign) {
+      draw.width = canvas.width;
+      draw.height = canvas.height;
+    }
+    const task = page.render({ canvasContext: draw.getContext("2d"), viewport });
     this.renderTasks.set(canvas, task);
     const set = group ? this.groupTasks.get(group) || this.groupTasks.set(group, new Set()).get(group) : null;
     set?.add(task);
     try {
       await task.promise;
+      if (foreign) {
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(draw, 0, 0);
+        draw.width = 0;
+        draw.height = 0;
+      }
       return true;
     } catch (err) {
       if (err?.name === "RenderingCancelledException") return false;
