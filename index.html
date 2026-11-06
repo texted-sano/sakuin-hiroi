@@ -555,7 +555,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <label class="check top"><input type="checkbox" id="opt-serial"><span>ノンブルを使わず、PDFの通し番号で数える</span></label>
           <div class="prop">
             <label class="prop-label" for="opt-page-range">検索するページ</label>
-            <input type="text" id="opt-page-range" placeholder="例：1-238（空欄＝すべて）" autocomplete="off">
+            <input type="text" id="opt-page-range" placeholder="例：1-238、巻末1-4（空欄＝すべて）" autocomplete="off">
           </div>
           <p class="note" id="page-range-note"></p>
           <div class="prop" id="serial-box" hidden>
@@ -1173,12 +1173,12 @@ const USER_SETTINGS = {
     contextsPerPage: 2,
     contextsPerPageRule: 3,
     ruleSystemPrompt: "あなたは教科書の索引づくりを手伝う校正者です。作業指示に従い、索引語が出てくる各ページを「確定」「申し送り」「対象外」のどれかに振り分けます。指示が触れていないページは、現在の判定のまま返します。指示に当てはまるか判断がつかないページは「申し送り」にします。回答はJSONだけを出力し、説明文は書きません。",
-    rulePrompt: "【作業指示】\n{instruction}\n\n【索引語】「{term}」\n\n【判定のしかた】\n- 確定：指示に照らして、そのページを索引に載せる\n- 申し送り：指示だけでは決められない、または人の確認が必要\n- 対象外：指示に照らして、そのページは索引に載せない\n- 指示が触れていないページは、［現在］の判定をそのまま返してください。\n- 書式（フォント・太字・文字サイズ・色）は、指示に書式の条件があるときの判断材料にしてください。\n\n【ページごとの用例】（【】が索引語、［現在］はアプリの判定）\n{examples}\n\nすべてのページについて、次の形式のJSONだけを出力してください。decision は「確定」「申し送り」「対象外」のどれか、reason は30字以内の日本語で、指示のどの部分に当たるかを書きます。\n{\"pages\":[{\"page\":13,\"decision\":\"確定\",\"reason\":\"…\"}]}",
+    rulePrompt: "【作業指示】\n{instruction}\n\n【索引語】「{term}」\n\n【判定のしかた】\n- 確定：指示に照らして、そのページを索引に載せる\n- 申し送り：指示だけでは決められない、または人の確認が必要\n- 対象外：指示に照らして、そのページは索引に載せない\n- 指示が触れていないページは、［現在］の判定をそのまま返してください。\n- 書式（フォント・太字・文字サイズ・色）は、指示に書式の条件があるときの判断材料にしてください。\n\n【ページごとの用例】（【】が索引語、［現在］はアプリの判定）\n{examples}\n\nすべてのページについて、次の形式のJSONだけを出力してください。decision は「確定」「申し送り」「対象外」のどれか、reason は30字以内の日本語で、指示のどの部分に当たるかを書きます。\npage には用例の「p.」の後ろの表記（例：13、巻頭3）をそのまま書きます。\n{\"pages\":[{\"page\":\"13\",\"decision\":\"確定\",\"reason\":\"…\"}]}",
     contextChars: 36,
     reasonMaxChars: 60,
     requestTimeoutMs: 180000,
     systemPrompt: "あなたは教科書の索引づくりを手伝う校正者です。索引語と、その語が出てくるページの用例を読み、そのページを索引に載せるべきかを判定します。回答はJSONだけを出力し、説明文は書きません。",
-    userPrompt: "索引語：「{term}」\n\n判定の基準：\n- 索引語の意味で使われ、そのページで内容として扱われている → 採用\n- 索引語が別の語の一部になっている（例：「黒人奴隷」の中の「奴隷」）場合は、索引語の意味を含んで扱っていれば採用、別の概念なら不採用、決めきれなければ保留\n- 見出し・柱・図版番号・索引ページ・別の語の偶然の一致など、内容と関係のない出現 → 不採用\n\nページごとの用例（【】が索引語。［現在］はアプリの判定）：\n{examples}\n\n次の形式のJSONだけを出力してください。verdict は「採用」「不採用」「保留」のどれか、reason は40字以内の日本語。\n{\"pages\":[{\"page\":13,\"verdict\":\"採用\",\"reason\":\"…\"}]}"
+    userPrompt: "索引語：「{term}」\n\n判定の基準：\n- 索引語の意味で使われ、そのページで内容として扱われている → 採用\n- 索引語が別の語の一部になっている（例：「黒人奴隷」の中の「奴隷」）場合は、索引語の意味を含んで扱っていれば採用、別の概念なら不採用、決めきれなければ保留\n- 見出し・柱・図版番号・索引ページ・別の語の偶然の一致など、内容と関係のない出現 → 不採用\n\nページごとの用例（【】が索引語。［現在］はアプリの判定）：\n{examples}\n\n次の形式のJSONだけを出力してください。verdict は「採用」「不採用」「保留」のどれか、reason は40字以内の日本語。\npage には用例の「p.」の後ろの表記（例：13、巻頭3）をそのまま書きます。\n{\"pages\":[{\"page\":\"13\",\"verdict\":\"採用\",\"reason\":\"…\"}]}"
   },
   spreadChrome: { side: 30, vertical: 50 },
   listLimit: 15,
@@ -1209,6 +1209,8 @@ const USER_SETTINGS = {
   zoomLevels: [1, 1.5, 2, 3, 4],
   pickMinSize: 0.004,
   guideSpyOffset: 80,
+  pagePrefixes: { before: ["巻頭", "口絵"], after: ["巻末", "付録"] },
+  pageGroupSpan: 100000,
   guideNavLockMs: 1200,
   pdfMark: { lineWidth: 1.2, dash: { hold: [3, 2], exclude: [1, 1.5], pending: [6, 2, 1, 2] }, author: "さくいん拾い", padPt: 0.6, batch: 400 },
   viewerChrome: { side: 24, vertical: 24 },
@@ -1276,9 +1278,9 @@ const USER_SETTINGS = {
     edReadSide: (side, value) => `${side}：${value}`,
     loadingPdf: (done, total) => total ? `読み込み中… ${done} / ${total}ページ` : "読み込み中…",
     rangeLabel: "検索するページ",
-    rangeAll: "すべてのページを検索します。索引ページなどを外す場合は、ページ番号で範囲を入力してください。",
+    rangeAll: "すべてのページを検索します。索引ページなどを外す場合は、ページ番号で範囲を入力してください。巻頭・巻末のページは、範囲に「巻末1-4」のように書いたときだけ絞り込みます。",
     rangeSet: (text, count) => `ページ番号 ${text} を検索します（PDF ${count}枚分）。`,
-    rangeInvalid: "書き方を確認してください。例：1-238、12-240, 245",
+    rangeInvalid: "書き方を確認してください。例：1-238、12-240, 245、巻頭1-8",
     chipAll: "すべて",
     colorUnknown: "判定できず",
     colorNotAnalyzed: "文字色は未解析です。解析すると色で絞り込めます。",
@@ -1312,8 +1314,8 @@ const USER_SETTINGS = {
     ruleHint: "指示に照らして、各ページを確定・申し送り・対象外に自動で振り分けます。目視確認で決めたページは変えません。判定が変わったページは、備考に理由が残ります。",
     ruleChanged: (n) => `指示で${n}件`,
     ruleNoChange: "指示どおり",
-    ruleAdopt: (p, reason) => `p.${p}は作業指示に基づきAIが確定と判定（${reason}）。`,
-    ruleHold: (p, reason) => `p.${p}は作業指示に基づきAIが要確認と判定（${reason}）。拾う場合、p.${p}追加。`,
+    ruleAdopt: (p, reason) => `p.${PageNo.label(p)}は作業指示に基づきAIが確定と判定（${reason}）。`,
+    ruleHold: (p, reason) => `p.${PageNo.label(p)}は作業指示に基づきAIが要確認と判定（${reason}）。拾う場合、p.${PageNo.label(p)}追加。`,
     excludeRule: (reason) => `作業指示に基づきAIが対象外と判定${reason ? `：${reason}` : ""}`,
     actCancelling: "中止しています…",
     actFilter: "対象の設定を検索結果に反映中…",
@@ -1366,7 +1368,7 @@ const USER_SETTINGS = {
     pdfMarkStopped: "枠付きPDFの書き出しを中止しました。",
     pdfMarkSuffix: "_さくいん枠",
     pdfMarkState: { adopt: "確定", hold: "申し送り", exclude: "対象外", pending: "保留" },
-    pdfMarkContents: (term, p, state, detail) => `「${term}」p.${p}　${state}${detail ? `\n${detail}` : ""}`,
+    pdfMarkContents: (term, p, state, detail) => `「${term}」p.${PageNo.label(p)}　${state}${detail ? `\n${detail}` : ""}`,
     pdfMarkManual: "目視確認で追加",
     pdfMarkCompound: (w) => `複合語「${w}」の一部`,
     pdfMarkHint: (n) => `いまの設定で枠を付けるのは ${n}か所です。`,
@@ -1405,7 +1407,7 @@ const USER_SETTINGS = {
     excludeReason: { pageRange: "検索ページ外", area: "検索範囲外", font: "対象フォント外", size: "対象サイズ外", color: "対象色外", manual: "目視確認で対象外", ai: "AI校正で対象外", list: "リストの記載に従い対象外" },
     excludeStyle: (label) => `書式「${label}」で対象外`,
     excludedNote: (pages, label) => `対象外：p.${pages}（${label}）`,
-    menuHead: (word, p) => `p.${p}「${word}」`,
+    menuHead: (word, p) => `p.${PageNo.label(p)}「${word}」`,
     menuPage: "このページを",
     stateAdopt: "確定にする",
     stateHold: "申し送りにする",
@@ -1422,7 +1424,7 @@ const USER_SETTINGS = {
       listed: (s) => `リストでは${s}`
     },
     pendKind: { notInList: "リストになし", compound: "リストになし（複合語）", notFound: "PDFで見つからない", inactive: "アプリでは対象外", listed: "保留に戻したページ" },
-    pendingItem: (p, label) => `${p}（${label}）`,
+    pendingItem: (p, label) => `${PageNo.label(p)}（${label}）`,
     pendingTag: (n) => `保留${n}`,
     pendingAll: "保留すべて",
     pendingCount: (n) => `${n}ページ`,
@@ -1431,6 +1433,7 @@ const USER_SETTINGS = {
     pendingApplied: (n, s) => `保留 ${n}ページを${s}にしました。`,
     actPending: "保留の振り分けを反映中…",
     actListBase: "突合せの設定を反映中…",
+    actFormat: "ページの書き方を反映中…",
     listBaseNoteEmpty: "リストにページが書かれていないため、アプリの判定で転記します。",
     listBaseNoteOn: (n, total) => `リストにページの記載がある用語：${total}件中 ${n}件。リストを基準にし、検索結果との過不足は「保留」の列に分けて転記します。リストの確定・申し送り・対象外の列は、振り分けるまで変えません。`,
     listBaseNoteOff: "オフのときは、リストに書かれたページを使わず、アプリの判定で転記します。",
@@ -1483,8 +1486,8 @@ const USER_SETTINGS = {
     aiApplyTerm: (n) => `AIの提案を反映（${n}件）`,
     aiApplyAll: (n) => `AIの提案をすべて反映（${n}件）`,
     aiApplied: (n) => `AIの提案を${n}件反映しました。`,
-    aiExcluded: (p, reason) => `p.${p}はAI校正で外した${reason ? `（${reason}）` : ""}。拾う場合、p.${p}追加。`,
-    aiAdopted: (p, reason) => `p.${p}はAI校正で拾った${reason ? `（${reason}）` : ""}。`,
+    aiExcluded: (p, reason) => `p.${PageNo.label(p)}はAI校正で外した${reason ? `（${reason}）` : ""}。拾う場合、p.${PageNo.label(p)}追加。`,
+    aiAdopted: (p, reason) => `p.${PageNo.label(p)}はAI校正で拾った${reason ? `（${reason}）` : ""}。`,
     aiDetecting: "起動中のサーバーを探しています…",
     aiNoServer: "起動中のサーバーが見つかりませんでした。サーバーを起動し、CORSをオンにしてから押してください。",
     aiNoModel: "モデルが読み込まれていません",
@@ -1508,7 +1511,7 @@ const USER_SETTINGS = {
     nombreSkipped: (list) => `ノンブルの無いページ（検索しない）：PDF ${list}枚目`,
     nombreEstimated: (list) => `読み取れなかったページ：PDF ${list}枚目（前後から番号を推定し、備考に記載）`,
     nombreJump: (list) => `番号が連続していない箇所：${list}`,
-    nombreRange: (a, b) => `読み取った番号：p.${a}〜p.${b}`,
+    nombreRange: (a, b) => `読み取った番号：p.${PageNo.label(a)}〜p.${PageNo.label(b)}`,
     serialNote: (first) => `PDFの1枚目を p.${first} として数えます。`,
     areaNotSet: "検索範囲：ページ全体",
     areaSet: (parts) => `検索範囲：${parts}を指定済み`,
@@ -1531,10 +1534,10 @@ const USER_SETTINGS = {
     notFoundFont: "選んだフォント・範囲では見つからず。表記ゆれ、またはフォントの選び方を確認のこと。",
     viewerEmpty: "結果の用語をクリックすると、PDFの該当ページを表示して、拾った箇所を強調します。上の「ページ」にノンブルを入れると、好きなページを表示できます。",
     viewerNoHit: "この用語はPDF内に見つかりませんでした。上の「ページ」でページを開き、「文字をドラッグして追加」で本文の文字を囲むと、確定ページに追加できます。",
-    viewerPage: (no, pdf) => `p.${no}（PDF ${pdf}枚目）`,
+    viewerPage: (no, pdf) => `p.${PageNo.label(no)}（PDF ${pdf}枚目）`,
     viewerPageNoNombre: (pdf) => `PDF ${pdf}枚目（ノンブルなし）`,
-    viewerPageMissing: (no) => `p.${no}（PDFにないページ）`,
-    viewerHintMissing: (no) => `p.${no}はこのPDFにありません。リストの誤りなら「対象外」、そのまま残すなら「確定」を押します。`,
+    viewerPageMissing: (no) => `p.${PageNo.label(no)}（PDFにないページ）`,
+    viewerHintMissing: (no) => `p.${PageNo.label(no)}はこのPDFにありません。リストの誤りなら「対象外」、そのまま残すなら「確定」を押します。`,
     viewerNoTerm: "（用語を選んでいません）",
     viewerHintNoTerm: "結果の表で用語を選ぶと、このページで拾った箇所を強調します。",
     viewerHintNoNombre: "このページはノンブルがないため、ページとして追加できません。",
@@ -1543,19 +1546,19 @@ const USER_SETTINGS = {
     pickNeedTerm: "先に結果の表で、ページを追加する用語を選んでください。",
     pickNoNombre: (pdf) => `PDF ${pdf}枚目はノンブルがないため、ページとして追加できません。`,
     pickEmpty: "囲んだ範囲に文字が見つかりませんでした。文字が入るように、もう少し大きく囲んでください。",
-    pickSame: (p) => `p.${p}のその文字は、すでに追加しています。`,
-    pickAdded: (term, p, text) => `「${term}」の確定ページにp.${p}を追加しました（選んだ文字：「${text}」）。`,
-    pickAddedOther: (term, p, text) => `「${term}」の確定ページにp.${p}を追加しました。選んだ文字「${text}」には「${term}」が含まれていないので、備考を確認してください。`,
-    pickRemoved: (p) => `p.${p}の手動追加を取り消しました。`,
+    pickSame: (p) => `p.${PageNo.label(p)}のその文字は、すでに追加しています。`,
+    pickAdded: (term, p, text) => `「${term}」の確定ページにp.${PageNo.label(p)}を追加しました（選んだ文字：「${text}」）。`,
+    pickAddedOther: (term, p, text) => `「${term}」の確定ページにp.${PageNo.label(p)}を追加しました。選んだ文字「${text}」には「${term}」が含まれていないので、備考を確認してください。`,
+    pickRemoved: (p) => `p.${PageNo.label(p)}の手動追加を取り消しました。`,
     pickBusy: "処理中のため追加できません。処理が終わってからもう一度囲んでください。",
     manualAddedNote: (items) => `目視確認で追加：${items}。`,
-    manualAddedItem: (p, words) => `p.${p}（本文の「${words}」）`,
-    menuHeadManual: (text, p) => `p.${p}「${text}」（手動で追加）`,
+    manualAddedItem: (p, words) => `p.${PageNo.label(p)}（本文の「${words}」）`,
+    menuHeadManual: (text, p) => `p.${PageNo.label(p)}「${text}」（手動で追加）`,
     menuManualRemove: "この追加を取り消す",
     menuManualSep: "手動で追加した箇所",
     gotoNotFound: (n) => `ノンブルがp.${n}のページは見つかりませんでした。PDFの枚数で開くときは「#12」のように入力します。`,
     gotoOutOfRange: (n, total) => `PDFは${total}枚です（${n}枚目はありません）。`,
-    gotoInvalid: "ページ番号を数字で入力してください（例：88）。PDFの枚数で開くときは「#12」のように入力します。",
+    gotoInvalid: "ページ番号を入力してください（例：88、巻頭3）。PDFの枚数で開くときは「#12」のように入力します。",
     gotoSerial: "ノンブルが未設定のため、PDFの枚数で開きました。",
     dropUnknown: (names) => `読み込めないファイルです（${names}）。PDFかExcel（.xlsx）をドロップしてください。`,
     dropBusy: "処理中のため、ファイルを読み込めません。処理が終わってからもう一度ドロップしてください。",
@@ -1566,8 +1569,8 @@ const USER_SETTINGS = {
     viewerToHold: "このページを外す（申し送りへ）",
     viewerHintAdopt: "強調した箇所をクリックしても外せます。",
     viewerHintHold: "強調した箇所をクリックしても拾えます。",
-    hitAdoptLabel: (p) => `p.${p} を外して申し送りへ`,
-    hitHoldLabel: (p) => `p.${p} を拾って確定へ`,
+    hitAdoptLabel: (p) => `p.${PageNo.label(p)} を外して申し送りへ`,
+    hitHoldLabel: (p) => `p.${PageNo.label(p)} を拾って確定へ`,
     notesAfterRun: [
       "確定ページ・申し送りページ・対象外ページ・備考・保留・訂正箇所を、指定した列（初期値はC・D・F・E・G・H列）に書き込みます。リストを基準にしたときは、検索結果との過不足を「保留」に分け、振り分けるまでリストの列は変えません。",
       "備考の列に元々書かれている内容は残し、その後ろに追記します。"
@@ -1991,9 +1994,7 @@ class PdfReader {
   numberInRect(pageIndex, rect) {
     if (!rect) return null;
     const hits = (this.pages[pageIndex] || []).filter((it) => PdfReader.inRect(it, rect)).sort((a, b) => a.x - b.x || b.y - a.y);
-    const text = hits.map((it) => TextNormalizer.strip(it.s)).join("");
-    const m = text.match(/\d+/);
-    return m ? parseInt(m[0], 10) : null;
+    return PageNo.find(hits.map((it) => TextNormalizer.strip(it.s)).join(""));
   }
   cancelGroup(group) {
     for (const task of this.groupTasks.get(group) || []) task.cancel();
@@ -2180,18 +2181,62 @@ class AreaSet {
   }
 }
 
+class PageNo {
+  static groups() {
+    const p = USER_SETTINGS.pagePrefixes;
+    return [...p.before, "", ...p.after];
+  }
+  static prefixPattern() {
+    const p = USER_SETTINGS.pagePrefixes;
+    return [...p.before, ...p.after].map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  }
+  static joinPrefix(text) {
+    return String(text).replace(new RegExp(`(${PageNo.prefixPattern()})\\s+(?=\\d)`, "g"), "$1");
+  }
+  static key(prefix, n) {
+    const g = PageNo.groups();
+    const idx = g.indexOf(prefix || "");
+    return (Math.max(0, idx) - g.indexOf("")) * USER_SETTINGS.pageGroupSpan + n;
+  }
+  static group(key) {
+    const g = PageNo.groups();
+    const off = Math.floor(key / USER_SETTINGS.pageGroupSpan);
+    return g[g.indexOf("") + off] ?? "";
+  }
+  static number(key) {
+    const span = USER_SETTINGS.pageGroupSpan;
+    return ((key % span) + span) % span;
+  }
+  static label(key) {
+    if (typeof key !== "number" || !Number.isFinite(key)) return String(key ?? "");
+    return `${PageNo.group(key)}${PageNo.number(key)}`;
+  }
+  static parse(text) {
+    const norm = PageNo.joinPrefix(String(text || "").normalize("NFKC").trim().replace(/^p\.?\s*/i, ""));
+    const m = norm.match(new RegExp(`^(${PageNo.prefixPattern()})?(\\d+)$`));
+    return m ? PageNo.key(m[1] || "", parseInt(m[2], 10)) : null;
+  }
+  static find(text) {
+    const norm = String(text || "").normalize("NFKC").replace(/\s+/g, "");
+    const m = norm.match(new RegExp(`(${PageNo.prefixPattern()})?(\\d+)`));
+    return m ? PageNo.key(m[1] || "", parseInt(m[2], 10)) : null;
+  }
+}
+
 class PageRange {
   constructor(text) {
     this.text = String(text || "").trim();
     this.ranges = [];
     this.valid = true;
     if (!this.text) return;
-    const norm = this.text.normalize("NFKC").replace(/[〜～~―ー−–—]/g, "-").replace(/p\.?/gi, "");
+    const pre = PageNo.prefixPattern();
+    const norm = PageNo.joinPrefix(this.text.normalize("NFKC").replace(/[〜～~―ー−–—]/g, "-").replace(/p\.?/gi, ""));
+    const re = new RegExp(`^(${pre})?(\\d+)(?:-(${pre})?(\\d+))?$`);
     for (const part of norm.split(/[,、，\s]+/).filter(Boolean)) {
-      const m = part.match(/^(\d+)(?:-(\d+))?$/);
+      const m = part.match(re);
       if (!m) { this.valid = false; continue; }
-      const a = parseInt(m[1], 10);
-      const b = m[2] ? parseInt(m[2], 10) : a;
+      const a = PageNo.key(m[1] || "", parseInt(m[2], 10));
+      const b = m[4] ? PageNo.key(m[3] || m[1] || "", parseInt(m[4], 10)) : a;
       this.ranges.push([Math.min(a, b), Math.max(a, b)]);
     }
     if (!this.ranges.length) this.valid = false;
@@ -2200,7 +2245,10 @@ class PageRange {
     return this.valid && this.ranges.length > 0;
   }
   contains(n) {
-    return !this.isActive() || this.ranges.some(([a, b]) => n >= a && n <= b);
+    if (!this.isActive()) return true;
+    const g = PageNo.group(n);
+    if (!this.ranges.some(([a, b]) => PageNo.group(a) === g || PageNo.group(b) === g)) return true;
+    return this.ranges.some(([a, b]) => n >= a && n <= b);
   }
   numbers() {
     const out = new Set();
@@ -2211,7 +2259,7 @@ class PageRange {
     return [...out].sort((x, y) => x - y);
   }
   label() {
-    return this.ranges.map(([a, b]) => (a === b ? `p.${a}` : `p.${a}〜${b}`)).join("、");
+    return this.ranges.map(([a, b]) => (a === b ? `p.${PageNo.label(a)}` : `p.${PageNo.label(a)}〜${PageNo.label(b)}`)).join("、");
   }
 }
 
@@ -2229,7 +2277,9 @@ class NombreLocator {
         if (detected[i] !== null) continue;
         const prev = [...found].reverse().find((j) => j < i);
         const ref = prev !== undefined ? prev : found.find((j) => j > i);
-        numbers[i] = detected[ref] + (i - ref);
+        const guess = detected[ref] + (i - ref);
+        if (PageNo.group(guess) !== PageNo.group(detected[ref]) || PageNo.number(guess) < 1) continue;
+        numbers[i] = guess;
         estimated.add(i);
       }
     }
@@ -2237,7 +2287,7 @@ class NombreLocator {
     for (let k = 1; k < found.length; k++) {
       const a = found[k - 1];
       const b = found[k];
-      if (detected[b] - detected[a] !== b - a) jumps.push({ pdfIndex: b, from: detected[a], to: detected[b] });
+      if (detected[b] - detected[a] !== b - a && PageNo.group(detected[a]) === PageNo.group(detected[b])) jumps.push({ pdfIndex: b, from: detected[a], to: detected[b] });
     }
     const values = found.map((i) => detected[i]);
     return {
@@ -2481,7 +2531,7 @@ class AreaEditor {
       if (this.mode === "nombre") {
         const source = this.app.nombreAreas.sourceFor(index, layout);
         const v = source ? this.app.pdf.numberInRect(index, this.app.nombreAreas.rects[source]) : null;
-        const value = !source ? t.edReadNoRect : v === null ? t.edReadNone : `p.${v}`;
+        const value = !source ? t.edReadNoRect : v === null ? t.edReadNone : `p.${PageNo.label(v)}`;
         line(t.edReadSide(this.sideName(side), value), v !== null ? "ro-value" : "");
       } else {
         const source = this.app.searchAreas.sourceFor(index, layout);
@@ -2886,7 +2936,7 @@ class TermMatcher {
     const occurrences = [];
     pageTexts.forEach(({ raw, compact, map, src }, pageIndex) => {
       const pageNo = nombre.numbers[pageIndex];
-      if (pageNo === null || pageNo === undefined || pageNo < 1) return;
+      if (pageNo === null || pageNo === undefined || PageNo.number(pageNo) < 1) return;
       let pos = compact.indexOf(key);
       while (pos !== -1) {
         const rawStart = map[pos];
@@ -3085,12 +3135,12 @@ class TermResult {
   }
   static formatPages(nums, opts) {
     const sorted = [...new Set(nums)].sort((a, b) => a - b);
-    if (!opts.useRanges) return sorted.join(opts.separator);
+    if (!opts.useRanges) return sorted.map((p) => PageNo.label(p)).join(opts.separator);
     const parts = [];
     for (let i = 0; i < sorted.length; i++) {
       let j = i;
-      while (j + 1 < sorted.length && sorted[j + 1] === sorted[j] + 1) j++;
-      parts.push(j > i ? `${sorted[i]}-${sorted[j]}` : `${sorted[i]}`);
+      while (j + 1 < sorted.length && sorted[j + 1] === sorted[j] + 1 && PageNo.group(sorted[j + 1]) === PageNo.group(sorted[i])) j++;
+      parts.push(j > i ? `${PageNo.label(sorted[i])}-${PageNo.number(sorted[j])}` : PageNo.label(sorted[i]));
       i = j;
     }
     return parts.join(opts.separator);
@@ -3960,6 +4010,14 @@ class PageViewer {
     const total = this.total();
     if (!total) return;
     const raw = String(this.$("viewer-goto").value).normalize("NFKC").trim();
+    const labeled = /^(#|pdf)/i.test(raw) || /枚目$/.test(raw) ? null : PageNo.parse(raw);
+    if (labeled !== null && this.app.nombreResult) {
+      const idx = this.app.indexOfPageNo(labeled);
+      if (idx === null) { note.textContent = t.gotoNotFound(PageNo.label(labeled)); return; }
+      note.textContent = "";
+      this.showIndex(idx);
+      return;
+    }
     const m = raw.match(/^(#|pdf\s*)?\s*p?\.?\s*(\d+)\s*(枚目)?$/i);
     if (!m) { note.textContent = t.gotoInvalid; return; }
     const n = parseInt(m[2], 10);
@@ -4054,7 +4112,7 @@ class PageViewer {
     const box = this.$("viewer-pending");
     const opts = this.app.currentOptions;
     if (!this.result || !opts?.listBase) { box.hidden = true; return; }
-    const items = this.result.allPages(opts).filter((p) => this.result.stateOf(p, opts) === "pending").map((p) => t.pendingItem(`p.${p}`, this.result.pendingTag(p).label));
+    const items = this.result.allPages(opts).filter((p) => this.result.stateOf(p, opts) === "pending").map((p) => `p.${t.pendingItem(p, this.result.pendingTag(p).label)}`);
     box.textContent = items.length ? t.viewerPending(items.join("、")) : "";
     box.hidden = !items.length;
   }
@@ -4087,7 +4145,7 @@ class PageViewer {
       const b = document.createElement("button");
       b.dataset.page = p;
       b.className = `${this.result.stateOf(p, opts)}${suggested.has(p) ? " ai-diff" : ""}${this.result.onPage(p).length ? "" : " nohit"}`;
-      b.textContent = `p.${p}`;
+      b.textContent = `p.${PageNo.label(p)}`;
       if (this.result.stateOf(p, opts) === "pending") b.title = this.result.pendingTag(p).label;
       if (p === this.pageNo) b.setAttribute("aria-current", "true");
       return b;
@@ -4914,7 +4972,7 @@ class AiReviewer {
     const cfg = USER_SETTINGS.ai;
     const lines = [];
     for (const p of pages) {
-      lines.push(`p.${p}［現在：${AiReviewer.decisionLabel(result.stateOf(p, opts))}］`);
+      lines.push(`p.${PageNo.label(p)}［現在：${AiReviewer.decisionLabel(result.stateOf(p, opts))}］`);
       const occ = result.onPage(p).filter((o) => o.scope === "in" && !o.manual).slice(0, cfg.contextsPerPageRule);
       occ.forEach((o, i) => {
         lines.push(`  ${i + 1}. ${o.context}`);
@@ -4932,8 +4990,8 @@ class AiReviewer {
     const json = JSON.parse(cleaned.slice(start, end + 1));
     const out = new Map();
     for (const item of json.pages || []) {
-      const page = parseInt(String(item.page).replace(/\D/g, ""), 10);
-      if (!Number.isFinite(page)) continue;
+      const page = PageNo.find(item.page);
+      if (page === null) continue;
       const v = String(item.decision || item.verdict || "");
       const state = v.includes("対象外") || /exclude/i.test(v) ? "exclude" : v.includes("申し送り") || v.includes("要確認") || /hold/i.test(v) ? "hold" : v.includes("確定") || /adopt/i.test(v) ? "adopt" : null;
       if (state) out.set(page, { state, reason: String(item.reason || "").slice(0, USER_SETTINGS.ai.reasonMaxChars) });
@@ -4958,7 +5016,7 @@ class AiReviewer {
     const cfg = USER_SETTINGS.ai;
     const lines = [];
     for (const p of pages) {
-      lines.push(`p.${p}［現在：${AiReviewer.stateLabel(result.stateOf(p, opts))}］`);
+      lines.push(`p.${PageNo.label(p)}［現在：${AiReviewer.stateLabel(result.stateOf(p, opts))}］`);
       const occ = result.occurrences.filter((o) => o.pageNo === p).slice(0, cfg.contextsPerPage);
       occ.forEach((o, i) => lines.push(`  ${i + 1}. ${o.context}`));
     }
@@ -4973,8 +5031,8 @@ class AiReviewer {
     const json = JSON.parse(cleaned.slice(start, end + 1));
     const out = new Map();
     for (const item of json.pages || []) {
-      const page = parseInt(String(item.page).replace(/\D/g, ""), 10);
-      if (!Number.isFinite(page)) continue;
+      const page = PageNo.find(item.page);
+      if (page === null) continue;
       const v = String(item.verdict || "");
       const verdict = v.includes("不採用") || /reject|no/i.test(v) ? "reject" : v.includes("採用") || /adopt|yes/i.test(v) ? "adopt" : "unsure";
       out.set(page, { verdict, reason: String(item.reason || "").slice(0, USER_SETTINGS.ai.reasonMaxChars) });
@@ -5203,6 +5261,12 @@ class App {
         try { await this.restoreState(); } finally { this.activity.end(); }
       },
       listBase: () => this.onListBaseToggle(),
+      format: () => {
+        if (!this.currentOptions || !this.results.length) { this.invalidateResults(); return; }
+        this.currentOptions = { ...this.currentOptions, separator: this.$("opt-sep").value, useRanges: this.$("opt-range").checked };
+        this.pipeline.set(App.STEP.save, false);
+        this.recomputeAll(USER_SETTINGS.text.actFormat);
+      },
       globalRule: (e) => {
         const btn = e.target.closest("button[data-rule]");
         if (btn) this.removeStyleRule("global", parseInt(btn.dataset.rule, 10));
@@ -5223,8 +5287,8 @@ class App {
       [this.$("opt-first-page"), "change", this.handlers.firstPage],
       [this.$("opt-compound"), "click", this.handlers.compound],
       [this.$("opt-ruby"), "change", this.handlers.invalidate],
-      [this.$("opt-sep"), "change", this.handlers.invalidate],
-      [this.$("opt-range"), "change", this.handlers.invalidate],
+      [this.$("opt-sep"), "change", this.handlers.format],
+      [this.$("opt-range"), "change", this.handlers.format],
       [this.$("opt-page-range"), "input", this.handlers.range],
       [this.$("btn-analyze-color"), "click", this.handlers.analyzeColor],
       [this.$("btn-ai-review"), "click", this.handlers.aiReview],
@@ -5278,7 +5342,7 @@ class App {
   }
   pageNoOf(pageIndex) {
     const n = this.nombreResult?.numbers[pageIndex];
-    return n === null || n === undefined || n < 1 ? null : n;
+    return n === null || n === undefined || !Number.isFinite(n) ? null : n;
   }
   indexOfPageNo(pageNo) {
     if (this.nombreResult) {
@@ -5544,7 +5608,7 @@ class App {
       add(lines, t.nombreSummary(r.found, r.total), r.found < r.total);
       if (r.min !== null) add(lines, t.nombreRange(r.min, r.max));
       if (r.missing.length) add(lines, (r.estimate ? t.nombreEstimated : t.nombreSkipped)(TextNormalizer.formatList(r.missing, USER_SETTINGS.listLimit)), r.estimate);
-      if (r.jumps.length) add(lines, t.nombreJump(r.jumps.slice(0, USER_SETTINGS.listLimit).map((j) => `PDF ${j.pdfIndex + 1}枚目（p.${j.from}→p.${j.to}）`).join("、")), true);
+      if (r.jumps.length) add(lines, t.nombreJump(r.jumps.slice(0, USER_SETTINGS.listLimit).map((j) => `PDF ${j.pdfIndex + 1}枚目（p.${PageNo.label(j.from)}→p.${PageNo.label(j.to)}）`).join("、")), true);
       this.setPill("pill-nombre", r.found === r.total && !r.jumps.length ? "ok" : "warn");
     }
     this.$("nombre-summary").replaceChildren(...lines);
@@ -5657,7 +5721,7 @@ class App {
       const sep = this.currentOptions?.separator || ", ";
       for (const [key, pages] of groups) {
         const [from, to] = key.split(">");
-        parts.push(t.fixMove(from, to, pages.join(sep)));
+        parts.push(t.fixMove(from, to, pages.map((p) => PageNo.label(p)).join(sep)));
       }
     }
     return parts.join("／");
