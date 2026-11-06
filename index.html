@@ -453,6 +453,9 @@ th { position: sticky; top: 0; z-index: 1; background: var(--head); color: var(-
 .result-table.cc-10 td:nth-child(10) > *,
 .result-table.cc-11 td:nth-child(11) > *,
 .result-table.cc-12 td:nth-child(12) > * { display: none; }
+.cell-editor .ex-label { display: flex; flex-direction: column; gap: 2px; font-size: 10px; color: var(--muted); }
+.cell-editor .ex-label input { font-size: 12px; min-height: 24px; }
+.term-ex { display: block; margin-top: 2px; font-size: 10px; font-weight: 400; color: var(--muted); }
 .result-table td.edited { box-shadow: inset 3px 0 0 var(--hit-pending-c); background: color-mix(in srgb, var(--hit-pending-c) 9%, transparent); }
 .result-table td.edited::before { content: "手"; display: inline-block; margin-right: 4px; padding: 0 3px; border-radius: 2px; background: var(--hit-pending-c); color: #fff; font-size: 9px; font-weight: 700; line-height: 1.5; vertical-align: 1px; }
 .cell-editor { display: flex; flex-direction: column; gap: 4px; min-width: 14em; }
@@ -707,6 +710,8 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           </div>
           <label class="check top"><input type="checkbox" id="opt-ruby" checked><span>ルビ（小さなかな）を除いて検索する</span></label>
           <label class="check top"><input type="checkbox" id="opt-hidden" checked><span>見えない文字（透明テキスト）を除いて検索する</span></label>
+          <label class="check top"><input type="checkbox" id="opt-spatial"><span>1字ずつ置かれた文字（地図など）を、位置と書式からつなげて検索する</span></label>
+          <p class="note">地図の地名のように、文字が1字ずつ別々に置かれている場合に使います。同じ書式で一列に並んだ文字だけをつなげます。関係ない語をつなげて誤って拾うこともあるので、初期設定はオフです。</p>
           <div class="prop">
             <label class="prop-label" for="opt-sep">ページの区切り</label>
             <select id="opt-sep">
@@ -922,7 +927,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <li>「別ウィンドウ」を押すと、そのパネルを別のウィンドウに切り離せます。画面が2枚あるときに便利です。</li>
           <li>結果の上の「用語を検索」に語を入れると、その用語までジャンプしてPDFを開きます。Enterで次の候補へ移ります。ひらがなで読みを入れても探せます。</li>
           <li>結果の表の列の見出しをクリックすると、その列だけを細く折りたためます。もう一度クリックすると元に戻ります。</li>
-          <li>結果の表のセルをダブルクリックすると、その場で書き換えられます（用語・確定ページ・申し送り・対象外・備考・対象外の理由・訂正箇所）。書き換えたセルには「手」の印が付き、Excelでは薄いオレンジで塗られます。</li>
+          <li>結果の表のセルをダブルクリックすると、その場で書き換えられます（用語・確定ページ・申し送り・対象外・備考・対象外の理由・訂正箇所）。書き換えたセルには「手」の印が付き、Excelでは薄いオレンジで塗られます。用語のセルでは「検索除外ワード」も指定でき、その語に当たる箇所を検索から外せます（例：「インド」の除外ワードに「インド洋」）。</li>
           <li>右上の丸いマーク（PDF・ノンブル・Excelなど）が緑になれば、その準備ができています。</li>
         </ul>
       </section>
@@ -1031,6 +1036,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <tr><td>索引ページの語まで拾われる</td><td>「検索するページ」に本文の範囲だけを入れます</td></tr>
           <tr><td>太字の語が対象外になる</td><td>強調箇所をクリックしてフォント名を確認し、「検索対象のフォントに加える」を押します</td></tr>
           <tr><td>検索で拾われないページがある</td><td>目視確認でそのページを開き、「文字をドラッグして追加」で文字を囲みます</td></tr>
+          <tr><td>地図の地名が拾われない</td><td>「5 検索の設定」の「1字ずつ置かれた文字（地図など）を、位置と書式からつなげて検索する」をオンにして検索し直します</td></tr>
           <tr><td>ファイルを読み込めない</td><td>処理中（上のバーが動いている間）は読み込めません。終わってからドロップします</td></tr>
           <tr><td>処理が終わらない</td><td>上のバーの右端の「中止」で止められます</td></tr>
           <tr><td>保存ボタンが押せない</td><td>Excelの列の指定が重なっていないか確認します</td></tr>
@@ -1262,7 +1268,10 @@ const USER_SETTINGS = {
   pickMinSize: 0.004,
   guideSpyOffset: 80,
   searchSeparators: "・･=＝―‐‑–—-",
-  qualifierWindow: 40,
+  titleSuffixes: ["首相", "大統領", "副大統領", "国王", "女王", "王妃", "皇帝", "皇后", "大王", "王", "教皇", "法王", "総統", "書記長", "主席", "国家主席", "首席", "将軍", "提督", "元帥", "博士", "氏", "夫人", "外相", "蔵相", "国務長官", "大使", "司令官", "総督", "枢機卿", "公", "卿", "師", "首長", "議長", "党首"],
+  qualifierWindow: 24,
+  spatial: { maxItemChars: 3, maxGap: 2.5, align: 0.35, sizeTol: 0.15, gapGrow: 1.8 },
+  qualifierSlack: 2,
   termSearchDebounceMs: 250,
   editFill: "FFFDE3C8",
   maxTableColumns: 12,
@@ -1447,10 +1456,10 @@ const USER_SETTINGS = {
       area: "検索範囲", wholePage: "ページ全体", pageRange: "検索するページ", all: "すべて",
       fonts: "対象のフォント", sizes: "文字サイズ", colors: "文字色", colorNone: "絞り込みなし（未解析）",
       compound: "複合語", compoundNote: "申し送りにする", compoundInclude: "ページに含める",
-      ruby: "ルビ", rubyExclude: "除いて検索する", rubyInclude: "含めて検索する", hidden: "見えない文字（透明テキスト）",
+      ruby: "ルビ", rubyExclude: "除いて検索する", rubyInclude: "含めて検索する", hidden: "見えない文字（透明テキスト）", spatial: "1字ずつ置かれた文字をつなげる", on: "する", off: "しない",
       format: "ページの書き方", separator: (sep) => `区切り「${sep.trim() || sep}」`, ranges: "、連続ページは範囲でまとめる",
       globalRules: "書式で対象外（全用語）", perTerm: "用語ごとの設定", none: "なし",
-      secExcluded: "対象外にした書式", edited: "手修正したセル", editedCount: (n) => `${n}か所（Excelでは薄いオレンジで塗っています）`, noNombre: "ノンブルのないページ", secTarget: "対象にした書式", preset: "選んだ絞り込み", custom: "個別に選択", allCount: (n) => `すべて（${n}種類）`, someCount: (n, total) => `${total}種類中 ${n}種類`, exFonts: "対象外のフォント", exSizes: "対象外の文字サイズ", exColors: "対象外の文字色", exByReason: "対象外になった箇所（理由別）",
+      secExcluded: "対象外にした書式", termExclude: (w) => `検索除外ワード「${w}」`, edited: "手修正したセル", editedCount: (n) => `${n}か所（Excelでは薄いオレンジで塗っています）`, noNombre: "ノンブルのないページ", secTarget: "対象にした書式", preset: "選んだ絞り込み", custom: "個別に選択", allCount: (n) => `すべて（${n}種類）`, someCount: (n, total) => `${total}種類中 ${n}種類`, exFonts: "対象外のフォント", exSizes: "対象外の文字サイズ", exColors: "対象外の文字色", exByReason: "対象外になった箇所（理由別）",
       termFont: (label) => `フォント「${label}」`, termRules: (labels) => `書式で対象外「${labels}」`,
       terms: "用語の数", termCounts: (n, ok, review, ex, none) => `${n}件（確定 ${ok}、要確認 ${review}、対象外のみ ${ex}、見つからず ${none}）`,
       changes: "手動などでの変更", changeCounts: (m, a, p) => `目視確認 ${m}ページ、AI校正 ${a}ページ、未振り分けの保留 ${p}ページ`,
@@ -1593,9 +1602,17 @@ const USER_SETTINGS = {
     manualAdopted: (pages) => `p.${pages}は目視確認で拾った。`,
     bracketNote: (searched) => `括弧内を除いた「${searched}」で検索した。`,
     aliasNote: (aliases) => `「${aliases}」の表記でも検索した。`,
-    unqualifiedNote: (q, base, pages) => `p.${pages}は近くに「${q}」がなく、別の「${base}」の可能性あり。拾う場合、p.${pages}追加。`,
-    homonymNote: (other, q, pages) => `p.${pages}は近くに「${q}」があり、「${other}」の可能性あり。拾う場合、p.${pages}追加。`,
+    unqualifiedNote: (q, base, pages) => `p.${pages}は同じページに「${q}」と並んだ表記がなく、別の「${base}」の可能性あり。拾う場合、p.${pages}追加。`,
+    homonymNote: (other, q, pages) => `p.${pages}は「${q}」と並んで出てくるため、「${other}」の可能性あり。拾う場合、p.${pages}追加。`,
+    termExcludeTag: (w) => `除外：${w}`,
+    excludeWordsNote: (words) => `「${words}」に当たる箇所は除外して検索した。`,
+    excludeWordHit: (w) => `除外ワード「${w}」に一致`,
+    excludeWordsLabel: "検索除外ワード（、で区切る）",
+    excludeWordsHint: "例：インド洋、東インド会社。この語に当たる箇所や、括弧内がこの語の場合の検索を外します。",
+    excludeWordsSet: (term, words) => words ? `「${term}」の検索除外ワードを「${words}」にしました。` : `「${term}」の検索除外ワードを外しました。`,
+    bracketAdoptNote: (q, pages) => `p.${pages}は括弧内の「${q}」の表記で拾った。`,
     bracketHitNote: (q, pages) => `p.${pages}は括弧内の「${q}」の表記で出現。拾う場合、p.${pages}追加。`,
+    spanningNote: (pages) => `p.${pages}は離れた文字（大きさや位置が違う文字）をまたいで一致。拾う場合、p.${pages}追加。`,
     rubyHitNote: (pages) => `p.${pages}はルビ（ふりがな）と判定した文字に一致。拾う場合、p.${pages}追加。`,
     estimatedNote: (pages) => `p.${pages}はノンブルを読み取れず前後から推定した番号。要確認。`,
     noNombreNote: (pdfPages) => `PDF ${pdfPages}枚目　ノンブルがないページのため対象外（索引から参照できない）`,
@@ -1683,6 +1700,10 @@ const UI = {
 // ===== TEXT UTILITIES =====
 class TextNormalizer {
   static GAP = "\u0001";
+  static SPACE = "\u0002";
+  static isGap(ch) {
+    return ch === TextNormalizer.GAP || ch === TextNormalizer.SPACE;
+  }
   static fixRadicals(s) {
     return String(s ?? "").replace(/[⺀-⻿]/g, (ch) => USER_SETTINGS.radicalMap[ch] || ch);
   }
@@ -1690,10 +1711,10 @@ class TextNormalizer {
     return TextNormalizer.fixRadicals(s).normalize("NFKC").replace(/[\s­​-‍﻿]+/g, "");
   }
   static normalizeKeepingGaps(s) {
-    return TextNormalizer.fixRadicals(s).normalize("NFKC").replace(/[­​-‍﻿]+/g, "").replace(/\s+/g, TextNormalizer.GAP);
+    return TextNormalizer.fixRadicals(s).normalize("NFKC").replace(/[­​-‍﻿]+/g, "").replace(/\s+/g, TextNormalizer.SPACE);
   }
   static strip(s) {
-    return s.split(TextNormalizer.GAP).join("");
+    return String(s).replace(/[\u0001\u0002]/g, "");
   }
   static fold(s) {
     return String(s).replace(/[A-Z]/g, (c) => c.toLowerCase());
@@ -1787,6 +1808,7 @@ class PdfReader {
     this.dims = [];
     this.fonts = new Map();
     const fontById = new Map();
+    this.uidSeq = 0;
     const stats = { chars: 0, japanese: 0, garbled: 0, radical: 0, ruby: 0, hidden: 0, perPage: [] };
     for (let n = 1; n <= this.doc.numPages; n++) {
       const page = await this.doc.getPage(n);
@@ -1825,6 +1847,7 @@ class PdfReader {
           size,
           vertical: !!content.styles[it.fontName]?.vertical,
           spaceBefore: pendingGap,
+          uid: ++this.uidSeq,
           gapBefore: false
         };
         pendingGap = false;
@@ -1924,6 +1947,7 @@ class PdfReader {
     for (const it of items) {
       if (it.ruby) { if (it.spaceBefore) rubySpace = true; continue; }
       it.gapBefore = it.spaceBefore || rubySpace;
+      it.spaceGap = false;
       rubySpace = false;
       if (prev && !it.gapBefore) {
         const size = Math.max(prev.size, it.size);
@@ -1932,12 +1956,20 @@ class PdfReader {
           it.gapBefore = true;
         } else if (!it.vertical) {
           const dy = prev.py - it.py;
-          if (Math.abs(dy) < size * r.sameLine) it.gapBefore = it.px - (prev.px + prev.pw) > size * r.inlineSpace;
+          if (Math.abs(dy) < size * r.sameLine) {
+            it.gapBefore = it.px - (prev.px + prev.pw) > size * r.inlineSpace;
+            it.spaceGap = it.gapBefore;
+          }
           else it.gapBefore = dy < 0 || dy > size * r.lineJump;
         } else {
           const dx = prev.px - it.px;
           if (Math.abs(dx) >= size * r.sameLine) it.gapBefore = dx < 0 || dx > size * r.lineJump;
         }
+      }
+      if (prev && it.gapBefore && !it.spaceGap && prev.vertical === it.vertical) {
+        const size = Math.max(prev.size, it.size);
+        const sameLine = !it.vertical ? Math.abs(prev.py - it.py) < size * r.sameLine : Math.abs(prev.px - it.px) < size * r.sameLine;
+        it.spaceGap = sameLine && size / Math.min(prev.size, it.size) <= r.sizeRatio;
       }
       prev = it;
     }
@@ -1977,7 +2009,7 @@ class PdfReader {
     const cy = it.y + it.h / 2;
     return cx >= rect.left && cx <= rect.right && cy >= rect.bottom && cy <= rect.top;
   }
-  pageTexts({ excludeRuby, excludeHidden, allow, areaFor, skip }) {
+  pageTexts({ excludeRuby, excludeHidden, allow, areaFor, skip, spatial }) {
     const GAP = TextNormalizer.GAP;
     return this.pages.map((items, pageIndex) => {
       const empty = { raw: "", compact: "", map: [], src: [] };
@@ -1989,20 +2021,80 @@ class PdfReader {
       for (const it of items) {
         if (excludeRuby && it.ruby) continue;
         if (excludeHidden && it.hidden) { push(GAP, null); continue; }
-        if (it.gapBefore) push(GAP, null);
+        if (it.gapBefore) push(it.spaceGap ? TextNormalizer.SPACE : GAP, null);
         const out = (area && !PdfReader.inRect(it, area)) || (allow && !allow(it));
         if (out) { push(GAP, null); continue; }
-        for (let k = 0; k < it.s.length; k++) push(it.s[k] === GAP ? GAP : TextNormalizer.fold(it.s[k]), it.s[k] === GAP ? null : { item: it, off: k });
+        for (let k = 0; k < it.s.length; k++) push(TextNormalizer.isGap(it.s[k]) ? it.s[k] : TextNormalizer.fold(it.s[k]), TextNormalizer.isGap(it.s[k]) ? null : { item: it, off: k });
+      }
+      if (spatial) {
+        const pool = items.filter((it) => !(excludeRuby && it.ruby) && !it.hidden && !(area && !PdfReader.inRect(it, area)) && !(allow && !allow(it)) && TextNormalizer.strip(it.s).length <= USER_SETTINGS.spatial.maxItemChars);
+        for (const chain of PdfReader.spatialChains(pool)) {
+          push(GAP, null);
+          for (const it of chain) {
+            for (let k = 0; k < it.s.length; k++) if (!TextNormalizer.isGap(it.s[k])) push(TextNormalizer.fold(it.s[k]), { item: it, off: k });
+          }
+        }
+        push(GAP, null);
       }
       const map = [];
       let compact = "";
       for (let i = 0; i < raw.length; i++) {
-        if (raw[i] === GAP || TextNormalizer.isSep(raw[i])) continue;
+        if (TextNormalizer.isGap(raw[i]) || TextNormalizer.isSep(raw[i])) continue;
         map.push(i);
         compact += raw[i];
       }
       return { raw, compact, map, src };
     });
+  }
+  static spatialChains(pool) {
+    const cfg = USER_SETTINGS.spatial;
+    const styleOf = (it) => `${it.font}|${it.color || ""}`;
+    const sameStyle = (a, b) => styleOf(a) === styleOf(b) && Math.abs(a.size - b.size) <= Math.max(a.size, b.size) * cfg.sizeTol;
+    const used = new Set();
+    const chains = [];
+    const build = (start, horizontal) => {
+      const chain = [start];
+      const gaps = [];
+      let cur = start;
+      for (;;) {
+        const size = cur.size;
+        let best = null;
+        let bestGap = Infinity;
+        for (const c of pool) {
+          if (used.has(c) || chain.includes(c) || !sameStyle(c, start)) continue;
+          let gap;
+          if (horizontal) {
+            if (Math.abs(c.py - cur.py) > size * cfg.align || c.px <= cur.px) continue;
+            gap = c.px - (cur.px + cur.pw);
+          } else {
+            if (Math.abs(c.px - cur.px) > size * cfg.align || c.py >= cur.py) continue;
+            gap = cur.py - c.py - size;
+          }
+          if (gap < -size * 0.3 || gap > size * cfg.maxGap) continue;
+          if (gap < bestGap) { best = c; bestGap = gap; }
+        }
+        if (!best) break;
+        if (gaps.length) {
+          const avg = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+          if (bestGap > Math.max(avg, 0) * cfg.gapGrow + size * 0.3) break;
+        }
+        gaps.push(bestGap);
+        chain.push(best);
+        cur = best;
+      }
+      return chain;
+    };
+    for (const horizontal of [true, false]) {
+      const order = [...pool].sort((a, b) => (horizontal ? a.px - b.px : b.py - a.py));
+      for (const it of order) {
+        if (used.has(it)) continue;
+        const chain = build(it, horizontal);
+        if (chain.length < 2) continue;
+        for (const c of chain) used.add(c);
+        chains.push(chain);
+      }
+    }
+    return chains;
   }
   boxesFor(pageIndex, refs) {
     const d = this.dims[pageIndex];
@@ -2120,7 +2212,7 @@ class PdfReader {
       const n = item.s.length;
       for (let k = 0; k < n; k++) {
         const ch = item.s[k];
-        if (ch === TextNormalizer.GAP || !ch.trim()) continue;
+        if (TextNormalizer.isGap(ch) || !ch.trim()) continue;
         let cx, cy;
         if (!item.vertical) {
           cx = item.px + (k + 0.5) * (item.pw / n);
@@ -2258,7 +2350,7 @@ class PdfDiagnosis {
   }
   static sampleText(reader, index) {
     if (index < 0) return "";
-    const text = reader.pages[index].filter((it) => !it.ruby).map((it) => (it.gapBefore ? TextNormalizer.GAP : "") + it.s).join("").split(TextNormalizer.GAP).join(" ");
+    const text = reader.pages[index].filter((it) => !it.ruby).map((it) => (it.gapBefore ? TextNormalizer.GAP : "") + it.s).join("").replace(/[\u0001\u0002]/g, " ");
     return text.slice(0, USER_SETTINGS.sampleTextLength);
   }
   static render(container, result, reader) {
@@ -3046,21 +3138,47 @@ class TermMatcher {
     this.reader = reader;
   }
   compoundWordAt(text, start, end) {
+    const SP = TextNormalizer.SPACE;
+    const spaced = text.slice(start, end).includes(SP);
+    const group = (ch) => {
+      const c = TextNormalizer.charClass(ch);
+      return c === "kanji" || c === "katakana" ? "cjk" : c;
+    };
+    const step = (i, dir) => (spaced && text[i] === SP ? i + dir : i);
     if (TextNormalizer.charClass(text[end - 1]) === "katakana") {
-      let e2 = end;
-      while (text[e2] === "ー" || TextNormalizer.isSep(text[e2]) && text[e2 + 1] === "ー") e2++;
-      if (e2 > end && TextNormalizer.charClass(text[e2]) !== "katakana") end = e2;
+      let e2 = step(end, 1);
+      while (text[e2] === "ー" || (TextNormalizer.isSep(text[e2]) && text[e2 + 1] === "ー")) e2 = step(e2 + 1, 1);
+      if (e2 > end && text[e2 - 1] !== SP && TextNormalizer.charClass(text[e2]) !== "katakana") end = e2;
     }
-    const firstClass = TextNormalizer.charClass(text[start]);
-    const lastClass = TextNormalizer.charClass(text[end - 1]);
-    const joinsLeft = firstClass !== "other" && TextNormalizer.charClass(text[start - 1]) === firstClass;
-    const joinsRight = lastClass !== "other" && TextNormalizer.charClass(text[end]) === lastClass;
+    const firstGroup = group(text[start]);
+    const lastGroup = group(text[end - 1]);
+    const li = step(start - 1, -1);
+    const ri = step(end, 1);
+    const joinsLeft = firstGroup !== "other" && li >= 0 && group(text[li]) === firstGroup;
+    let joinsRight = lastGroup !== "other" && ri < text.length && group(text[ri]) === lastGroup;
+    if (joinsRight && TextNormalizer.charClass(text[end - 1]) === "katakana" && TextNormalizer.charClass(text[ri]) === "kanji") {
+      let k = ri;
+      while (k < text.length && TextNormalizer.charClass(text[k]) === "kanji") k++;
+      if (USER_SETTINGS.titleSuffixes.includes(TextNormalizer.strip(text.slice(ri, k)))) joinsRight = false;
+    }
     if (!joinsLeft && !joinsRight) return null;
+    const limit = USER_SETTINGS.compoundMaxSpan;
     let left = start;
     let right = end;
-    const limit = USER_SETTINGS.compoundMaxSpan;
-    while (joinsLeft && left > 0 && start - left < limit && TextNormalizer.charClass(text[left - 1]) === firstClass) left--;
-    while (joinsRight && right < text.length && right - end < limit && TextNormalizer.charClass(text[right]) === lastClass) right++;
+    let n = 0;
+    while (joinsLeft && n < limit) {
+      const k = step(left - 1, -1);
+      if (k < 0 || group(text[k]) !== firstGroup) break;
+      left = k;
+      n++;
+    }
+    n = 0;
+    while (joinsRight && n < limit) {
+      const k = step(right, 1);
+      if (k >= text.length || group(text[k]) !== lastGroup) break;
+      right = k + 1;
+      n++;
+    }
     return TextNormalizer.strip(text.slice(left, right));
   }
   static makeOcc(reader, { pageIndex, pageNo, refs, kind, word, scope, matched }) {
@@ -3098,8 +3216,11 @@ class TermMatcher {
         const scope = scopeOf ? scopeOf(pageIndex, refs) : "in";
         const word = this.compoundWordAt(raw, rawStart, rawEnd);
         if (scope && (word === null || !longerKeys.some((k) => word.includes(k)))) {
-          const occ = TermMatcher.makeOcc(this.reader, { pageIndex, pageNo, refs, kind: word === null ? "plain" : "compound", word, scope, matched: compact.slice(pos, pos + key.length) });
-          occ.near = compact.slice(Math.max(0, pos - W), pos + key.length + W);
+          const spanning = raw.slice(rawStart, rawEnd).includes(TextNormalizer.GAP);
+          const occ = TermMatcher.makeOcc(this.reader, { pageIndex, pageNo, refs, kind: word !== null ? "compound" : spanning ? "spanning" : "plain", word, scope, matched: compact.slice(pos, pos + key.length) });
+          occ.matchedKey = key;
+          occ.before = compact.slice(Math.max(0, pos - W), pos);
+          occ.after = compact.slice(pos + key.length, pos + key.length + W);
           occurrences.push(occ);
         }
         pos = compact.indexOf(key, pos + 1);
@@ -3121,6 +3242,7 @@ class TermResult {
     this.overrides = new Map();
     this.editedCols = new Set();
     this.textEdits = {};
+    this.noteEdits = { lines: {}, extra: [] };
     this.extraPages = new Set();
     this.ai = null;
     this.indexPages();
@@ -3162,6 +3284,7 @@ class TermResult {
       this.inactive = new Map();
       for (const o of this.occurrences) {
         if (o.manual) continue;
+        if (o.exWord) { this.inactive.set(o, { key: "exword", word: o.exWord }); continue; }
         if (o.scope !== "in") { this.inactive.set(o, { key: o.scope }); continue; }
         const filtered = this.ctx.filterReason(o, this.fontChoice);
         if (filtered) { this.inactive.set(o, filtered); continue; }
@@ -3291,6 +3414,7 @@ class TermResult {
     const t = USER_SETTINGS.text;
     if (reason.key === "style") return t.excludeStyle(StyleRule.label(reason.rule));
     if (reason.key === "font" && reason.detail) return t.excludeFont(reason.detail);
+    if (reason.key === "exword") return t.excludeWordHit(reason.word);
     return t.excludeReason[reason.key];
   }
   static formatPages(nums, opts) {
@@ -3342,8 +3466,10 @@ class TermResult {
     const quiet = listBase && !opts.listNotes;
     const auto = (p) => !quiet || this.overrides.has(p);
     const notes = [];
-    if (this.entry.bracketStripped) notes.push(t.bracketNote(this.entry.searchKey));
-    if (this.fontChoice && this.fontLabel) notes.push(t.fontNote(this.fontLabel));
+    const add = (key, text) => notes.push({ key, text });
+    if (this.entry.bracketStripped) add("bracket", t.bracketNote(this.entry.searchKey));
+    if (this.fontChoice && this.fontLabel) add("font", t.fontNote(this.fontLabel));
+    if (this.entry.excludeWords?.length) add("exword", t.excludeWordsNote(this.entry.excludeWords.join("」「")));
     const compoundState = opts.compoundMode === "include" ? "adopt" : "hold";
     const compoundPages = new Map();
     for (const o of this.occurrences) {
@@ -3353,24 +3479,33 @@ class TermResult {
       if (!compoundPages.has(o.word)) compoundPages.set(o.word, new Set());
       compoundPages.get(o.word).add(o.pageNo);
     }
-    if (this.entry.aliases?.length) notes.push(t.aliasNote(this.entry.aliases.join("」「")));
+    if (this.entry.aliases?.length) add("alias", t.aliasNote(this.entry.aliases.join("」「")));
     const special = new Map();
     for (const o of this.occurrences) {
-      if (!["ruby", "unqualified", "homonym", "bracket"].includes(o.kind) || !this.isActive(o) || this.overrides.has(o.pageNo) || !auto(o.pageNo) || states.get(o.pageNo) !== "hold") continue;
+      if (!["ruby", "unqualified", "homonym", "bracket", "spanning"].includes(o.kind) || !this.isActive(o) || this.overrides.has(o.pageNo) || !auto(o.pageNo) || states.get(o.pageNo) !== "hold") continue;
       if (this.onPage(o.pageNo).some((p) => (p.kind === "plain" || p.kind === "compound") && this.isActive(p))) continue;
       const k = `${o.kind}\u0000${o.word || ""}\u0000${o.qualifierWord || ""}`;
       if (!special.has(k)) special.set(k, { o, pages: new Set() });
       special.get(k).pages.add(o.pageNo);
     }
-    for (const { o, pages } of special.values()) {
+    const byBracket = new Map();
+    for (const o of this.occurrences) {
+      if (!o.bracketWord || !this.isActive(o) || states.get(o.pageNo) !== "adopt") continue;
+      if (this.onPage(o.pageNo).some((p) => !p.bracketWord && this.isActive(p))) continue;
+      if (!byBracket.has(o.bracketWord)) byBracket.set(o.bracketWord, new Set());
+      byBracket.get(o.bracketWord).add(o.pageNo);
+    }
+    for (const [q, pages] of byBracket) add(`bracketAdopt|${q}`, t.bracketAdoptNote(q, fmt([...pages])));
+    for (const [k, { o, pages }] of special) {
       const ps = fmt([...pages]);
-      if (o.kind === "ruby") notes.push(t.rubyHitNote(ps));
-      else if (o.kind === "unqualified") notes.push(t.unqualifiedNote(o.word, this.entry.searchKey, ps));
-      else if (o.kind === "homonym") notes.push(t.homonymNote(o.word, o.qualifierWord, ps));
-      else notes.push(t.bracketHitNote(o.word, ps));
+      if (o.kind === "ruby") add(k, t.rubyHitNote(ps));
+      else if (o.kind === "spanning") add(k, t.spanningNote(ps));
+      else if (o.kind === "unqualified") add(k, t.unqualifiedNote(o.word, this.entry.searchKey, ps));
+      else if (o.kind === "homonym") add(k, t.homonymNote(o.word, o.qualifierWord, ps));
+      else add(k, t.bracketHitNote(o.word, ps));
     }
     for (const [word, set] of compoundPages) {
-      notes.push(opts.compoundMode === "include" ? t.compoundIncluded(word, fmt([...set])) : t.compoundNote(word, this.entry.term, fmt([...set])));
+      add(`compound|${word}`, opts.compoundMode === "include" ? t.compoundIncluded(word, fmt([...set])) : t.compoundNote(word, this.entry.term, fmt([...set])));
     }
     const bySource = (source, state) => [...this.overrides].filter(([, o]) => o.source === source && o.state === state).map(([p]) => p);
     const added = new Map();
@@ -3381,22 +3516,31 @@ class TermResult {
     }
     const manualHold = bySource("manual", "hold");
     const manualIn = bySource("manual", "adopt").filter((p) => !added.has(p) && !(listBase && this.listStateOf(p) === "none"));
-    if (manualHold.length) notes.push(t.manualExcluded(fmt(manualHold)));
-    if (manualIn.length && !listBase) notes.push(t.manualAdopted(fmt(manualIn)));
-    if (added.size) notes.push(t.manualAddedNote([...added].sort((a, b) => a[0] - b[0]).map(([p, ws]) => t.manualAddedItem(p, [...new Set(ws)].join("」「"))).join("、")));
+    if (manualHold.length) add("manualHold", t.manualExcluded(fmt(manualHold)));
+    if (manualIn.length && !listBase) add("manualIn", t.manualAdopted(fmt(manualIn)));
+    if (added.size) add("manualAdded", t.manualAddedNote([...added].sort((a, b) => a[0] - b[0]).map(([p, ws]) => t.manualAddedItem(p, [...new Set(ws)].join("」「"))).join("、")));
     for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "ai").sort((a, b) => a[0] - b[0])) {
-      notes.push(o.state === "hold" ? t.aiExcluded(p, o.reason) : t.aiAdopted(p, o.reason));
+      add(`ai|${p}`, o.state === "hold" ? t.aiExcluded(p, o.reason) : t.aiAdopted(p, o.reason));
     }
     for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "rule" && (o.state === "adopt" || o.state === "hold")).sort((a, b) => a[0] - b[0])) {
-      notes.push(o.state === "hold" ? t.ruleHold(p, o.reason) : t.ruleAdopt(p, o.reason));
+      add(`rule|${p}`, o.state === "hold" ? t.ruleHold(p, o.reason) : t.ruleAdopt(p, o.reason));
     }
     const exclGroups = this.exclusionGroups(excluded);
     const noNombreAll = this.noNombre || [];
     const exclNote = [...exclGroups].map(([label, ps]) => t.excludedNote(fmt(ps), label)).concat(noNombreAll.length ? [t.noNombreNote(TextNormalizer.formatList(noNombreAll.map((i) => i + 1), USER_SETTINGS.listLimit))] : []).join("\n");
     const estimatedHits = [...new Set(this.occurrences.filter((o) => this.nombre.estimated.has(o.pageIndex) && states.get(o.pageNo) === "adopt" && auto(o.pageNo)).map((o) => o.pageNo))];
-    if (estimatedHits.length) notes.push(t.estimatedNote(fmt(estimatedHits)));
+    if (estimatedHits.length) add("estimated", t.estimatedNote(fmt(estimatedHits)));
     const noNombre = this.noNombre || [];
-    if (!pages.length && !noNombre.length) notes.push(t.notFound);
+    if (!pages.length && !noNombre.length) add("notFound", t.notFound);
+    const ne = this.noteEdits || { lines: {}, extra: [] };
+    const noteLines = [];
+    for (const n of notes) {
+      const e = ne.lines[n.key];
+      const valid = e && e.base === n.text;
+      if (valid && e.text === "") continue;
+      noteLines.push({ key: n.key, text: valid ? e.text : n.text, base: n.text });
+    }
+    (ne.extra || []).forEach((text, i) => noteLines.push({ key: `extra:${i}`, text }));
     const status = pendingPages.length ? "pending" : held.length || estimatedHits.length ? "review" : adopt.length ? "ok" : excluded.length || noNombre.length ? "excluded" : "none";
     const ai = this.aiSummary(opts);
     const raw = { adopt, hold: held, exclude: excluded, pending: pendingItems, exclGroups, noNombre: noNombreAll };
@@ -3404,10 +3548,10 @@ class TermResult {
     const editedCols = [...this.editedCols];
     if (this.entry.edited || this.entry.added || this.ctx.termEdited?.()) editedCols.push("term");
     return {
-      row: this.entry.row, term: this.entry.term, termChanged: !!(this.entry.edited || this.entry.added), editedCols,
+      row: this.entry.row, term: this.entry.term, excludeWords: this.entry.excludeWords || [], termChanged: !!(this.entry.edited || this.entry.added), editedCols,
       pages: fmt(adopt), held: fmt(held), excluded: fmt(excluded),
       pending: pendingItems.map(([p, tag]) => t.pendingItem(p, tag.label)).join("、"), pendingCount: pendingItems.length,
-      status, note: ed.note ?? notes.join("\n"), exclNote: ed.exclNote ?? exclNote, fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
+      status, note: ed.note ?? noteLines.map((n) => n.text).join("\n"), noteLines, exclNote: ed.exclNote ?? exclNote, fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
       fixes: ed.fixes ?? (this.ctx.fixes ? this.ctx.fixes(this, raw) : ""), raw
     };
   }
@@ -3903,13 +4047,28 @@ class ResultView {
     const hint = doc.createElement("span");
     hint.textContent = t.editHint;
     btns.append(hint);
-    box.append(ta, btns);
+    let ex = null;
+    if (role === "term") {
+      const label = doc.createElement("label");
+      label.className = "ex-label";
+      label.textContent = t.excludeWordsLabel;
+      ex = doc.createElement("input");
+      ex.type = "text";
+      ex.value = (this.app.results[index]?.entry.excludeWords || []).join("、");
+      ex.placeholder = t.excludeWordsHint;
+      ex.title = t.excludeWordsHint;
+      label.append(ex);
+      box.append(ta, label, btns);
+    } else {
+      box.append(ta, btns);
+    }
     td.replaceChildren(box);
     td.classList.remove("edited");
     const commit = () => {
       if (this.editing?.ta !== ta) return;
       this.editing = null;
-      this.app.editCell(index, role, ta.value);
+      if (ex) this.app.editTermCell(index, ta.value, ex.value);
+      else this.app.editCell(index, role, ta.value);
     };
     ok.addEventListener("mousedown", (e) => e.preventDefault());
     ok.addEventListener("click", commit);
@@ -3919,7 +4078,21 @@ class ResultView {
       else if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); commit(); }
     });
     ta.addEventListener("click", (e) => e.stopPropagation());
-    ta.addEventListener("blur", () => setTimeout(commit, 0));
+    const onBlur = () => setTimeout(() => {
+      const active = box.ownerDocument.activeElement;
+      if (active && box.contains(active)) return;
+      commit();
+    }, 0);
+    ta.addEventListener("blur", onBlur);
+    if (ex) {
+      ex.addEventListener("blur", onBlur);
+      ex.addEventListener("click", (e) => e.stopPropagation());
+      ex.addEventListener("keydown", (e) => {
+        e.stopPropagation();
+        if (e.key === "Escape") { e.preventDefault(); this.cancelEdit(); }
+        else if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); commit(); }
+      });
+    }
     this.editing = { ta, index };
     ta.focus();
     ta.select();
@@ -4048,6 +4221,14 @@ class ResultView {
         s.className = `state ${r.status}`;
         s.textContent = this.statusLabel(r.status);
         td.append(s);
+      } else if (cls === "c-term") {
+        td.append(String(val ?? ""));
+        if (r.excludeWords?.length) {
+          const ex = document.createElement("span");
+          ex.className = "term-ex";
+          ex.textContent = USER_SETTINGS.text.termExcludeTag(r.excludeWords.join("、"));
+          td.append(ex);
+        }
       } else if (cls === "c-font") {
         td.append(this.fontSelect(index, r.fontChoice || ""));
       } else if (cls === "c-pending") {
@@ -5620,6 +5801,7 @@ class App {
       [this.$("opt-compound"), "click", this.handlers.compound],
       [this.$("opt-ruby"), "change", this.handlers.invalidate],
       [this.$("opt-hidden"), "change", this.handlers.invalidate],
+      [this.$("opt-spatial"), "change", this.handlers.invalidate],
       [this.$("opt-sep"), "change", this.handlers.format],
       [this.$("opt-range"), "change", this.handlers.format],
       [this.$("opt-page-range"), "input", this.handlers.range],
@@ -6181,6 +6363,7 @@ class App {
     result.overrides = old.overrides;
     result.editedCols = old.editedCols;
     result.textEdits = old.textEdits;
+    result.noteEdits = old.noteEdits;
     result.extraPages = old.extraPages;
     for (const o of old.manualOccs()) result.addManual(o);
     this.results[index] = result;
@@ -6247,6 +6430,8 @@ class App {
           result.overrides.set(p, { state: "exclude", source: "edit", reason: "" });
         }
       }
+    } else if (role === "note") {
+      this.applyNoteEdit(result, row, value);
     } else {
       result.textEdits[role] = value;
     }
@@ -6255,6 +6440,81 @@ class App {
     this.pipeline.set(App.STEP.save, false);
     this.setStatus(`${t.cellEdited(result.entry.term, t.colName[role])}${extra}`);
     this.refreshButtons();
+  }
+  editTermCell(index, termText, exText) {
+    const t = USER_SETTINGS.text;
+    const result = this.results[index];
+    if (!result) return;
+    const words = [...new Set(String(exText || "").split(/[、,，\n]/).map((w) => w.trim()).filter(Boolean))];
+    const before = (result.entry.excludeWords || []).join("、");
+    const changedWords = words.join("、") !== before;
+    const term = String(termText || "").trim();
+    if (changedWords) result.entry.excludeWords = words;
+    if (term && term !== result.entry.term) { this.editCell(index, "term", term); return; }
+    if (!changedWords) { this.refreshTerm(index); return; }
+    if (this.activity.isBusy() || this.aiAbort) { this.setStatus(t.termBusy, true); this.refreshTerm(index); return; }
+    const old = result;
+    const fresh = this.buildResult(old.entry, old.fontChoice, this.currentOptions);
+    fresh.overrides = old.overrides;
+    fresh.editedCols = old.editedCols;
+    fresh.textEdits = old.textEdits;
+    fresh.noteEdits = old.noteEdits;
+    fresh.extraPages = old.extraPages;
+    fresh.ai = old.ai;
+    for (const o of old.manualOccs()) fresh.addManual(o);
+    this.results[index] = fresh;
+    this.refreshTerm(index);
+    if (index === this.selectedIndex) this.viewer.open(fresh, true);
+    this.pipeline.set(App.STEP.save, false);
+    this.setStatus(t.excludeWordsSet(old.entry.term, words.join("、")));
+  }
+  applyNoteEdit(result, row, value) {
+    delete result.textEdits.note;
+    const oldLines = row.noteLines || [];
+    const newLines = value.split("\n").map((x) => x.trim()).filter(Boolean);
+    const lcs = Array.from({ length: oldLines.length + 1 }, () => new Array(newLines.length + 1).fill(0));
+    for (let i = oldLines.length - 1; i >= 0; i--) {
+      for (let j = newLines.length - 1; j >= 0; j--) {
+        lcs[i][j] = oldLines[i].text === newLines[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+      }
+    }
+    const pairs = [];
+    let i = 0;
+    let j = 0;
+    let gapOld = [];
+    let gapNew = [];
+    const flush = () => {
+      const n = Math.min(gapOld.length, gapNew.length);
+      for (let k = 0; k < n; k++) pairs.push([gapOld[k], gapNew[k]]);
+      for (let k = n; k < gapOld.length; k++) pairs.push([gapOld[k], null]);
+      for (let k = n; k < gapNew.length; k++) pairs.push([null, gapNew[k]]);
+      gapOld = [];
+      gapNew = [];
+    };
+    while (i < oldLines.length || j < newLines.length) {
+      if (i < oldLines.length && j < newLines.length && oldLines[i].text === newLines[j]) {
+        flush();
+        pairs.push([oldLines[i], newLines[j]]);
+        i++;
+        j++;
+      } else if (j < newLines.length && (i >= oldLines.length || lcs[i][j + 1] >= lcs[i + 1][j])) {
+        gapNew.push(newLines[j++]);
+      } else {
+        gapOld.push(oldLines[i++]);
+      }
+    }
+    flush();
+    const ne = { lines: { ...(result.noteEdits?.lines || {}) }, extra: [] };
+    for (const [o, n] of pairs) {
+      if (o && !o.key.startsWith("extra:")) {
+        if (n === null) ne.lines[o.key] = { text: "", base: o.base };
+        else if (n !== o.base) ne.lines[o.key] = { text: n, base: o.base };
+        else delete ne.lines[o.key];
+      } else if (n !== null) {
+        ne.extra.push(n);
+      }
+    }
+    result.noteEdits = ne;
   }
   revertCell(index, role) {
     const t = USER_SETTINGS.text;
@@ -6269,6 +6529,7 @@ class App {
       for (const r of ["pages", "held", "excluded"]) result.editedCols.delete(r);
     } else {
       delete result.textEdits[role];
+      if (role === "note") result.noteEdits = { lines: {}, extra: [] };
       result.editedCols.delete(role);
     }
     this.refreshTerm(index);
@@ -6338,6 +6599,7 @@ class App {
     rows.push([L.compound, s.compoundMode === "include" ? L.compoundInclude : L.compoundNote]);
     rows.push([L.ruby, s.ruby ? L.rubyExclude : L.rubyInclude]);
     rows.push([L.hidden, s.hidden === false ? L.rubyInclude : L.rubyExclude]);
+    rows.push([L.spatial, s.spatial ? L.on : L.off]);
     rows.push([L.format, `${L.separator(s.separator)}${s.useRanges ? L.ranges : ""}`]);
     rows.push([L.secExcluded, null]);
     const notIn = (all, sel, fmt) => { const out = all.filter((x) => !sel.includes(x)); return out.length ? out.map(fmt).join("\n") : L.none; };
@@ -6345,8 +6607,9 @@ class App {
     rows.push([L.exSizes, notIn(this.styleFilter.sizes.map((x) => x.key), s.sizes, (x) => `${x}pt`)]);
     rows.push([L.exColors, !s.colorAnalyzed ? L.colorNone : notIn(this.styleFilter.colors.map((x) => x.key), s.colors, (x) => (x === StyleFilter.UNKNOWN ? t.colorUnknown : x))]);
     rows.push([L.globalRules, st.globalRules.length ? st.globalRules.map((r) => StyleRule.label(r)).join("\n") : L.none]);
-    const perTerm = st.terms.filter((x) => x.fontChoice || x.rules?.length).map((x) => {
+    const perTerm = st.terms.filter((x) => x.fontChoice || x.rules?.length || x.excludeWords?.length).map((x) => {
       const parts = [];
+      if (x.excludeWords?.length) parts.push(L.termExclude(x.excludeWords.join("、")));
       if (x.fontChoice) parts.push(L.termFont(this.fontChoiceLabel(x.fontChoice)));
       if (x.rules?.length) parts.push(L.termRules(x.rules.map((r) => StyleRule.label(r)).join("、")));
       return `${x.term}（${x.row}行目）：${parts.join("／")}`;
@@ -6408,6 +6671,7 @@ class App {
         compoundMode: this.compoundMode,
         ruby: this.$("opt-ruby").checked,
         hidden: this.$("opt-hidden").checked,
+        spatial: this.$("opt-spatial").checked,
         separator: this.$("opt-sep").value,
         useRanges: this.$("opt-range").checked,
         header: this.$("opt-header").checked,
@@ -6425,7 +6689,8 @@ class App {
         overrides: [...r.overrides],
         added: r.manualOccs().map((o) => ({ pageIndex: o.pageIndex, refs: o.refKeys })),
         ruleDone: !!r.ruleDone,
-        edits: { cols: [...r.editedCols], texts: r.textEdits, extra: [...r.extraPages] },
+        edits: { cols: [...r.editedCols], texts: r.textEdits, extra: [...r.extraPages], notes: r.noteEdits },
+        excludeWords: r.entry.excludeWords || [],
         ai: r.ai ? { pages: [...(r.ai.pages || new Map())], error: r.ai.error || "", model: r.ai.model || "" } : null
       })),
       originalNotes: [...originalNotes],
@@ -6451,6 +6716,7 @@ class App {
     for (const b of this.$("opt-compound").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.value === this.compoundMode));
     this.$("opt-ruby").checked = s.ruby !== false;
     this.$("opt-hidden").checked = s.hidden !== false;
+    this.$("opt-spatial").checked = !!s.spatial;
     if (s.separator) this.$("opt-sep").value = s.separator;
     this.$("opt-range").checked = !!s.useRanges;
     if (s.aiInstruction) { this.$("ai-instruction").value = s.aiInstruction; Prefs.set("aiInstruction", s.aiInstruction); }
@@ -6479,6 +6745,8 @@ class App {
     this.termFonts.clear();
     this.termRules.clear();
     for (const term of st.terms || []) {
+      const e = this.entries.find((x) => x.row === term.row && x.term === term.term) || this.entries.find((x) => x.term === term.term);
+      if (e && term.excludeWords?.length) e.excludeWords = [...term.excludeWords];
       if (term.fontChoice) this.termFonts.set(term.row, term.fontChoice);
       if (term.rules?.length) this.termRules.set(term.row, term.rules);
     }
@@ -6502,6 +6770,7 @@ class App {
       result.editedCols = new Set(saved.edits?.cols || []);
       result.textEdits = { ...(saved.edits?.texts || {}) };
       result.extraPages = new Set(saved.edits?.extra || []);
+      result.noteEdits = saved.edits?.notes ? { lines: { ...(saved.edits.notes.lines || {}) }, extra: [...(saved.edits.notes.extra || [])] } : { lines: {}, extra: [] };
       result.ai = saved.ai ? { pages: new Map(saved.ai.pages || []), error: saved.ai.error || "", model: saved.ai.model || "" } : null;
       if (result.ai && !result.ai.error) delete result.ai.error;
     }
@@ -6543,6 +6812,7 @@ class App {
       useRanges: this.$("opt-range").checked,
       excludeRuby: this.$("opt-ruby").checked,
       excludeHidden: this.$("opt-hidden").checked,
+      spatial: this.$("opt-spatial").checked,
       listBase: this.$("opt-listbase").checked,
       listNotes: this.listOrigin !== "premade",
       narrowed: !!fontSet || this.searchAreas.hasAny() || this.styleFilter.isNarrowed()
@@ -6554,6 +6824,7 @@ class App {
     const texts = this.pdf.pageTexts({
       excludeRuby: opts.excludeRuby,
       excludeHidden: opts.excludeHidden,
+      spatial: opts.spatial,
       allow: null,
       areaFor: this.searchAreas.hasAny() ? (i) => this.searchAreas.rectFor(i, this.layout) : null,
       skip: (i) => !this.inSearch(i)
@@ -6567,6 +6838,7 @@ class App {
     const texts = this.pdf.pageTexts({
       excludeRuby: false,
       excludeHidden: opts.excludeHidden,
+      spatial: opts.spatial,
       allow: null,
       areaFor: this.searchAreas.hasAny() ? (i) => this.searchAreas.rectFor(i, this.layout) : null,
       skip: (i) => !this.inSearch(i)
@@ -6614,7 +6886,8 @@ class App {
     const key = "\u0000full";
     if (this.textCache.has(key)) return this.textCache.get(key);
     const nombre = this.nombreResult;
-    const texts = this.pdf.pageTexts({ excludeRuby: opts.excludeRuby, excludeHidden: opts.excludeHidden, allow: null, areaFor: null, skip: (i) => nombre.numbers[i] === null || nombre.numbers[i] === undefined });
+    const texts = this.pdf.pageTexts({ excludeRuby: opts.excludeRuby, excludeHidden: opts.excludeHidden,
+      spatial: opts.spatial, allow: null, areaFor: null, skip: (i) => nombre.numbers[i] === null || nombre.numbers[i] === undefined });
     this.textCache.set(key, texts);
     return texts;
   }
@@ -6622,7 +6895,8 @@ class App {
     const key = "\u0000nonombre";
     if (this.textCache.has(key)) return this.textCache.get(key);
     const nums = this.nombreResult.numbers;
-    const texts = this.pdf.pageTexts({ excludeRuby: opts.excludeRuby, excludeHidden: opts.excludeHidden, allow: null, areaFor: null, skip: (i) => nums[i] !== null && nums[i] !== undefined && PageNo.number(nums[i]) >= 1 });
+    const texts = this.pdf.pageTexts({ excludeRuby: opts.excludeRuby, excludeHidden: opts.excludeHidden,
+      spatial: opts.spatial, allow: null, areaFor: null, skip: (i) => nums[i] !== null && nums[i] !== undefined && PageNo.number(nums[i]) >= 1 });
     this.textCache.set(key, texts);
     return texts;
   }
@@ -6648,32 +6922,65 @@ class App {
       for (const o of rubyHits) { o.kind = "ruby"; o.word = null; }
       return inScope.concat(outScope, rubyHits);
     };
+    const exWords = (entry.excludeWords || []).map((w) => TextNormalizer.key(w)).filter(Boolean);
+    const isExcludedKey = (k) => exWords.includes(TextNormalizer.key(k));
     let occs = runAll(entry);
-    for (const alias of entry.aliases || []) {
+    for (const alias of (entry.aliases || []).filter((a) => !isExcludedKey(a))) {
       for (const o of runAll({ ...entry, searchKey: alias })) { o.alias = alias; occs.push(o); }
     }
     const base = TextNormalizer.key(entry.searchKey || "");
     const homonyms = this.entries.filter((e) => e !== entry && TextNormalizer.key(e.searchKey || "") === base);
-    const near = (o, word) => !!word && o.near?.includes(TextNormalizer.key(word));
+    const slack = USER_SETTINGS.qualifierSlack;
+    const attached = (o, word) => {
+      if (!word) return false;
+      const q = TextNormalizer.key(word);
+      return (o.before || "").slice(-(q.length + slack)).includes(q) || (o.after || "").slice(0, q.length + slack + 1).includes(q);
+    };
     if (homonyms.length) {
-      for (const o of occs) {
-        if (o.kind !== "plain" || o.alias) continue;
-        if (entry.qualifier) {
-          if (!near(o, entry.qualifier)) { o.kind = "unqualified"; o.word = entry.qualifier; }
-        } else {
-          const other = homonyms.find((h) => near(o, h.qualifier));
+      if (entry.qualifier) {
+        const qualifiedPages = new Set(occs.filter((o) => attached(o, entry.qualifier)).map((o) => o.pageIndex));
+        for (const o of occs) {
+          if (o.kind !== "plain" || o.alias || qualifiedPages.has(o.pageIndex)) continue;
+          o.kind = "unqualified";
+          o.word = entry.qualifier;
+        }
+      } else {
+        for (const o of occs) {
+          if (o.kind !== "plain" || o.alias) continue;
+          const other = homonyms.find((h) => attached(o, h.qualifier));
           if (other) { o.kind = "homonym"; o.word = other.term; o.qualifierWord = other.qualifier; }
         }
       }
     }
-    if (entry.qualifier) {
+    if (entry.qualifier && !isExcludedKey(entry.qualifier)) {
       const pages = new Set(occs.map((o) => o.pageIndex));
       for (const o of runAll({ ...entry, searchKey: entry.qualifier, aliases: [], qualifier: "" })) {
         if (pages.has(o.pageIndex) || o.kind !== "plain") continue;
-        o.kind = "bracket";
-        o.word = entry.qualifier;
+        o.bracketWord = entry.qualifier;
         occs.push(o);
       }
+    }
+    if (exWords.length) {
+      for (const o of occs) {
+        const text = `${o.before || ""}${o.matchedKey || ""}${o.after || ""}`;
+        const start = (o.before || "").length;
+        const end = start + (o.matchedKey || "").length;
+        const hit = (entry.excludeWords || []).find((w) => {
+          const k = TextNormalizer.key(w);
+          for (let p = text.indexOf(k); p !== -1; p = text.indexOf(k, p + 1)) if (p < end && p + k.length > start) return true;
+          return false;
+        });
+        if (hit) o.exWord = hit;
+      }
+    }
+    if (opts.spatial) {
+      const seen = new Set();
+      occs = occs.filter((o) => {
+        const k = `${o.pageIndex}|${[...o.parts].map(([it, n]) => `${it.uid}x${n}`).sort().join(",")}|${o.alias || ""}`;
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
     }
     const result = new TermResult(entry, occs, this.nombreResult, choice, {
       rules: () => this.rulesFor(entry.row),
