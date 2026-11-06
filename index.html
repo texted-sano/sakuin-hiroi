@@ -34,6 +34,7 @@
   --hit-adopt-c: #e0262f;
   --hit-hold-c: #1f6fe0;
   --hit-exclude-c: #1f9d55;
+  --hit-pending-c: #e08600;
   --film: #1b1b1b;
   --paper: #ffffff;
   --radius-s: 4px;
@@ -216,25 +217,91 @@ td.c-excluded { font-family: var(--font-num); color: var(--muted); }
 .state-box .msg { color: inherit; }
 .state-box .msg.warn { color: var(--on-warn-soft); }
 .viewer-verify { flex: none; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 5px 10px; border-bottom: 1px solid var(--line); background: var(--warn-soft); color: var(--on-warn-soft); font-size: 12px; }
-.verify-lines { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.verify-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.verify-head { font-weight: 700; flex: none; }
-.verify-row.listOnly .verify-head::before { content: "◀ "; }
-.verify-row.appOnly .verify-head::before { content: "▶ "; }
-.page-chips button.missing { border-style: dashed; color: var(--muted); border-color: var(--line-strong); opacity: 1; cursor: default; }
-.page-chips button.missing::after { content: " PDFなし"; font-size: 9px; }
+.page-chips button.pending { border-color: var(--hit-pending-c); color: var(--hit-pending-c); border-width: 2px; }
+.page-chips button.pending[aria-current="true"] { background: var(--hit-pending-c); color: #fff; }
+.page-chips button.nohit::after { content: " 該当なし"; font-size: 9px; }
 .hit-menu-list { font-size: 11px; color: var(--muted); }
 .hit-menu-list.diff { color: var(--on-warn-soft); background: var(--warn-soft); border-radius: 3px; padding: 1px 6px; font-weight: 700; }
-.viewer-verify button { min-height: 24px; font-size: 11px; }
-.page-chips button.list-diff::before { content: "≠"; font-weight: 700; margin-right: 3px; color: var(--lamp); }
-.page-chips button.list-diff[aria-current="true"]::before { color: inherit; }
+
 
 /* ===== RULE / PROOF ===== */
 textarea { width: 100%; min-height: 96px; resize: vertical; background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--radius-s); padding: 6px 8px; font: inherit; font-size: 12px; line-height: 1.55; color: var(--ink); -webkit-user-select: text; user-select: text; }
 textarea:focus { border-color: var(--accent-text); outline: none; box-shadow: 0 0 0 1px var(--accent-text); }
-.rule-box, .proof-box { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 2px; }
-.proof-summary { font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-s); padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; }
-.proof-summary strong { font-size: 13px; }
+.rule-box { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 2px; }
+
+/* ===== GUIDE ===== */
+.guide-open { flex: none; margin-left: 10px; min-height: 28px; padding: 0 16px; border-radius: 999px; font-weight: 700; background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.guide-open:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.guide-open::before { content: "?"; display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 6px; border-radius: 50%; background: var(--on-accent); color: var(--accent); font-size: 11px; }
+#guide { width: min(1120px, calc(100vw - 32px)); height: min(880px, calc(100vh - 32px)); max-width: none; max-height: none; padding: 0; border: 1px solid var(--line-strong); border-radius: var(--radius-l); background: var(--surface); color: var(--ink); overflow: hidden; }
+#guide[open] { display: flex; flex-direction: column; }
+#guide::backdrop { background: rgba(0, 0, 0, .55); }
+.guide-head { flex: none; display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); background: var(--head); }
+.guide-head h2 { margin: 0; font-size: 17px; flex: 1; }
+.guide-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 220px 1fr; }
+.guide-nav { display: flex; flex-direction: column; gap: 2px; padding: 12px 8px; border-right: 1px solid var(--line); background: var(--surface-2); overflow-y: auto; }
+.guide-nav button { justify-content: flex-start; text-align: left; border: 0; background: transparent; min-height: 32px; padding: 4px 10px; font-size: 13px; border-radius: var(--radius); }
+.guide-nav button:hover { background: var(--accent-soft); }
+.guide-nav button[aria-current="true"] { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.guide-content { overflow-y: auto; padding: 8px 32px 40px; font-size: 14px; line-height: 1.8; scroll-behavior: smooth; }
+.guide-content section { padding: 20px 0 16px; border-bottom: 1px solid var(--line); scroll-margin-top: 4px; }
+.guide-content section:last-child { border-bottom: 0; }
+.guide-content h3 { font-size: 19px; margin: 0 0 10px; padding-left: 10px; border-left: 4px solid var(--accent); line-height: 1.4; }
+.guide-content p { margin: 6px 0; }
+.guide-content ul { margin: 6px 0; padding-left: 1.4em; }
+.guide-content li { margin: 3px 0; }
+.guide-content code { font-size: 12px; padding: 1px 5px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); }
+.guide-content .lead { font-size: 15px; }
+.guide-content .tip { margin: 10px 0; padding: 8px 12px; border-radius: var(--radius); background: var(--accent-soft); color: var(--on-accent-soft); font-size: 13px; }
+.guide-content .tip::before { content: "ヒント　"; font-weight: 700; }
+.guide-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 10px 0; }
+.guide-card { border: 1px solid var(--line); border-radius: var(--radius-l); padding: 10px 14px; background: var(--surface-2); font-size: 13px; }
+.guide-card strong { display: block; font-size: 14px; margin-bottom: 4px; }
+.guide-card ul { padding-left: 1.2em; }
+.guide-steps { list-style: none; margin: 10px 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.guide-steps > li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius-l); background: var(--surface-2); }
+.guide-steps b { font-size: 15px; }
+.step-no { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 15px; }
+.guide-table { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+.guide-table.wide { width: 100%; }
+.guide-table th, .guide-table td { border: 1px solid var(--line); padding: 5px 9px; text-align: left; vertical-align: top; }
+.guide-table th { background: var(--head); white-space: nowrap; }
+.g-tag { display: inline-block; padding: 0 8px; border-radius: 3px; font-weight: 700; font-size: 12px; color: #fff; white-space: nowrap; }
+.g-tag.adopt { background: var(--hit-adopt-c); }
+.g-tag.hold { background: var(--hit-hold-c); }
+.g-tag.exclude { background: var(--hit-exclude-c); }
+.g-tag.pending { background: var(--hit-pending-c); }
+.guide-map { display: grid; grid-template-columns: 1fr 2.4fr; gap: 6px; margin: 10px 0; font-size: 12px; }
+.guide-map b { display: block; font-size: 13px; }
+.guide-map span { display: block; color: var(--muted); }
+.map-left, .map-top, .map-mid > div { border: 2px solid var(--accent); border-radius: var(--radius); padding: 8px 10px; background: var(--accent-soft); }
+.map-right { display: grid; grid-template-rows: auto 1fr; gap: 6px; }
+.map-mid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-height: 90px; }
+@media (max-width: 760px) {
+  .guide-body { grid-template-columns: 1fr; }
+  .guide-nav { display: none; }
+  .guide-content { padding: 4px 16px 32px; }
+  .guide-map { grid-template-columns: 1fr; }
+}
+
+/* ===== PENDING / TERM DIALOG ===== */
+.pending-box { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--hit-pending-c); border-radius: var(--radius); background: color-mix(in srgb, var(--hit-pending-c) 7%, transparent); }
+.pending-groups { display: flex; flex-direction: column; gap: 4px; }
+.pend-row { display: grid; grid-template-columns: 1fr auto; gap: 3px 6px; align-items: center; padding: 4px 0; border-top: 1px solid var(--line); }
+.pend-row:first-child { border-top: 0; }
+.pend-row.all .pend-label { font-weight: 700; }
+.pend-label { font-size: 12px; min-width: 0; overflow-wrap: anywhere; }
+.pend-count { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.pend-row .seg { grid-column: 1 / -1; }
+.pend-row .seg button { flex: 1; min-height: 24px; font-size: 11px; }
+.term-edit { min-height: 22px; font-size: 11px; padding: 0 8px; }
+#term-dialog { border: 1px solid var(--line-strong); border-radius: var(--radius-l); background: var(--surface); color: var(--ink); padding: 18px 20px; width: min(440px, calc(100vw - 32px)); }
+#term-dialog::backdrop { background: rgba(0, 0, 0, .5); }
+#term-dialog form { display: flex; flex-direction: column; gap: 8px; margin: 0; }
+#term-dialog h2 { font-size: 15px; margin: 0 0 4px; }
+#term-dialog input { width: 100%; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+#term-note.error { color: var(--danger); }
 
 /* ===== VIEWER NAV / DROP ===== */
 .viewer-nav { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; background: var(--surface); }
@@ -344,9 +411,12 @@ td.c-term { font-weight: 700; white-space: nowrap; }
 td.c-pages, td.c-held { font-family: var(--font-num); font-variant-numeric: tabular-nums; min-width: 7em; }
 td.c-held { color: var(--lamp); }
 td.c-note { white-space: pre-wrap; min-width: 16em; }
+td.c-fixes { white-space: pre-wrap; min-width: 12em; color: var(--accent-text); }
+td.c-pending { white-space: nowrap; }
 .state { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 0 6px; white-space: nowrap; }
 .state.ok { background: var(--ok-soft); color: var(--ok); }
 .state.review { background: var(--warn-soft); color: var(--on-warn-soft); }
+.state.pending { background: color-mix(in srgb, var(--hit-pending-c) 18%, transparent); color: var(--ink); border: 1px solid var(--hit-pending-c); }
 .state.none { background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
 .sample-badge { font-size: 10px; font-weight: 700; color: var(--danger); border: 1px solid var(--danger); border-radius: 3px; padding: 0 5px; letter-spacing: .06em; }
 .legend-notes { flex: none; margin: 0; padding: 6px 10px 8px 26px; font-size: 11px; color: var(--muted); background: var(--surface); border-top: 1px solid var(--line); }
@@ -370,6 +440,7 @@ td.c-note { white-space: pre-wrap; min-width: 16em; }
 .hit { --hc: var(--hit-adopt-c); transition: none; position: absolute; border: 2px solid var(--hc); background: color-mix(in srgb, var(--hc) 16%, transparent); border-radius: 2px; padding: 0; min-height: 0; cursor: pointer; }
 .hit.hold { --hc: var(--hit-hold-c); border-style: dashed; }
 .hit.exclude { --hc: var(--hit-exclude-c); border-style: dotted; }
+.hit.pending { --hc: var(--hit-pending-c); border-width: 3px; }
 .hit:hover:not(:disabled) { border-color: var(--hc); background: color-mix(in srgb, var(--hc) 28%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc) 35%, transparent); }
 .hit.focus { animation: hit-pop .45s cubic-bezier(.2, .9, .3, 1.4) both, hit-ring 1.1s ease-out .45s 3; }
 .hit:not(.focus) { opacity: .75; }
@@ -449,6 +520,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
     <span class="pill" id="pill-xlsx">Excel</span>
     <span class="pill" id="pill-ai">AI</span>
   </div>
+  <button class="guide-open" id="btn-guide" aria-haspopup="dialog">使い方</button>
 </header>
 
 <div class="layout">
@@ -530,7 +602,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <div class="state-box" id="state-box" hidden>
             <p class="msg" id="state-info"></p>
             <p class="msg warn" id="state-warn" hidden></p>
-            <button class="primary" id="btn-restore" disabled>前回の作業状態を復元</button>
+            <button class="primary" id="btn-restore" hidden disabled>このPDFで作業状態を復元</button>
           </div>
           <div id="column-map" hidden>
             <div style="display:flex;flex-direction:column;gap:5px">
@@ -541,15 +613,18 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
               <div class="prop"><label class="prop-label" for="map-held">申し送りページ</label><select id="map-held" data-role="held"></select></div>
               <div class="prop"><label class="prop-label" for="map-excluded">対象外ページ</label><select id="map-excluded" data-role="excluded"></select></div>
               <div class="prop"><label class="prop-label" for="map-note">備考</label><select id="map-note" data-role="note"></select></div>
+              <div class="prop"><label class="prop-label" for="map-pending">保留</label><select id="map-pending" data-role="pending"></select></div>
+              <div class="prop"><label class="prop-label" for="map-fixes">訂正箇所</label><select id="map-fixes" data-role="fixes"></select></div>
               <label class="check top"><input type="checkbox" id="opt-header" checked><span>保存時に見出し行を書き込む</span></label>
               <p class="note" id="header-note"></p>
               <p class="note" id="map-info"></p>
-              <label class="check top"><input type="checkbox" id="opt-verify"><span>リストに書かれているページと照合する</span></label>
-              <p class="note" id="verify-note"></p>
-              <div class="proof-box">
-                <button class="primary" id="btn-proof" disabled>校正（リストの網羅を確認）</button>
-                <button id="btn-proof-save" disabled>校正結果をExcelで保存</button>
-                <p class="note" id="proof-note"></p>
+              <label class="check top"><input type="checkbox" id="opt-listbase"><span>リストを基準に突き合わせる（突合せ確認）</span></label>
+              <p class="note" id="listbase-note"></p>
+              <div class="pending-box" id="pending-box" hidden>
+                <span class="sub-title">保留の振り分け</span>
+                <p class="note" id="pending-note"></p>
+                <button id="btn-pending-filter">保留のある用語だけ表示</button>
+                <div class="pending-groups" id="pending-groups"></div>
               </div>
             </div>
           </div>
@@ -620,7 +695,8 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <label class="check"><input type="checkbox" id="opt-pdf-adopt" checked><span>確定</span></label>
           <label class="check"><input type="checkbox" id="opt-pdf-hold" checked><span>申し送り</span></label>
           <label class="check"><input type="checkbox" id="opt-pdf-exclude"><span>対象外</span></label>
-          <p class="note">枠の色は、目視確認の強調の色と同じです。申し送りは破線、対象外は点線になります。</p>
+          <label class="check"><input type="checkbox" id="opt-pdf-pending"><span>保留</span></label>
+          <p class="note">枠の色は、目視確認の強調の色と同じです。申し送りは破線、対象外は点線、保留は一点鎖線になります。</p>
           <p class="note" id="pdf-export-note"></p>
         </div>
       </section>
@@ -652,11 +728,12 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
         <div class="panel-head">
           <h2 id="result-title">結果</h2>
           <div class="head-tools" id="summary"></div>
+          <button class="quiet detach-btn" id="btn-term-add" disabled>＋ 用語を追加</button>
           <button class="quiet detach-btn" data-detach="result-panel">別ウィンドウ</button>
         </div>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>行</th><th>用語</th><th>対象フォント</th><th>確定ページ</th><th>申し送り</th><th>対象外</th><th>判定</th><th>AI</th><th>照合</th><th>備考</th></tr></thead>
+            <thead><tr><th>行</th><th>用語</th><th>対象フォント</th><th>確定ページ</th><th>申し送り</th><th>対象外</th><th>判定</th><th>AI</th><th>保留</th><th>備考</th><th>訂正箇所</th></tr></thead>
             <tbody id="result-body"></tbody>
           </table>
         </div>
@@ -669,12 +746,14 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
             <label class="l-color"><input type="color" id="hit-color-adopt" data-hit-color="adopt" aria-label="確定の強調色"><span>確定</span></label>
             <label class="l-color"><input type="color" id="hit-color-hold" data-hit-color="hold" aria-label="申し送りの強調色"><span>申し送り</span></label>
             <label class="l-color"><input type="color" id="hit-color-exclude" data-hit-color="exclude" aria-label="対象外の強調色"><span>対象外</span></label>
+            <label class="l-color"><input type="color" id="hit-color-pending" data-hit-color="pending" aria-label="保留の強調色"><span>保留</span></label>
             <button class="quiet detach-btn" id="hit-colors-reset" title="初期の色に戻す">色を戻す</button>
           </div>
           <button class="quiet detach-btn" data-detach="viewer-panel">別ウィンドウ</button>
         </div>
         <div class="viewer-bar" id="viewer-bar" hidden>
           <span class="viewer-term" id="viewer-term"></span>
+          <button class="quiet term-edit" id="viewer-term-edit" hidden>用語を直す</button>
           <span class="viewer-pageinfo" id="viewer-pageinfo"></span>
           <select id="viewer-font" class="row-font" aria-label="この用語を検索するフォント"></select>
           <div class="head-tools">
@@ -705,10 +784,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
         <div class="page-chips" id="viewer-chips" hidden></div>
         <p class="viewer-ai" id="viewer-ai" hidden></p>
         <div class="viewer-rules" id="viewer-rules" hidden></div>
-        <div class="viewer-verify" id="viewer-verify" hidden>
-          <div class="verify-lines" id="viewer-verify-lines"></div>
-          <button id="viewer-list-apply">この用語をリストの内容に合わせる</button>
-        </div>
+        <div class="viewer-verify" id="viewer-pending" hidden></div>
         <div class="viewer-stage-wrap" id="viewer-wrap">
           <div class="empty-state" id="viewer-empty"></div>
           <div class="viewer-spread" id="viewer-spread" hidden></div>
@@ -718,6 +794,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
             <button data-state="adopt">確定</button>
             <button data-state="hold">申し送り</button>
             <button data-state="exclude">対象外</button>
+            <button data-state="pending" hidden>保留</button>
           </div>
           <button id="viewer-ai-apply" hidden></button>
           <span class="note" id="viewer-hint"></span>
@@ -726,6 +803,184 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
     </div>
   </main>
 </div>
+
+<dialog id="guide" aria-labelledby="guide-title">
+  <div class="guide-head">
+    <h2 id="guide-title">さくいん拾いの使い方</h2>
+    <button class="close" id="guide-close">閉じる</button>
+  </div>
+  <div class="guide-body">
+    <nav class="guide-nav" id="guide-nav" aria-label="使い方の目次">
+      <button data-target="g-intro">はじめに</button>
+      <button data-target="g-screen">画面の見方</button>
+      <button data-target="g-flow">基本の流れ</button>
+      <button data-target="g-check">目視確認のしかた</button>
+      <button data-target="g-states">確定・申し送り・対象外・保留</button>
+      <button data-target="g-list">既存のリストを確かめる</button>
+      <button data-target="g-resume">続きから作業する</button>
+      <button data-target="g-terms">用語を直す・追加する</button>
+      <button data-target="g-pdf">枠付きPDFで納品する</button>
+      <button data-target="g-ai">AIに任せる（任意）</button>
+      <button data-target="g-trouble">困ったとき</button>
+    </nav>
+    <div class="guide-content" id="guide-content">
+
+      <section id="g-intro">
+        <h3>はじめに</h3>
+        <p class="lead">教科書の全ページPDFから、索引に載せる用語が出てくるページを探し、Excelのリストに書き込むアプリです。</p>
+        <div class="guide-cards">
+          <div class="guide-card"><strong>用意するもの</strong><ul><li>教科書の全ページのPDF</li><li>索引に載せる用語を並べたExcel（.xlsx）</li></ul></div>
+          <div class="guide-card"><strong>アプリがすること</strong><ul><li>PDFで用語を検索する</li><li>見つかったページのノンブル（ページ番号）をExcelに書き込む</li><li>迷う箇所を「申し送り」として備考に書く</li></ul></div>
+          <div class="guide-card"><strong>安心して使えるように</strong><ul><li>ファイルはこのパソコンの中だけで処理し、外に送りません</li><li>元のPDF・Excelは書き換えず、別のファイルとして保存します</li></ul></div>
+        </div>
+        <p class="tip"><b>最初の一回は</b>「基本の流れ」を上から順に読みながら操作すると迷いません。</p>
+      </section>
+
+      <section id="g-screen">
+        <h3>画面の見方</h3>
+        <div class="guide-map">
+          <div class="map-left"><b>左：設定</b><span>1〜7の番号順に上から設定します</span><span>下に「検索して転記」「保存」のボタン</span></div>
+          <div class="map-right">
+            <div class="map-top"><b>上：進み具合</b><span>いまの処理と進み具合。右端の「中止」で止められます</span></div>
+            <div class="map-mid">
+              <div><b>結果</b><span>用語ごとのページと判定の一覧</span></div>
+              <div><b>目視確認</b><span>PDFのページと、拾った箇所の強調</span></div>
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>パネルの境目をドラッグすると、幅を変えられます。</li>
+          <li>「別ウィンドウ」を押すと、そのパネルを別のウィンドウに切り離せます。画面が2枚あるときに便利です。</li>
+          <li>右上の丸いマーク（PDF・ノンブル・Excelなど）が緑になれば、その準備ができています。</li>
+        </ul>
+      </section>
+
+      <section id="g-flow">
+        <h3>基本の流れ（新しくリストを作る）</h3>
+        <ol class="guide-steps">
+          <li><span class="step-no">1</span><div><b>PDFを読み込む</b><p>PDFを画面のどこかにドロップします（「1 PDF」をクリックして選んでもかまいません）。文字を読み取れるPDFかを判定し、予想される抽出精度を表示します。精度が「低」のときは、PDFを書き出し直してください。</p><p class="tip">PDFとExcelは、いっしょにドロップしても読み込めます。</p></div></li>
+          <li><span class="step-no">2</span><div><b>ノンブル（ページ番号）の位置を指定する</b><p>「2 ノンブル・検索範囲」の「ノンブルの位置を指定」を押します。見開きでページが表示されるので、ノンブルの数字をドラッグで囲みます。左右でノンブルの位置が違う本は、「左ページ」「右ページ」に切り替えてそれぞれ囲みます。</p><p class="tip">Excelに書き込むページ番号は、ここで囲んだ数字です。ノンブルがないページ（扉など）は検索から外れます。</p></div></li>
+          <li><span class="step-no">3</span><div><b>検索する範囲とページを決める</b><p>柱（ページ上の章名など）を拾わないように、「検索範囲を指定」で本文の部分だけを囲みます。「検索するページ」には本文のページ（例：<code>1-250</code>）を入れ、索引のページを外します。</p></div></li>
+          <li><span class="step-no">4</span><div><b>対象のフォントを選ぶ（必要なとき）</b><p>「太字の語だけを索引に拾う」本なら、「3 対象のフォント」で「本文中の太字」などを押します。PDFにあるフォント・文字サイズ・色ごとに、拾うかどうかを選べます。</p><p class="tip">検索した後に変えても、検索し直さずに結果へすぐ反映されます。PDFを見ながら調整できます。</p></div></li>
+          <li><span class="step-no">5</span><div><b>Excelを読み込み、列を確かめる</b><p>用語のExcelを読み込み、「4 索引用語のExcel」で列を確認します。初期値は次のとおりです。</p>
+            <table class="guide-table"><tr><th>B</th><td>用語</td><th>C</th><td>確定ページ</td><th>D</th><td>申し送りページ</td><th>E</th><td>備考</td></tr><tr><th>F</th><td>対象外ページ</td><th>G</th><td>保留</td><th>H</th><td>訂正箇所</td><th></th><td></td></tr></table></div></li>
+          <li><span class="step-no">6</span><div><b>「検索して転記」を押す</b><p>左下の青いボタンです。結果の表に、用語ごとのページが並びます。判定が「要確認」の用語は、申し送りがあるので目視で確かめてください。</p></div></li>
+          <li><span class="step-no">7</span><div><b>目視で確かめる</b><p>結果の用語をクリックすると、右にPDFのページが出て、拾った箇所が強調されます。詳しくは「目視確認のしかた」をご覧ください。</p></div></li>
+          <li><span class="step-no">8</span><div><b>保存する</b><p>「結果をExcelで保存」を押すと、<code>元のファイル名_さくいん.xlsx</code> を保存します。作業の設定も一緒に保存されるので、後日このファイルから続きを始められます。</p></div></li>
+        </ol>
+      </section>
+
+      <section id="g-check">
+        <h3>目視確認のしかた</h3>
+        <div class="guide-cards">
+          <div class="guide-card"><strong>強調箇所をクリック</strong><p>メニューが開き、このページを確定・申し送り・対象外にできます。同じ書式（フォント・サイズ・色）の箇所をまとめて対象外にすることもできます。</p></div>
+          <div class="guide-card"><strong>ページを移動する</strong><p>上の「ページ」にノンブルを入れてEnterで、好きなページを開けます。「#12」のように入れると、PDFの12枚目を開きます。「◀ ▶」は、その用語が見つかったページだけをたどります。</p></div>
+          <div class="guide-card"><strong>拾われなかったページを足す</strong><p>そのページを開き、「文字をドラッグして追加」を押してから、本文の該当する文字をドラッグで囲みます。選んでいる用語の確定ページに入ります。</p></div>
+          <div class="guide-card"><strong>見やすくする</strong><p>「単ページ／見開き」で表示を切り替えられます。「＋」で拡大し、「全体」で元に戻します。強調の色は、パネル上部の色見本を押すと変えられます。</p></div>
+        </div>
+      </section>
+
+      <section id="g-states">
+        <h3>確定・申し送り・対象外・保留</h3>
+        <table class="guide-table wide">
+          <tr><th>扱い</th><th>意味</th><th>色</th><th>書き込む列</th></tr>
+          <tr><td><span class="g-tag adopt">確定</span></td><td>索引に載せるページ</td><td>赤</td><td>C（確定ページ）</td></tr>
+          <tr><td><span class="g-tag hold">申し送り</span></td><td>拾うべきか要確認のページ。備考に「拾う場合、p.○追加。」と書きます</td><td>青</td><td>D（申し送りページ）</td></tr>
+          <tr><td><span class="g-tag exclude">対象外</span></td><td>見つかったが索引に載せないページ（書式・範囲外・手動で外したもの）</td><td>緑</td><td>F（対象外ページ）</td></tr>
+          <tr><td><span class="g-tag pending">保留</span></td><td>リストと検索結果が食い違っていて、まだ振り分けていないページ（既存のリストを確かめるときだけ）</td><td>オレンジ</td><td>G（保留）</td></tr>
+        </table>
+        <p>「黒人奴隷」の中の「奴隷」のように、長い語の一部として見つかったものは、初期設定では申し送りになります。「5 検索の設定」で「ページに含める」を選ぶと、確定に含めます。</p>
+        <p class="tip">備考はそのままお客さんに提出できる書き方（「要確認」など）で書き込みます。</p>
+      </section>
+
+      <section id="g-list">
+        <h3>既存のリストを確かめる（突合せ確認）</h3>
+        <p class="lead">手作業で作ったリストや、お客さんが手直ししたリストを、PDFと突き合わせて確かめます。リストの内容を基準にし、食い違ったページだけを「保留」に分けるので、元のリストを壊しません。</p>
+        <ol class="guide-steps">
+          <li><span class="step-no">1</span><div><b>PDFとリストを読み込む</b><p>リストの確定・申し送り・対象外の列にページが書かれていると、「リストを基準に突き合わせる」が自動でオンになります。</p></div></li>
+          <li><span class="step-no">2</span><div><b>ノンブルを指定して「検索して転記」</b><p>リストと検索結果に過不足があったページが「保留」になります。結果の表では判定が「保留あり」になります。</p></div></li>
+          <li><span class="step-no">3</span><div><b>保留を振り分ける</b><p>左の「保留の振り分け」には、保留の理由と書式ごとのまとまりが並びます。まとまりごとに「確定・申し送り・対象外」を押すと、一括で振り分けます。1ページずつ決めるときは、目視確認でオレンジの箇所を見て決めます。</p></div></li>
+          <li><span class="step-no">4</span><div><b>保存する</b><p>振り分けた内容がリストの列に入ります。何をどう直したかは「訂正箇所」（H列）に入ります。振り分けていない保留は「保留」（G列）に残ります。</p></div></li>
+        </ol>
+        <table class="guide-table wide">
+          <tr><th>保留の理由</th><th>考えられること</th></tr>
+          <tr><td>リストになし</td><td>PDFにあるのにリストに書かれていない（拾い漏れの可能性）</td></tr>
+          <tr><td>PDFで見つからない</td><td>リストに書かれているのにPDFにない（ページの誤りの可能性）。PDFにないページは、ページ一覧の「該当なし」から扱いを決めます</td></tr>
+          <tr><td>アプリでは対象外</td><td>リストにあるが、検索の設定（フォントやページの範囲）で外れている</td></tr>
+        </table>
+      </section>
+
+      <section id="g-resume">
+        <h3>続きから作業する</h3>
+        <p class="lead">前回使ったPDFと、前回保存したExcelを読み込むだけで、続きから始まります。ボタンを押す必要はありません。</p>
+        <ul>
+          <li>ノンブルの位置やフォントの設定は、Excelの「さくいん拾い_設定」シートから戻します。このシートは消さないでください。</li>
+          <li>確定・申し送り・対象外・保留は、Excelに書かれている内容をそのまま使います。保存した後にExcelを手で直していれば、その内容から続けます。</li>
+          <li>前回とページ数が違うPDFを読み込むと、自動では続けずに知らせます。</li>
+        </ul>
+        <p class="tip">作業の途中でも、こまめに「結果をExcelで保存」しておくと安心です。保存していない作業があるときにタブを閉じようとすると、確認が出ます。</p>
+      </section>
+
+      <section id="g-terms">
+        <h3>用語を直す・追加する</h3>
+        <ul>
+          <li><b>直す：</b>結果の表で用語を選び、目視確認の用語名の横にある「用語を直す」を押します。直した用語でPDFを検索し直します。</li>
+          <li><b>追加：</b>結果の表の上の「＋ 用語を追加」を押します。リストの最後の行に追加し、PDFを検索します。</li>
+          <li>直した内容は「訂正箇所」に「用語「大西洋」→「西洋」」「用語を追加」のように残ります。</li>
+          <li>用語の括弧の中は除いて検索します（例：「ルター（マルティン）」は「ルター」で検索）。</li>
+        </ul>
+      </section>
+
+      <section id="g-pdf">
+        <h3>枠付きPDFで納品する</h3>
+        <p>左下の「枠付きPDFを保存」を押すと、拾った箇所に枠を付けたPDF（<code>元のファイル名_さくいん枠.pdf</code>）を保存します。Excelのリストとセットで納品できます。</p>
+        <ul>
+          <li>枠はPDFの注釈（コメント）として入ります。Acrobatなどで移動・削除でき、コメントの一覧に用語とページが出ます。</li>
+          <li>どの扱いに枠を付けるかは、左の「7 枠付きPDFの出力」で選べます（初期値は確定と申し送り）。</li>
+        </ul>
+      </section>
+
+      <section id="g-ai">
+        <h3>AIに任せる（任意）</h3>
+        <p>このパソコンで動かすAI（LM StudioやOllama）とつなぐと、判断の難しいページをAIに見てもらえます。AIを使わなくても、アプリのほかの機能はすべて使えます。</p>
+        <ul>
+          <li><b>AIの提案：</b>「6 AI校正」で「要確認の用語を確認」などを押すと、AIが判定を提案します。「反映」を押すまでは結果を変えません。</li>
+          <li><b>作業指示：</b>「AIへの作業指示」にお客さんからの指示などを貼り付けて「作業指示を実行」を押すと、AIがページを振り分けます。手動で決めたページは変えません。</li>
+          <li>AIに送るのは用語と前後の文だけで、送り先はこのパソコンのサーバーだけです。</li>
+        </ul>
+      </section>
+
+      <section id="g-trouble">
+        <h3>困ったとき</h3>
+        <table class="guide-table wide">
+          <tr><th>こんなとき</th><th>試すこと</th></tr>
+          <tr><td>ページ番号がずれる・読み取れない</td><td>ノンブルの枠が数字だけを囲んでいるか、「PDFの1枚目」が左右どちらかの設定を確認します</td></tr>
+          <tr><td>章名など、柱の語が全ページで拾われる</td><td>「検索範囲を指定」で本文だけを囲みます</td></tr>
+          <tr><td>索引ページの語まで拾われる</td><td>「検索するページ」に本文の範囲だけを入れます</td></tr>
+          <tr><td>太字の語が対象外になる</td><td>強調箇所をクリックしてフォント名を確認し、「検索対象のフォントに加える」を押します</td></tr>
+          <tr><td>検索で拾われないページがある</td><td>目視確認でそのページを開き、「文字をドラッグして追加」で文字を囲みます</td></tr>
+          <tr><td>ファイルを読み込めない</td><td>処理中（上のバーが動いている間）は読み込めません。終わってからドロップします</td></tr>
+          <tr><td>処理が終わらない</td><td>上のバーの右端の「中止」で止められます</td></tr>
+          <tr><td>保存ボタンが押せない</td><td>Excelの列の指定が重なっていないか確認します</td></tr>
+        </table>
+        <p class="tip">もっと詳しい説明は、アプリと一緒にお渡ししているREADMEにあります。</p>
+      </section>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="term-dialog" aria-labelledby="term-dialog-title">
+  <form id="term-form" autocomplete="off">
+    <h2 id="term-dialog-title"></h2>
+    <label class="prop-label" for="term-input">用語</label>
+    <input type="text" id="term-input">
+    <p class="note" id="term-note"></p>
+    <div class="dialog-actions">
+      <button type="button" id="term-cancel">やめる</button>
+      <button type="submit" class="primary" id="term-ok">OK</button>
+    </div>
+  </form>
+</dialog>
 
 <div class="drop-overlay" id="drop-overlay" hidden><div class="drop-overlay-box"><strong>ここにドロップして読み込み</strong><span>PDFとExcel（.xlsx）は、いっしょにドロップしても読み込めます</span></div></div>
 
@@ -889,8 +1144,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 </script>
 <script>
 const USER_SETTINGS = {
-  defaultColumns: { term: 2, pages: 3, held: 4, note: 5, excluded: 6 },
-  headerWords: ["用語", "単語", "語句", "索引語", "さくいん", "索引", "項目", "ページ", "頁", "備考", "申し送り"],
+  defaultColumns: { term: 2, pages: 3, held: 4, note: 5, excluded: 6, pending: 7, fixes: 8 },
+  headerWords: ["用語", "単語", "語句", "索引語", "さくいん", "索引", "項目", "ページ", "頁", "備考", "申し送り", "保留", "訂正箇所"],
   extraColumns: 3,
   compoundMaxSpan: 8,
   outputSuffix: "_さくいん",
@@ -931,8 +1186,7 @@ const USER_SETTINGS = {
   fontSampleLength: 18,
   resizeDebounceMs: 150,
   menuWidth: 264,
-  proofSuffix: "_校正結果",
-  proofColumnWidths: [8, 22, 8, 16, 14, 18, 60],
+  legacySheets: ["校正結果"],
   boldWeight: 600,
   contrastWeight: 500,
   fontFamilySuffix: /(Pr6N|Pr6|Pr5N|Pr5|ProN|Pro|StdN|Std)$/i,
@@ -951,10 +1205,12 @@ const USER_SETTINGS = {
   cmapSuffix: /-(?:Identity|Uni[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*|(?:90ms|90pv|83pv|Add|Ext)-RKSJ|EUC|RKSJ|NWP)-[HV]$/i,
   filterDebounceMs: 250,
   maxCanvasPixels: 16000000,
-  hitColors: { adopt: "#e0262f", hold: "#1f6fe0", exclude: "#1f9d55" },
+  hitColors: { adopt: "#e0262f", hold: "#1f6fe0", exclude: "#1f9d55", pending: "#e08600" },
   zoomLevels: [1, 1.5, 2, 3, 4],
   pickMinSize: 0.004,
-  pdfMark: { lineWidth: 1.2, dash: { hold: [3, 2], exclude: [1, 1.5] }, author: "さくいん拾い", padPt: 0.6, batch: 400 },
+  guideSpyOffset: 80,
+  guideNavLockMs: 1200,
+  pdfMark: { lineWidth: 1.2, dash: { hold: [3, 2], exclude: [1, 1.5], pending: [6, 2, 1, 2] }, author: "さくいん拾い", padPt: 0.6, batch: 400 },
   viewerChrome: { side: 24, vertical: 24 },
   batchSize: 20,
   stateApp: "sakuin-hiroi",
@@ -1059,23 +1315,6 @@ const USER_SETTINGS = {
     ruleAdopt: (p, reason) => `p.${p}は作業指示に基づきAIが確定と判定（${reason}）。`,
     ruleHold: (p, reason) => `p.${p}は作業指示に基づきAIが要確認と判定（${reason}）。拾う場合、p.${p}追加。`,
     excludeRule: (reason) => `作業指示に基づきAIが対象外と判定${reason ? `：${reason}` : ""}`,
-    proofNeedList: "校正には、確定・申し送り・対象外の列にページが書かれた完成済みのリストが必要です。",
-    proofHint: "いまの設定（ノンブル・検索範囲・対象フォントなど）で検索し、リストと突き合わせます。リストの中身は変わりません。",
-    proofRestoreHint: "このリストには作業の設定が含まれています。同じ設定で校正するときは、先に「前回の作業状態を復元」を押してください。",
-    proofDone: (n, issues, c) => `校正が終わりました。用語 ${n}件中 ${issues}件に指摘があります（リストに無い ${c.appOnly}、リストのみ ${c.listOnly}、扱い違い ${c.other}）。結果表は指摘のある用語に絞り込んでいます。`,
-    proofSummary: (n, issues, c) => `用語 ${n}件中 ${issues}件に指摘（漏れの可能性 ${c.appOnly}ページ、誤りの可能性 ${c.listOnly}ページ、扱い違い ${c.other}ページ）`,
-    proofSettings: (fonts, range, area) => `対象フォント：${fonts}／検索するページ：${range}／検索範囲：${area ? "指定あり" : "ページ全体"}`,
-    proofFontsCustom: (sel, total) => `${total}種類中 ${sel}種類`,
-    proof: {
-      sheetName: "校正結果",
-      title: "さくいん拾い　校正結果",
-      at: "校正日時", pdf: "PDF", settings: "検索の設定", summary: "結果",
-      legend: "指摘の種類",
-      legendText: "漏れの可能性：PDFで見つかったが、リストに書かれていないページ／誤りの可能性：リストに書かれているが、アプリでは拾っていない、またはPDFで見つからないページ／扱い違い：申し送り・対象外の扱いが違うページ",
-      colRow: "行", colTerm: "用語", colPage: "ページ", colKind: "指摘", colList: "リストでの扱い", colApp: "アプリでの扱い", colDetail: "前後の文・理由",
-      kind: { appOnly: "漏れの可能性", listOnly: "誤りの可能性", other: "扱い違い" },
-      none: "指摘はありません。"
-    },
     actCancelling: "中止しています…",
     actFilter: "対象の設定を検索結果に反映中…",
     runStopped: "検索を中止しました。",
@@ -1115,7 +1354,6 @@ const USER_SETTINGS = {
     actRule: "書式の対象外を全用語に反映中…",
     actApplyList: "リストの内容を反映中…",
     actApplyAi: "AIの提案を反映中…",
-    actVerify: "照合結果を更新中…",
     actRestore: "前回の状態を反映中…",
     actSave: "Excelを書き出し中…",
     actPdfMark: (d, total) => `PDFに枠を書き込み中… ${d} / ${total}`,
@@ -1127,25 +1365,11 @@ const USER_SETTINGS = {
     pdfMarkError: "枠付きPDFを書き出せませんでした。",
     pdfMarkStopped: "枠付きPDFの書き出しを中止しました。",
     pdfMarkSuffix: "_さくいん枠",
-    pdfMarkState: { adopt: "確定", hold: "申し送り", exclude: "対象外" },
+    pdfMarkState: { adopt: "確定", hold: "申し送り", exclude: "対象外", pending: "保留" },
     pdfMarkContents: (term, p, state, detail) => `「${term}」p.${p}　${state}${detail ? `\n${detail}` : ""}`,
     pdfMarkManual: "目視確認で追加",
     pdfMarkCompound: (w) => `複合語「${w}」の一部`,
     pdfMarkHint: (n) => `いまの設定で枠を付けるのは ${n}か所です。`,
-    filterDiff: "照合で差分",
-    verifyOk: "一致",
-    verifyDiff: (n) => `差分${n}`,
-    verifyLine: (p, list, app) => `p.${p}（リスト：${list}／アプリ：${app}）`,
-    verifyCat: { listOnly: "リストのみ", appOnly: "アプリのみ", other: "扱い違い" },
-    verifyGroup: { listOnly: "リストでは拾っているが、アプリでは拾っていない：", appOnly: "アプリでは拾っているが、リストには無い：", other: "申し送り・対象外の扱いが違う：" },
-    verifyNoteEmpty: "リストにページが1つも書かれていないため、照合はできません（作業前のリストです）。",
-    chipMissing: "リストに書かれているが、PDFでは見つからなかったページ",
-    menuListState: (s) => `リストでの扱い：${s}`,
-    verifyState: { adopt: "確定", hold: "申し送り", exclude: "対象外", none: "記載なし", notfound: "PDFで見つからず" },
-    verifyNoteOff: "オンにすると、リストの確定・申し送り・対象外の列に書かれたページと検索結果を比べて、違いを表示します。表示するだけで、検索結果は変わりません。",
-    verifyNoteOn: (n, total) => `リストにページの記載がある用語：${total}件中 ${n}件。違いは結果表の「照合」列と目視確認に表示します（検索結果は変わりません）。`,
-    listApplied: (n) => `リストの内容を${n}件反映しました。`,
-    listOnlyNote: (pages) => `p.${pages}はリスト記載のページ（PDF内で該当箇所を確認できず）。要確認。`,
     stateSheetTitle: "さくいん拾い　作業の設定",
     stateSheetLead: "このExcelをさくいん拾いで読み込むと、下の設定で作業を再開できます。設定はアプリで変更してください（このシートを書き換えても反映されません）。",
     stateDataTitle: "復元用データ",
@@ -1166,13 +1390,16 @@ const USER_SETTINGS = {
       globalRules: "書式で対象外（全用語）", perTerm: "用語ごとの設定", none: "なし",
       termFont: (label) => `フォント「${label}」`, termRules: (labels) => `書式で対象外「${labels}」`,
       terms: "用語の数", termCounts: (n, ok, review, ex, none) => `${n}件（確定 ${ok}、要確認 ${review}、対象外のみ ${ex}、見つからず ${none}）`,
-      changes: "手動などでの変更", changeCounts: (m, a, l) => `目視確認 ${m}ページ、AI校正 ${a}ページ、リストの反映 ${l}ページ`,
+      changes: "手動などでの変更", changeCounts: (m, a, p) => `目視確認 ${m}ページ、AI校正 ${a}ページ、未振り分けの保留 ${p}ページ`,
+      listBase: "突合せ確認", listBaseOn: "リストを基準に突き合わせ", listBaseOff: "アプリの判定で転記",
+      colPending: "保留", colFixes: "訂正箇所",
       aiModel: "AI校正のモデル", aiNone: "使用なし",
       instruction: "AIへの作業指示", ruleChanges: "指示によるAIの振り分け"
     },
     stateInfo: (at, pdf, pages, terms) => `前回の作業状態が含まれています（${at} 保存、${pdf}・${pages}ページ、用語 ${terms}件）。`,
-    stateNeedPdf: "PDFを読み込むと復元できます。",
-    stateMismatch: (prevPages, nowPages) => `読み込んだPDFが前回と違う可能性があります（前回 ${prevPages}ページ／今回 ${nowPages}ページ、または内容の違い）。復元はできますが、結果がずれる場合があります。`,
+    stateNeedPdf: "同じPDFを読み込むと、自動で続きから始めます。",
+    stateMismatch: (prevPages, nowPages) => `読み込んだPDFが前回と違う可能性があるため、自動では復元しませんでした（前回 ${prevPages}ページ／今回 ${nowPages}ページ、または内容の違い）。このPDFで続けるときは、下のボタンを押してください。結果がずれる場合があります。`,
+    stateRestored: "前回の作業状態から続けています。",
     restoring: "前回の作業状態を復元しています…",
     restored: (n, missing) => `前回の作業状態を復元しました（用語 ${n}件）。${missing ? `リストから見つからなかった用語：${missing}件。` : ""}`,
     excludeReason: { pageRange: "検索ページ外", area: "検索範囲外", font: "対象フォント外", size: "対象サイズ外", color: "対象色外", manual: "目視確認で対象外", ai: "AI校正で対象外", list: "リストの記載に従い対象外" },
@@ -1183,6 +1410,50 @@ const USER_SETTINGS = {
     stateAdopt: "確定にする",
     stateHold: "申し送りにする",
     stateExclude: "対象外にする",
+    statePending: "保留にする",
+    stateName: { adopt: "確定", hold: "申し送り", exclude: "対象外", pending: "保留", none: "記載なし" },
+    menuListLine: (s) => `リストでの扱い：${s}`,
+    menuPendingLine: (label) => `保留の理由：${label}`,
+    pendTag: {
+      notInList: "リストになし",
+      compound: (w) => `リストになし・複合語「${w}」`,
+      notFound: "PDFで見つからない",
+      inactive: (r) => `アプリでは対象外${r ? `：${r}` : ""}`,
+      listed: (s) => `リストでは${s}`
+    },
+    pendKind: { notInList: "リストになし", compound: "リストになし（複合語）", notFound: "PDFで見つからない", inactive: "アプリでは対象外", listed: "保留に戻したページ" },
+    pendingItem: (p, label) => `${p}（${label}）`,
+    pendingTag: (n) => `保留${n}`,
+    pendingAll: "保留すべて",
+    pendingCount: (n) => `${n}ページ`,
+    pendingNote: (n, terms) => `保留は ${terms}語・${n}ページです。書式ごとにまとめて振り分けられます。1ページずつ決めるときは、目視確認で「確定・申し送り・対象外」を押します。`,
+    pendingNone: "保留はありません。すべて振り分け済みです。",
+    pendingApplied: (n, s) => `保留 ${n}ページを${s}にしました。`,
+    actPending: "保留の振り分けを反映中…",
+    actListBase: "突合せの設定を反映中…",
+    listBaseNoteEmpty: "リストにページが書かれていないため、アプリの判定で転記します。",
+    listBaseNoteOn: (n, total) => `リストにページの記載がある用語：${total}件中 ${n}件。リストを基準にし、検索結果との過不足は「保留」の列に分けて転記します。リストの確定・申し送り・対象外の列は、振り分けるまで変えません。`,
+    listBaseNoteOff: "オフのときは、リストに書かれたページを使わず、アプリの判定で転記します。",
+    listBaseReady: "このリストにはページが書かれています。ノンブルを指定して「検索して転記」を押すと、リストを基準に突き合わせます。",
+    doneListBase: (terms, n) => `完了：リストを基準に用語 ${terms}件を突き合わせました。過不足は 保留 ${n}ページです。左の「保留の振り分け」か目視確認で振り分けてください。`,
+    viewerPending: (items) => `保留：${items}`,
+    fixAdded: "用語を追加",
+    fixTerm: (a, b) => `用語「${a}」→「${b}」`,
+    fixMove: (from, to, pages) => {
+      const n = { adopt: "確定", hold: "申し送り", exclude: "対象外" };
+      if (from === "none") return `${n[to]}に追加：p.${pages}`;
+      if (to === "none") return `${n[from]}から削除：p.${pages}`;
+      return `${n[from]}→${n[to]}：p.${pages}`;
+    },
+    termEditTitle: "用語を直す",
+    termAddTitle: "用語を追加",
+    termEditHint: "直した用語で検索し直します。直した内容は「訂正箇所」の列に記録します。",
+    termAddHint: "リストの最後に行を追加して、PDFを検索します。直した内容は「訂正箇所」の列に記録します。",
+    termEmpty: "用語を入力してください。",
+    termDuplicate: (term) => `「${term}」はすでにリストにあります。`,
+    termEdited: (a, b, n) => `用語「${a}」を「${b}」に直して検索し直しました（${n}ページで見つかりました）。`,
+    termAdded: (term, row, n) => `「${term}」を${row}行目に追加しました（${n}ページで見つかりました）。`,
+    termBusy: "処理中のため、用語を直せません。処理が終わってからもう一度押してください。",
     menuStyle: "この書式（フォント・サイズ・色）を",
     menuRuleTerm: "この用語だけ対象外にする",
     menuRuleGlobal: "すべての用語で対象外にする",
@@ -1193,7 +1464,7 @@ const USER_SETTINGS = {
     hitLabel: (w) => `「${w}」の操作メニューを開く`,
     hitTitle: (w, style) => `${w}（${style}）`,
     viewerHint: "強調した箇所をクリックすると、ページの扱いや書式ごとの対象外を選べます。",
-    headerLabels: { term: "用語", pages: "確定ページ", held: "申し送りページ", excluded: "対象外ページ", note: "備考" },
+    headerLabels: { term: "用語", pages: "確定ページ", held: "申し送りページ", excluded: "対象外ページ", note: "備考", pending: "保留", fixes: "訂正箇所" },
     headerNoteInsert: "1行目に見出し行を挿入して保存します（データは1行下にずれます）。",
     headerNoteOverwrite: (row) => `${row}行目の見出しを、確定ページ・申し送りページ・対象外ページ・備考に書き換えて保存します。`,
     detach: "別ウィンドウ",
@@ -1249,7 +1520,7 @@ const USER_SETTINGS = {
     mapInfo: (n, sheet) => `「${sheet}」から用語 ${n}件を読み込みました。`,
     resultTitle: "結果",
     sampleBadge: "見本",
-    filterAll: "すべて", filterOk: "確定", filterReview: "要確認", filterNone: "見つからず",
+    filterAll: "すべて", filterOk: "確定", filterReview: "要確認", filterNone: "見つからず", filterPending: "保留あり",
     compoundNote: (word, term, pages) => `${word}という用語も「${term}」のさくいんに拾うべきか要確認。\n今回は拾わなかったが、拾う場合、p.${pages}追加。`,
     compoundIncluded: (word, pages) => `${word}（p.${pages}）も含めて拾った。不要なら削除。`,
     manualExcluded: (pages) => `p.${pages}は目視確認で外した。拾う場合、p.${pages}追加。`,
@@ -1262,6 +1533,8 @@ const USER_SETTINGS = {
     viewerNoHit: "この用語はPDF内に見つかりませんでした。上の「ページ」でページを開き、「文字をドラッグして追加」で本文の文字を囲むと、確定ページに追加できます。",
     viewerPage: (no, pdf) => `p.${no}（PDF ${pdf}枚目）`,
     viewerPageNoNombre: (pdf) => `PDF ${pdf}枚目（ノンブルなし）`,
+    viewerPageMissing: (no) => `p.${no}（PDFにないページ）`,
+    viewerHintMissing: (no) => `p.${no}はこのPDFにありません。リストの誤りなら「対象外」、そのまま残すなら「確定」を押します。`,
     viewerNoTerm: "（用語を選んでいません）",
     viewerHintNoTerm: "結果の表で用語を選ぶと、このページで拾った箇所を強調します。",
     viewerHintNoNombre: "このページはノンブルがないため、ページとして追加できません。",
@@ -1296,7 +1569,7 @@ const USER_SETTINGS = {
     hitAdoptLabel: (p) => `p.${p} を外して申し送りへ`,
     hitHoldLabel: (p) => `p.${p} を拾って確定へ`,
     notesAfterRun: [
-      "確定ページ・申し送りページ・対象外ページ・備考を、指定した列（初期値はC・D・F・E列）に書き込みます。対象外には、絞り込みの設定で外れた箇所と、手動・書式で外した箇所が入ります。",
+      "確定ページ・申し送りページ・対象外ページ・備考・保留・訂正箇所を、指定した列（初期値はC・D・F・E・G・H列）に書き込みます。リストを基準にしたときは、検索結果との過不足を「保留」に分け、振り分けるまでリストの列は変えません。",
       "備考の列に元々書かれている内容は残し、その後ろに追記します。"
     ],
     notesBefore: [
@@ -2628,7 +2901,6 @@ class TermResult {
     this.ctx = ctx || { rules: () => [], filterReason: () => null, version: () => "" };
     this.rulesFn = this.ctx.rules;
     this.overrides = new Map();
-    this.listOnly = new Map();
     this.ai = null;
     this.indexPages();
     this.inactiveKey = null;
@@ -2678,48 +2950,42 @@ class TermResult {
     }
     return this.inactive;
   }
+  listPending(pageNo) {
+    return !!this.entry.list?.pending?.includes(pageNo);
+  }
   listStateOf(pageNo) {
-    const l = this.entry.list || { adopt: [], hold: [], exclude: [] };
-    if (l.adopt.includes(pageNo)) return "adopt";
-    if (l.hold.includes(pageNo)) return "hold";
-    if (l.exclude.includes(pageNo)) return "exclude";
+    const l = this.entry.list || {};
+    if (l.adopt?.includes(pageNo)) return "adopt";
+    if (l.hold?.includes(pageNo)) return "hold";
+    if (l.exclude?.includes(pageNo)) return "exclude";
     return "none";
   }
-  appStateOf(pageNo, opts) {
-    if (this.listOnly.has(pageNo)) return this.listOnly.get(pageNo);
-    return this.byPage.has(pageNo) ? this.stateOf(pageNo, opts) : "notfound";
+  listPages() {
+    const l = this.entry.list || {};
+    return [...(l.adopt || []), ...(l.hold || []), ...(l.exclude || []), ...(l.pending || [])];
   }
-  verify(opts) {
-    if (!opts?.verify) return [];
-    const l = this.entry.list || { adopt: [], hold: [], exclude: [] };
-    const pages = new Set([...l.adopt, ...l.hold, ...l.exclude, ...this.pageNumbers(), ...this.listOnly.keys()]);
-    const diffs = [];
-    for (const p of [...pages].sort((a, b) => a - b)) {
-      const lv = this.listStateOf(p);
-      const av = this.appStateOf(p, opts);
-      if (lv === av) continue;
-      if (lv === "none" && av === "notfound") continue;
-      if (lv === "none" && av === "hold" && !opts.listCols.hold) continue;
-      if (lv === "none" && av === "exclude") continue;
-      const cat = lv === "adopt" ? "listOnly" : av === "adopt" ? "appOnly" : "other";
-      diffs.push({ page: p, list: lv, app: av, cat });
-    }
-    return diffs;
+  isListPage(pageNo) {
+    return this.listStateOf(pageNo) !== "none" || this.listPending(pageNo);
   }
-  applyList(opts) {
-    if (!this.entry.list?.hasAny) return 0;
-    const diffs = this.verify(opts);
-    for (const d of diffs) {
-      if (d.list === "none") {
-        if (this.listOnly.has(d.page)) this.listOnly.delete(d.page);
-        else this.setState(d.page, "exclude", opts, "list");
-      } else if (d.app === "notfound" || this.listOnly.has(d.page)) {
-        this.listOnly.set(d.page, d.list);
-      } else {
-        this.setState(d.page, d.list, opts, "list");
-      }
+  allPages(opts) {
+    if (!opts?.listBase) return this.pageList;
+    return [...new Set([...this.pageList, ...this.listPages()])].sort((a, b) => a - b);
+  }
+  pendingTag(pageNo) {
+    const t = USER_SETTINGS.text;
+    const lv = this.listStateOf(pageNo);
+    const occ = this.onPage(pageNo);
+    const active = occ.filter((o) => this.isActive(o));
+    if (lv === "none" && active.length) {
+      if (active.some((o) => o.kind === "plain")) return { kind: "notInList", label: t.pendTag.notInList };
+      return { kind: "compound", label: t.pendTag.compound(active[0].word) };
     }
-    return diffs.length;
+    if (!occ.length) return { kind: "notFound", label: t.pendTag.notFound };
+    if (!active.length) {
+      const r = this.exclusionReason(occ[0]);
+      return { kind: "inactive", label: t.pendTag.inactive(r ? TermResult.reasonLabel(r) : "") };
+    }
+    return { kind: "listed", label: t.pendTag.listed(t.stateName[lv]) };
   }
   ruleFor(occ) {
     return this.rulesFn().find((r) => StyleRule.matches(r, occ)) || null;
@@ -2736,14 +3002,27 @@ class TermResult {
   onPage(pageNo) {
     return this.byPage.get(pageNo) || [];
   }
-  defaultState(pageNo, opts) {
+  autoState(pageNo, opts) {
     const active = this.onPage(pageNo).filter((o) => this.isActive(o));
     if (active.some((o) => o.kind === "plain")) return "adopt";
-    if (active.length) return opts.compoundMode === "include" ? "adopt" : "hold";
+    if (active.length) return opts?.compoundMode === "include" ? "adopt" : "hold";
     return "exclude";
   }
+  listBaseState(pageNo) {
+    if (this.listPending(pageNo)) return "pending";
+    const lv = this.listStateOf(pageNo);
+    const active = this.onPage(pageNo).some((o) => this.isActive(o));
+    if (lv === "adopt" || lv === "hold") return active ? lv : "pending";
+    if (lv === "exclude") return "exclude";
+    return active ? "pending" : "exclude";
+  }
+  defaultState(pageNo, opts) {
+    return opts?.listBase ? this.listBaseState(pageNo) : this.autoState(pageNo, opts);
+  }
   stateOf(pageNo, opts) {
-    return this.overrides.get(pageNo)?.state || this.defaultState(pageNo, opts);
+    const o = this.overrides.get(pageNo);
+    if (o && (o.state !== "pending" || opts?.listBase)) return o.state;
+    return this.defaultState(pageNo, opts);
   }
   setState(pageNo, state, opts, source, reason) {
     if (state === this.defaultState(pageNo, opts)) this.overrides.delete(pageNo);
@@ -2785,12 +3064,6 @@ class TermResult {
     if (unsure) return { label: t.aiUnsure(unsure), cls: "warn" };
     return { label: t.aiAgree, cls: "ok" };
   }
-  static verifyLabel(diffs) {
-    const t = USER_SETTINGS.text;
-    if (!diffs.length) return t.verifyOk;
-    const n = (cat) => diffs.filter((d) => d.cat === cat).length;
-    return [[n("listOnly"), t.verifyCat.listOnly], [n("appOnly"), t.verifyCat.appOnly], [n("other"), t.verifyCat.other]].filter(([k]) => k).map(([k, label]) => `${label}${k}`).join("・");
-  }
   static reasonLabel(reason) {
     const t = USER_SETTINGS.text;
     if (reason.key === "style") return t.excludeStyle(StyleRule.label(reason.rule));
@@ -2831,18 +3104,27 @@ class TermResult {
   compute(opts) {
     const t = USER_SETTINGS.text;
     const fmt = (list) => TermResult.formatPages(list, opts);
-    const pages = this.pageNumbers();
-    const listOnly = [...this.listOnly];
-    const pick = (state) => pages.filter((p) => this.stateOf(p, opts) === state).concat(listOnly.filter(([, s]) => s === state).map(([p]) => p));
-    const adopt = pick("adopt");
-    const held = pick("hold");
-    const excluded = pick("exclude");
+    const listBase = !!opts.listBase;
+    const pages = this.allPages(opts);
+    const states = new Map(pages.map((p) => [p, this.stateOf(p, opts)]));
+    const pick = (state) => pages.filter((p) => states.get(p) === state);
+    const pendingPages = listBase ? pick("pending") : [];
+    const keepIn = (lv) => pendingPages.filter((p) => this.listStateOf(p) === lv);
+    const byNum = (a, b) => a - b;
+    const adopt = pick("adopt").concat(keepIn("adopt")).sort(byNum);
+    const held = pick("hold").concat(keepIn("hold")).sort(byNum);
+    const excluded = pick("exclude").filter((p) => !listBase || this.listStateOf(p) === "exclude" || this.overrides.has(p));
+    const pendingItems = pendingPages.map((p) => [p, this.pendingTag(p)]);
+    const quiet = listBase && !opts.listNotes;
+    const auto = (p) => !quiet || this.overrides.has(p);
     const notes = [];
     if (this.entry.bracketStripped) notes.push(t.bracketNote(this.entry.searchKey));
     if (this.fontChoice && this.fontLabel) notes.push(t.fontNote(this.fontLabel));
+    const compoundState = opts.compoundMode === "include" ? "adopt" : "hold";
     const compoundPages = new Map();
     for (const o of this.occurrences) {
-      if (o.kind !== "compound" || !this.isActive(o) || this.overrides.has(o.pageNo)) continue;
+      if (o.kind !== "compound" || !this.isActive(o) || this.overrides.has(o.pageNo) || !auto(o.pageNo)) continue;
+      if (states.get(o.pageNo) !== compoundState) continue;
       if (this.onPage(o.pageNo).some((p) => p.kind === "plain" && this.isActive(p))) continue;
       if (!compoundPages.has(o.word)) compoundPages.set(o.word, new Set());
       compoundPages.get(o.word).add(o.pageNo);
@@ -2858,31 +3140,30 @@ class TermResult {
       added.get(o.pageNo).push(o.text);
     }
     const manualHold = bySource("manual", "hold");
-    const manualIn = bySource("manual", "adopt").filter((p) => !added.has(p));
+    const manualIn = bySource("manual", "adopt").filter((p) => !added.has(p) && !(listBase && this.listStateOf(p) === "none"));
     if (manualHold.length) notes.push(t.manualExcluded(fmt(manualHold)));
-    if (manualIn.length) notes.push(t.manualAdopted(fmt(manualIn)));
+    if (manualIn.length && !listBase) notes.push(t.manualAdopted(fmt(manualIn)));
     if (added.size) notes.push(t.manualAddedNote([...added].sort((a, b) => a[0] - b[0]).map(([p, ws]) => t.manualAddedItem(p, [...new Set(ws)].join("」「"))).join("、")));
     for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "ai").sort((a, b) => a[0] - b[0])) {
       notes.push(o.state === "hold" ? t.aiExcluded(p, o.reason) : t.aiAdopted(p, o.reason));
     }
-    for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "rule" && o.state !== "exclude").sort((a, b) => a[0] - b[0])) {
+    for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "rule" && (o.state === "adopt" || o.state === "hold")).sort((a, b) => a[0] - b[0])) {
       notes.push(o.state === "hold" ? t.ruleHold(p, o.reason) : t.ruleAdopt(p, o.reason));
     }
-    const excludedFound = excluded.filter((p) => !this.listOnly.has(p));
-    if (excludedFound.length) notes.push(...this.exclusionNotes(excludedFound, fmt));
-    const listOnlyKept = listOnly.map(([p]) => p);
-    if (listOnlyKept.length) notes.push(t.listOnlyNote(fmt(listOnlyKept)));
-    const estimatedHits = [...new Set(this.occurrences.filter((o) => this.nombre.estimated.has(o.pageIndex) && this.stateOf(o.pageNo, opts) === "adopt").map((o) => o.pageNo))];
+    const excludedNoted = quiet ? [] : excluded.filter(auto);
+    if (excludedNoted.length) notes.push(...this.exclusionNotes(excludedNoted, fmt));
+    const estimatedHits = [...new Set(this.occurrences.filter((o) => this.nombre.estimated.has(o.pageIndex) && states.get(o.pageNo) === "adopt" && auto(o.pageNo)).map((o) => o.pageNo))];
     if (estimatedHits.length) notes.push(t.estimatedNote(fmt(estimatedHits)));
-    if (!pages.length && !listOnly.length) notes.push(t.notFound);
-    const status = held.length || estimatedHits.length || listOnly.some(([, s]) => s !== "exclude") ? "review" : adopt.length ? "ok" : excluded.length ? "excluded" : "none";
+    if (!pages.length) notes.push(t.notFound);
+    const status = pendingPages.length ? "pending" : held.length || estimatedHits.length ? "review" : adopt.length ? "ok" : excluded.length ? "excluded" : "none";
     const ai = this.aiSummary(opts);
-    const diffs = this.verify(opts);
+    const raw = { adopt, hold: held, exclude: excluded, pending: pendingItems };
     return {
-      row: this.entry.row, term: this.entry.term,
+      row: this.entry.row, term: this.entry.term, termChanged: !!(this.entry.edited || this.entry.added),
       pages: fmt(adopt), held: fmt(held), excluded: fmt(excluded),
+      pending: pendingItems.map(([p, tag]) => t.pendingItem(p, tag.label)).join("、"), pendingCount: pendingItems.length,
       status, note: notes.join("\n"), fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
-      verifyLabel: opts.verify ? TermResult.verifyLabel(diffs) : "", verifyCls: diffs.length ? "warn" : "ok"
+      fixes: this.ctx.fixes ? this.ctx.fixes(this, raw) : "", raw
     };
   }
 }
@@ -2974,7 +3255,7 @@ class ExcelIO {
   static STATE_SHEET = "さくいん拾い_設定";
   static LEGACY_STATE_SHEET = "_sakuin_state";
   static isStateSheet(name) {
-    return name === ExcelIO.STATE_SHEET || name === ExcelIO.LEGACY_STATE_SHEET || name === USER_SETTINGS.text.proof.sheetName;
+    return name === ExcelIO.STATE_SHEET || name === ExcelIO.LEGACY_STATE_SHEET || USER_SETTINGS.legacySheets.includes(name);
   }
   constructor() {
     this.buffer = null;
@@ -2983,6 +3264,17 @@ class ExcelIO {
     this.savedState = null;
     this.originalNotes = new Map();
     this.mapping = { sheet: 0, ...USER_SETTINGS.defaultColumns, start: 2 };
+  }
+  static stripTags(text) {
+    return String(text || "").replace(/（[^）]*）|\([^)]*\)/g, "");
+  }
+  static emptyList() {
+    return { adopt: [], hold: [], exclude: [], pending: [], hasAny: false };
+  }
+  static makeEntry(row, raw, list) {
+    const normalized = TextNormalizer.normalize(raw);
+    const stripped = TextNormalizer.stripBrackets(normalized);
+    return { row, term: raw, searchKey: stripped, bracketStripped: stripped !== normalized, list };
   }
   static parsePages(text) {
     const r = new PageRange(String(text || "").replace(/[、，]/g, ","));
@@ -3118,13 +3410,11 @@ class ExcelIO {
     for (let r = this.mapping.start; r <= last; r++) {
       const raw = ExcelIO.cellText(sheet.getRow(r).getCell(this.mapping.term)).trim();
       if (!raw) continue;
-      const normalized = TextNormalizer.normalize(raw);
-      const stripped = TextNormalizer.stripBrackets(normalized);
       const row = sheet.getRow(r);
-      const listOf = (col) => (col ? ExcelIO.parsePages(ExcelIO.cellText(row.getCell(col))) : []);
-      const list = { adopt: listOf(this.mapping.pages), hold: listOf(this.mapping.held), exclude: listOf(this.mapping.excluded) };
-      list.hasAny = list.adopt.length + list.hold.length + list.exclude.length > 0;
-      entries.push({ row: r, term: raw, searchKey: stripped, bracketStripped: stripped !== normalized, list });
+      const listOf = (col, tagged) => (col ? ExcelIO.parsePages(tagged ? ExcelIO.stripTags(ExcelIO.cellText(row.getCell(col))) : ExcelIO.cellText(row.getCell(col))) : []);
+      const list = { adopt: listOf(this.mapping.pages), hold: listOf(this.mapping.held), exclude: listOf(this.mapping.excluded), pending: listOf(this.mapping.pending, true) };
+      list.hasAny = list.adopt.length + list.hold.length + list.exclude.length + list.pending.length > 0;
+      entries.push(ExcelIO.makeEntry(r, raw, list));
     }
     return entries;
   }
@@ -3144,57 +3434,10 @@ class ExcelIO {
     }
     return offset;
   }
-  async exportProof(report, { pdfName }) {
-    const t = USER_SETTINGS.text;
-    const P = t.proof;
-    const wb = await this.openWorkbook();
-    const old = wb.getWorksheet(P.sheetName);
-    if (old) wb.removeWorksheet(old.id);
-    const ws = wb.addWorksheet(P.sheetName);
-    ws.columns = USER_SETTINGS.proofColumnWidths.map((width) => ({ width }));
-    const top = { vertical: "top", wrapText: true };
-    let r = 1;
-    ws.getCell(r, 1).value = P.title;
-    ws.getCell(r, 1).font = { bold: true, size: 13 };
-    r += 2;
-    const meta = [
-      [P.at, report.at.toLocaleString("ja-JP")],
-      [P.pdf, pdfName],
-      [P.settings, report.settings],
-      [P.summary, t.proofSummary(report.terms, report.issueTerms, report.counts)],
-      [P.legend, P.legendText]
-    ];
-    for (const [k, v] of meta) {
-      ws.getCell(r, 1).value = k;
-      ws.getCell(r, 1).font = { bold: true };
-      ws.getCell(r, 2).value = v;
-      ws.mergeCells(r, 2, r, 7);
-      ws.getCell(r, 2).alignment = top;
-      r++;
-    }
-    r++;
-    const head = [P.colRow, P.colTerm, P.colPage, P.colKind, P.colList, P.colApp, P.colDetail];
-    head.forEach((h, i) => {
-      const c = ws.getCell(r, i + 1);
-      c.value = h;
-      c.font = { bold: true };
-      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: USER_SETTINGS.stateSheetHeadFill } };
-    });
-    r++;
-    for (const row of report.rows) {
-      const vals = [row.row, row.term, row.page, P.kind[row.cat], t.verifyState[row.list], t.verifyState[row.app], row.detail];
-      vals.forEach((v, i) => { const c = ws.getCell(r, i + 1); c.value = v; c.alignment = top; });
-      r++;
-    }
-    if (!report.rows.length) ws.getCell(r, 1).value = P.none;
-    const out = await wb.xlsx.writeBuffer();
-    const base = this.name.replace(/\.xlsx$/i, "");
-    return { blob: new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), name: `${base}${USER_SETTINGS.proofSuffix}.xlsx` };
-  }
   async export(rows, { header, buildState } = {}) {
     const wb = await this.openWorkbook();
     const sheet = wb.worksheets[this.mapping.sheet];
-    const { pages, held, note, excluded } = this.mapping;
+    const { term, pages, held, note, excluded, pending, fixes } = this.mapping;
     const offset = header ? this.writeHeader(sheet) : 0;
     const notesOut = new Map();
     const wrap = (cell) => { cell.alignment = { ...(cell.alignment || {}), wrapText: true, vertical: cell.alignment?.vertical || "top" }; };
@@ -3203,6 +3446,13 @@ class ExcelIO {
       if (pages) row.getCell(pages).value = r.pages;
       if (held) row.getCell(held).value = r.held;
       if (excluded) row.getCell(excluded).value = r.excluded;
+      if (r.termChanged && term) row.getCell(term).value = r.term;
+      if (pending) row.getCell(pending).value = r.pending || null;
+      if (fixes) {
+        const cell = row.getCell(fixes);
+        cell.value = r.fixes || null;
+        if (r.fixes) wrap(cell);
+      }
       if (note) {
         const cell = row.getCell(note);
         const existing = this.originalNotes.has(r.row) ? this.originalNotes.get(r.row) : ExcelIO.cellText(cell).trim();
@@ -3226,7 +3476,7 @@ class ColumnMapper {
   constructor(app) {
     this.app = app;
     this.$ = (id) => UI.byId(id);
-    this.selects = ["term", "pages", "held", "excluded", "note"].map((role) => this.$(`map-${role}`));
+    this.selects = ["term", "pages", "held", "excluded", "note", "pending", "fixes"].map((role) => this.$(`map-${role}`));
     this.handlers = {
       sheet: () => {
         const io = this.app.excel;
@@ -3342,7 +3592,7 @@ class ResultView {
   }
   statusLabel(status) {
     const t = USER_SETTINGS.text;
-    return { ok: t.filterOk, review: t.filterReview, none: t.filterNone, excluded: t.filterExcluded }[status];
+    return { ok: t.filterOk, review: t.filterReview, none: t.filterNone, excluded: t.filterExcluded, pending: t.filterPending }[status];
   }
   fontSelect(index, value) {
     const sel = document.createElement("select");
@@ -3377,19 +3627,19 @@ class ResultView {
     }));
   }
   passes(r) {
-    return this.filter === "all" || (this.filter === "ai" ? r.aiCls === "warn" || r.aiCls === "err" : this.filter === "diff" ? r.verifyLabel && r.verifyCls === "warn" : r.status === this.filter);
+    return this.filter === "all" || (this.filter === "ai" ? r.aiCls === "warn" || r.aiCls === "err" : r.status === this.filter);
   }
   renderSummary() {
     const t = USER_SETTINGS.text;
-    const counts = { all: this.rows.length, ok: 0, review: 0, excluded: 0, none: 0, ai: 0, diff: 0 };
-    this.rows.forEach((r) => { counts[r.status]++; if (r.aiCls === "warn" || r.aiCls === "err") counts.ai++; if (r.verifyLabel && r.verifyCls === "warn") counts.diff++; });
-    const keys = ["all", "ok", "review", "excluded", "none"].filter((k) => k !== "excluded" || counts.excluded).concat(counts.ai ? ["ai"] : []).concat(counts.diff ? ["diff"] : []);
+    const counts = { all: this.rows.length, pending: 0, ok: 0, review: 0, excluded: 0, none: 0, ai: 0 };
+    this.rows.forEach((r) => { counts[r.status]++; if (r.aiCls === "warn" || r.aiCls === "err") counts.ai++; });
+    const keys = ["all", "pending", "ok", "review", "excluded", "none"].filter((k) => (k !== "excluded" && k !== "pending") || counts[k]).concat(counts.ai ? ["ai"] : []);
     this.summary.replaceChildren(...keys.map((key) => {
       const b = document.createElement("button");
       b.className = "chip";
       b.dataset.filter = key;
       b.setAttribute("aria-pressed", String(this.filter === key));
-      const label = key === "all" ? t.filterAll : key === "ai" ? t.filterAi : key === "diff" ? t.filterDiff : this.statusLabel(key);
+      const label = key === "all" ? t.filterAll : key === "ai" ? t.filterAi : this.statusLabel(key);
       b.textContent = `${label} ${counts[key]}`;
       return b;
     }));
@@ -3399,7 +3649,7 @@ class ResultView {
     tr.dataset.index = index;
     if (this.isSample) tr.className = "sample"; else tr.tabIndex = 0;
     tr.setAttribute("aria-selected", String(index === this.selected));
-    const cells = [["c-row", r.row], ["c-term", r.term], ["c-font", null], ["c-pages", r.pages || "—"], ["c-held", r.held || ""], ["c-excluded", r.excluded || ""], ["c-state", null], ["c-ai", null], ["c-verify", null], ["c-note", r.note]];
+    const cells = [["c-row", r.row], ["c-term", r.term], ["c-font", null], ["c-pages", r.pages || "—"], ["c-held", r.held || ""], ["c-excluded", r.excluded || ""], ["c-state", null], ["c-ai", null], ["c-pending", null], ["c-note", r.note], ["c-fixes", r.fixes || ""]];
     for (const [cls, val] of cells) {
       const td = document.createElement("td");
       td.className = cls;
@@ -3410,11 +3660,12 @@ class ResultView {
         td.append(s);
       } else if (cls === "c-font") {
         td.append(this.fontSelect(index, r.fontChoice || ""));
-      } else if (cls === "c-verify") {
-        if (r.verifyLabel) {
+      } else if (cls === "c-pending") {
+        if (r.pendingCount) {
           const s = document.createElement("span");
-          s.className = `ai-tag ${r.verifyCls}`;
-          s.textContent = r.verifyLabel;
+          s.className = "ai-tag warn";
+          s.textContent = USER_SETTINGS.text.pendingTag(r.pendingCount);
+          s.title = r.pending;
           td.append(s);
         }
       } else if (cls === "c-ai") {
@@ -3441,7 +3692,7 @@ class ResultView {
 
 // ===== HIT COLORS =====
 class HitColors {
-  static ROLES = ["adopt", "hold", "exclude"];
+  static ROLES = ["adopt", "hold", "exclude", "pending"];
   constructor(app) {
     this.app = app;
     this.colors = { ...USER_SETTINGS.hitColors, ...Prefs.get("hitColors", {}) };
@@ -3491,6 +3742,7 @@ class PageViewer {
     this.result = null;
     this.pageNo = null;
     this.pageIndex = null;
+    this.missingPage = false;
     this.menu = null;
     this.drag = null;
     this.pickMode = false;
@@ -3552,7 +3804,7 @@ class PageViewer {
         this.redraw(false);
       },
       applyAi: () => this.app.applyAi(this.app.selectedIndex),
-      applyList: () => this.app.applyList(this.app.selectedIndex),
+      termEdit: () => this.app.openTermDialog("edit"),
       font: () => this.app.setTermFont(this.app.selectedIndex, this.$("viewer-font").value),
       resize: () => this.scheduleRender()
     };
@@ -3575,7 +3827,7 @@ class PageViewer {
       [this.$("viewer-layout"), "click", this.handlers.layout],
       [this.$("viewer-zoom"), "click", this.handlers.zoom],
       [this.$("viewer-ai-apply"), "click", this.handlers.applyAi],
-      [this.$("viewer-list-apply"), "click", this.handlers.applyList],
+      [this.$("viewer-term-edit"), "click", this.handlers.termEdit],
       [this.$("viewer-font"), "change", this.handlers.font],
       [window, "resize", this.handlers.resize]
     ];
@@ -3609,6 +3861,7 @@ class PageViewer {
     this.result = null;
     this.pageNo = null;
     this.pageIndex = null;
+    this.missingPage = false;
     this.closeMenu();
     this.cancelDrag();
     this.pickMode = false;
@@ -3617,7 +3870,7 @@ class PageViewer {
     this.$("viewer-empty").hidden = false;
     this.spreadEl.hidden = true;
     this.spreadEl.replaceChildren();
-    for (const id of ["viewer-chips", "viewer-foot", "viewer-ai", "viewer-rules", "viewer-verify"]) this.$(id).hidden = true;
+    for (const id of ["viewer-chips", "viewer-foot", "viewer-ai", "viewer-rules", "viewer-pending"]) this.$(id).hidden = true;
     this.$("viewer-goto-note").textContent = "";
     this.renderHead();
     this.renderNav();
@@ -3629,6 +3882,7 @@ class PageViewer {
     this.$("viewer-term").textContent = this.result ? this.result.entry.term : t.viewerNoTerm;
     this.$("viewer-term").classList.toggle("none", !this.result);
     this.$("viewer-font").hidden = !this.result;
+    this.$("viewer-term-edit").hidden = !this.result;
   }
   renderFontSelect() {
     const sel = this.$("viewer-font");
@@ -3639,8 +3893,8 @@ class PageViewer {
     this.renderHead();
     this.renderFontSelect();
     this.renderRules();
-    this.renderVerify();
-    const pages = result.pageNumbers();
+    this.renderPending();
+    const pages = result.allPages(this.app.currentOptions);
     if (keepPage && this.pageIndex !== null) { this.showIndex(this.pageIndex, { keepScroll: true }); return; }
     if (pages.length) { this.showPage(pages[0]); return; }
     if (this.pageIndex !== null) { this.showIndex(this.pageIndex, { keepScroll: true }); return; }
@@ -3653,7 +3907,7 @@ class PageViewer {
   }
   hitIndices() {
     if (!this.result) return [];
-    return [...new Set(this.result.pageNumbers().map((p) => this.result.firstPdfIndexOf(p)).filter((i) => i !== null))].sort((a, b) => a - b);
+    return [...new Set(this.result.allPages(this.app.currentOptions).map((p) => this.result.firstPdfIndexOf(p) ?? this.app.indexOfPageNo(p)).filter((i) => i !== null))].sort((a, b) => a - b);
   }
   visibleIndices() {
     if (this.pageIndex === null) return [];
@@ -3782,29 +4036,14 @@ class PageViewer {
       this.refreshState();
     }
   }
-  renderVerify() {
+  renderPending() {
     const t = USER_SETTINGS.text;
-    const box = this.$("viewer-verify");
-    const diffs = this.result.verify(this.app.currentOptions);
-    if (!this.app.currentOptions?.verify || !diffs.length) { box.hidden = true; return; }
-    const lines = this.$("viewer-verify-lines");
-    const groups = [];
-    for (const cat of ["listOnly", "appOnly", "other"]) {
-      const items = diffs.filter((d) => d.cat === cat);
-      if (!items.length) continue;
-      const row = document.createElement("div");
-      row.className = `verify-row ${cat}`;
-      const head = document.createElement("span");
-      head.className = "verify-head";
-      head.textContent = t.verifyGroup[cat];
-      const list = document.createElement("span");
-      list.textContent = items.map((d) => t.verifyLine(d.page, t.verifyState[d.list], t.verifyState[d.app])).join("、");
-      row.append(head, list);
-      groups.push(row);
-    }
-    lines.replaceChildren(...groups);
-    this.$("viewer-list-apply").hidden = !this.result.entry.list?.hasAny;
-    box.hidden = false;
+    const box = this.$("viewer-pending");
+    const opts = this.app.currentOptions;
+    if (!this.result || !opts?.listBase) { box.hidden = true; return; }
+    const items = this.result.allPages(opts).filter((p) => this.result.stateOf(p, opts) === "pending").map((p) => t.pendingItem(`p.${p}`, this.result.pendingTag(p).label));
+    box.textContent = items.length ? t.viewerPending(items.join("、")) : "";
+    box.hidden = !items.length;
   }
   renderRules() {
     const t = USER_SETTINGS.text;
@@ -3831,22 +4070,12 @@ class PageViewer {
     if (!this.result) { this.$("viewer-chips").hidden = true; return; }
     const opts = this.app.currentOptions;
     const suggested = new Set(this.result.aiSuggestions(opts).map((s) => s.pageNo));
-    const listDiff = new Set(this.result.verify(opts).map((d) => d.page));
-    const missing = opts?.verify ? this.result.verify(opts).filter((d) => d.app === "notfound").map((d) => d.page) : [];
-    const all = [...new Set([...this.result.pageNumbers(), ...missing])].sort((a, b) => a - b);
-    const found = new Set(this.result.pageNumbers());
-    const chips = all.map((p) => {
+    const chips = this.result.allPages(opts).map((p) => {
       const b = document.createElement("button");
-      if (!found.has(p)) {
-        b.className = "missing";
-        b.disabled = true;
-        b.title = USER_SETTINGS.text.chipMissing;
-        b.textContent = `p.${p}`;
-        return b;
-      }
       b.dataset.page = p;
-      b.className = `${this.result.stateOf(p, opts)}${suggested.has(p) ? " ai-diff" : ""}${listDiff.has(p) ? " list-diff" : ""}`;
+      b.className = `${this.result.stateOf(p, opts)}${suggested.has(p) ? " ai-diff" : ""}${this.result.onPage(p).length ? "" : " nohit"}`;
       b.textContent = `p.${p}`;
+      if (this.result.stateOf(p, opts) === "pending") b.title = this.result.pendingTag(p).label;
       if (p === this.pageNo) b.setAttribute("aria-current", "true");
       return b;
     });
@@ -3873,12 +4102,24 @@ class PageViewer {
     pick.setAttribute("aria-pressed", String(this.pickMode));
     pick.title = this.result ? t.pickHint(this.result.entry.term) : t.pickNeedTerm;
     const shown = this.pageIndex;
-    this.$("viewer-pageinfo").textContent = shown === null || !total ? "" : this.pageNo !== null ? t.viewerPage(this.pageNo, shown + 1) : t.viewerPageNoNombre(shown + 1);
+    this.$("viewer-pageinfo").textContent = this.missingPage && this.pageNo !== null ? t.viewerPageMissing(this.pageNo) : shown === null || !total ? "" : this.pageNo !== null ? t.viewerPage(this.pageNo, shown + 1) : t.viewerPageNoNombre(shown + 1);
   }
   showPage(pageNo, opts) {
     const idx = this.result?.firstPdfIndexOf(pageNo) ?? this.app.indexOfPageNo(pageNo);
-    if (idx === null || idx === undefined) return;
+    if (idx === null || idx === undefined) { this.focusMissing(pageNo); return; }
     return this.showIndex(idx, opts);
+  }
+  focusMissing(pageNo) {
+    if (!this.result) return;
+    this.closeMenu();
+    this.pageNo = pageNo;
+    this.missingPage = true;
+    this.renderNav();
+    this.renderChips();
+    this.renderAi();
+    this.renderStateSeg();
+    this.$("viewer-foot").hidden = false;
+    this.drawHits();
   }
   async showIndex(pageIndex, { keepScroll } = {}) {
     const total = this.total();
@@ -3889,6 +4130,7 @@ class PageViewer {
     this.cancelDrag();
     this.pageIndex = pageIndex;
     this.pageNo = this.app.pageNoOf(pageIndex);
+    this.missingPage = false;
     this.renderHead();
     this.renderNav();
     this.renderChips();
@@ -3956,19 +4198,21 @@ class PageViewer {
   renderStateSeg() {
     const t = USER_SETTINGS.text;
     const seg = this.$("viewer-state");
-    const has = !!this.result && this.pageNo !== null && this.result.onPage(this.pageNo).length > 0;
+    const opts = this.app.currentOptions;
+    const has = !!this.result && this.pageNo !== null && (this.result.onPage(this.pageNo).length > 0 || (!!opts?.listBase && this.result.isListPage(this.pageNo)));
     seg.hidden = !has;
+    seg.querySelector('[data-state="pending"]').hidden = !opts?.listBase;
     if (has) {
       const state = this.result.stateOf(this.pageNo, this.app.currentOptions);
       for (const b of seg.querySelectorAll("button[data-state]")) b.setAttribute("aria-pressed", String(b.dataset.state === state));
     }
-    const hint = this.pickMode ? t.pickHint(this.result.entry.term) : !this.result ? t.viewerHintNoTerm : this.pageNo === null ? t.viewerHintNoNombre : has ? t.viewerHint : t.viewerHintFree(this.result.entry.term);
+    const hint = this.missingPage && has ? t.viewerHintMissing(this.pageNo) : this.pickMode ? t.pickHint(this.result.entry.term) : !this.result ? t.viewerHintNoTerm : this.pageNo === null ? t.viewerHintNoNombre : has ? t.viewerHint : t.viewerHintFree(this.result.entry.term);
     this.$("viewer-hint").textContent = hint;
   }
   refreshState() {
     if (!this.result) return;
     this.renderRules();
-    this.renderVerify();
+    this.renderPending();
     if (this.pageIndex === null) { this.renderNav(); return; }
     this.closeMenu();
     this.renderNav();
@@ -3978,8 +4222,10 @@ class PageViewer {
     this.drawHits();
   }
   hitClass(occ) {
+    const state = this.result.stateOf(occ.pageNo, this.app.currentOptions);
+    if (state === "pending") return "pending";
     if (!this.result.isActive(occ)) return "exclude";
-    return this.result.stateOf(occ.pageNo, this.app.currentOptions);
+    return state;
   }
   drawHits() {
     const t = USER_SETTINGS.text;
@@ -4009,7 +4255,8 @@ class PageViewer {
     });
   }
   focusPage(pageNo, pageIndex) {
-    if (pageNo === this.pageNo) return;
+    if (pageNo === this.pageNo && !this.missingPage) return;
+    this.missingPage = false;
     this.pageNo = pageNo;
     if (pageIndex !== undefined) this.pageIndex = pageIndex;
     this.renderNav();
@@ -4051,12 +4298,19 @@ class PageViewer {
       r.textContent = TermResult.reasonLabel(reason);
       menu.append(r);
     }
-    if (this.app.currentOptions?.verify && this.result.entry.list) {
+    const listBase = !!this.app.currentOptions?.listBase;
+    if (listBase) {
       const lv = this.result.listStateOf(occ.pageNo);
       const l = doc.createElement("div");
       l.className = `hit-menu-list${lv !== state ? " diff" : ""}`;
-      l.textContent = t.menuListState(t.verifyState[lv]);
+      l.textContent = t.menuListLine(t.stateName[lv]);
       menu.append(l);
+      if (state === "pending") {
+        const p = doc.createElement("div");
+        p.className = "hit-menu-list diff";
+        p.textContent = t.menuPendingLine(this.result.pendingTag(occ.pageNo).label);
+        menu.append(p);
+      }
     }
     const add = (action, label, pressed) => {
       const b = doc.createElement("button");
@@ -4077,6 +4331,7 @@ class PageViewer {
     add("adopt", t.stateAdopt, state === "adopt");
     add("hold", t.stateHold, state === "hold");
     add("exclude", t.stateExclude, state === "exclude");
+    if (listBase) add("pending", t.statePending, state === "pending");
     if (occ.manual) {
       sep(t.menuManualSep);
       add("manual-remove", t.menuManualRemove);
@@ -4109,7 +4364,7 @@ class PageViewer {
     const action = btn.dataset.action;
     this.closeMenu();
     if (!occ) return;
-    if (action === "adopt" || action === "hold" || action === "exclude") this.app.setPageState(occ.pageNo, action);
+    if (action === "adopt" || action === "hold" || action === "exclude" || action === "pending") this.app.setPageState(occ.pageNo, action);
     else if (action === "manual-remove") this.app.removeManualHit(occ);
     else if (action === "rule-term") this.app.addStyleRule("term", StyleRule.of(occ));
     else if (action === "rule-global") this.app.addStyleRule("global", StyleRule.of(occ));
@@ -4120,6 +4375,64 @@ class PageViewer {
     for (const [el, ev, fn] of this.bindings) el.removeEventListener(ev, fn);
     this.cancelDrag();
     clearTimeout(this.resizeTimer);
+  }
+}
+
+// ===== GUIDE =====
+class GuideDialog {
+  constructor() {
+    this.dialog = UI.byId("guide");
+    this.content = UI.byId("guide-content");
+    this.nav = UI.byId("guide-nav");
+    this.openBtn = UI.byId("btn-guide");
+    this.closeBtn = UI.byId("guide-close");
+    this.handlers = {
+      open: () => this.open(),
+      close: () => this.dialog.close(),
+      nav: (e) => {
+        const btn = e.target.closest("button[data-target]");
+        if (!btn) return;
+        const sec = this.dialog.querySelector(`#${btn.dataset.target}`);
+        if (sec) this.content.scrollTo({ top: sec.offsetTop - this.content.offsetTop, behavior: "smooth" });
+        this.navLock = btn.dataset.target;
+        clearTimeout(this.lockTimer);
+        this.lockTimer = setTimeout(() => { this.navLock = null; }, USER_SETTINGS.guideNavLockMs);
+        this.mark(btn.dataset.target);
+      },
+      scroll: () => this.spy(),
+      backdrop: (e) => { if (e.target === this.dialog) this.dialog.close(); }
+    };
+    this.openBtn.addEventListener("click", this.handlers.open);
+    this.closeBtn.addEventListener("click", this.handlers.close);
+    this.nav.addEventListener("click", this.handlers.nav);
+    this.content.addEventListener("scroll", this.handlers.scroll);
+    this.dialog.addEventListener("click", this.handlers.backdrop);
+  }
+  open() {
+    if (!this.dialog.open) this.dialog.showModal();
+    this.spy();
+    this.closeBtn.focus();
+  }
+  mark(id) {
+    for (const b of this.nav.querySelectorAll("button")) b.setAttribute("aria-current", String(b.dataset.target === id));
+  }
+  spy() {
+    if (this.navLock) { this.mark(this.navLock); return; }
+    const top = this.content.scrollTop + USER_SETTINGS.guideSpyOffset;
+    let current = null;
+    for (const sec of this.content.querySelectorAll("section[id]")) {
+      if (sec.offsetTop - this.content.offsetTop <= top) current = sec.id;
+    }
+    if (this.content.scrollTop + this.content.clientHeight >= this.content.scrollHeight - 2) current = this.content.querySelector("section[id]:last-of-type")?.id || current;
+    this.mark(current || this.content.querySelector("section[id]")?.id);
+  }
+  destroy() {
+    clearTimeout(this.lockTimer);
+    this.openBtn.removeEventListener("click", this.handlers.open);
+    this.closeBtn.removeEventListener("click", this.handlers.close);
+    this.nav.removeEventListener("click", this.handlers.nav);
+    this.content.removeEventListener("scroll", this.handlers.scroll);
+    this.dialog.removeEventListener("click", this.handlers.backdrop);
   }
 }
 
@@ -4785,6 +5098,13 @@ class App {
     this.compoundMode = "note";
     this.pageRange = new PageRange("");
     this.selectedIndex = -1;
+    this.baseline = new Map();
+    this.baselinePages = false;
+    this.baselineFixed = false;
+    this.listOrigin = "app";
+    this.autoRestorePending = false;
+    this.pendingGroups = [];
+    this.termDialogMode = "";
     this.aiAbort = null;
     this.colorAbort = false;
     this.activity = new Activity(this);
@@ -4812,6 +5132,7 @@ class App {
       new FileDrop(this.$("drop-pdf"), this.$("file-pdf"), (files) => this.loadFiles(files)),
       new FileDrop(this.$("drop-xlsx"), this.$("file-xlsx"), (files) => this.loadFiles(files))
     ];
+    this.guide = new GuideDialog();
     this.globalDrop = new GlobalDrop(this.$("drop-overlay"), (files) => this.loadFiles(files));
     this.globalDrop.attach(window);
     this.handlers = {
@@ -4850,8 +5171,17 @@ class App {
         e.returnValue = USER_SETTINGS.text.leaveConfirm;
         return USER_SETTINGS.text.leaveConfirm;
       },
-      proof: () => { if (!this.activity.isBusy()) this.runProof(); },
-      proofSave: () => { if (!this.activity.isBusy()) this.saveProof(); },
+      pendingFilter: () => {
+        this.view.filter = "pending";
+        this.view.render();
+      },
+      pendingApply: (e) => {
+        const btn = e.target.closest("button[data-pend]");
+        if (btn && !this.activity.isBusy()) this.applyPendingGroup(parseInt(btn.dataset.pend, 10), btn.dataset.state);
+      },
+      termAdd: () => this.openTermDialog("add"),
+      termSubmit: (e) => { e.preventDefault(); this.submitTermDialog(); },
+      termCancel: () => this.$("term-dialog").close(),
       header: () => this.renderHeaderNote(),
       restore: async () => {
         if (this.activity.isBusy()) return;
@@ -4859,7 +5189,7 @@ class App {
         this.activity.start(USER_SETTINGS.text.restoring, () => { this.restoreToken.cancelled = true; });
         try { await this.restoreState(); } finally { this.activity.end(); }
       },
-      verify: () => this.onVerifyToggle(),
+      listBase: () => this.onListBaseToggle(),
       globalRule: (e) => {
         const btn = e.target.closest("button[data-rule]");
         if (btn) this.removeStyleRule("global", parseInt(btn.dataset.rule, 10));
@@ -4872,6 +5202,7 @@ class App {
       [this.$("opt-pdf-adopt"), "change", this.handlers.pdfOpts],
       [this.$("opt-pdf-hold"), "change", this.handlers.pdfOpts],
       [this.$("opt-pdf-exclude"), "change", this.handlers.pdfOpts],
+      [this.$("opt-pdf-pending"), "change", this.handlers.pdfOpts],
       [this.$("btn-edit-nombre"), "click", this.handlers.editNombre],
       [this.$("btn-edit-area"), "click", this.handlers.editArea],
       [this.$("opt-serial"), "change", this.handlers.serial],
@@ -4890,11 +5221,14 @@ class App {
       [this.$("btn-ai-rule"), "click", this.handlers.aiRule],
       [this.$("ai-instruction"), "input", this.handlers.instruction],
       [window, "beforeunload", this.handlers.leave],
-      [this.$("btn-proof"), "click", this.handlers.proof],
-      [this.$("btn-proof-save"), "click", this.handlers.proofSave],
+      [this.$("btn-pending-filter"), "click", this.handlers.pendingFilter],
+      [this.$("pending-groups"), "click", this.handlers.pendingApply],
+      [this.$("btn-term-add"), "click", this.handlers.termAdd],
+      [this.$("term-form"), "submit", this.handlers.termSubmit],
+      [this.$("term-cancel"), "click", this.handlers.termCancel],
       [this.$("opt-header"), "change", this.handlers.header],
       [this.$("btn-restore"), "click", this.handlers.restore],
-      [this.$("opt-verify"), "change", this.handlers.verify],
+      [this.$("opt-listbase"), "change", this.handlers.listBase],
       [this.$("global-rules"), "click", this.handlers.globalRule]
     ];
     for (const [el, ev, fn] of this.bindings) el.addEventListener(ev, fn);
@@ -4923,6 +5257,7 @@ class App {
     if (this.hasUnsavedWork() && !window.confirm(t.dropReplace)) return;
     if (pdfs.length) await this.loadPdf(pdfs[0]);
     if (xlsx.length) await this.loadExcel(xlsx[0]);
+    await this.maybeAutoRestore();
     const notes = [];
     if (pdfs.length > 1) notes.push(t.dropManyPdf);
     if (unknown.length) notes.push(t.dropUnknown(unknown.map((f) => f.name).join("、")));
@@ -5008,19 +5343,20 @@ class App {
     this.$("btn-ai-all").disabled = !aiReady;
     this.$("btn-ai-rule").disabled = !aiReady || !this.$("ai-instruction").value.trim();
     this.$("ai-rule-note").textContent = !this.llmPanel?.isReady() ? USER_SETTINGS.text.ruleNeedLlm : !this.results.length ? USER_SETTINGS.text.ruleNeedRun : USER_SETTINGS.text.ruleHint;
-    this.$("btn-proof").disabled = busy || !(this.pdfReady && this.nombreResult && this.entries.some((e) => e.list.hasAny));
-    this.$("btn-proof-save").disabled = busy || !this.proofReport;
+    this.$("btn-term-add").disabled = busy || !this.results.length;
     this.$("btn-ai-stop").hidden = !busy;
     const pending = this.results.reduce((n, r) => n + r.aiSuggestions(this.currentOptions).length, 0);
     this.$("btn-ai-apply-all").disabled = busy || !pending;
     this.$("btn-ai-apply-all").textContent = USER_SETTINGS.text.aiApplyAll(pending);
     this.$("btn-restore").disabled = busy || !(this.pdfReady && this.excel.savedState && this.entries.length);
+    this.$("btn-restore").hidden = !(this.pdfReady && this.excel.savedState && this.stateMismatch());
     this.$("btn-analyze-color").disabled = !this.pdfReady || (busy && !this.colorRunning);
     if (this.mappingProblem()) this.$("btn-save").disabled = true;
   }
   invalidateResults() {
     this.gen = (this.gen || 0) + 1;
-    if (this.proofReport) { this.proofReport = null; this.renderProofNote?.(); }
+    this.$("pending-box").hidden = true;
+    this.pendingGroups = [];
     this.textCache.clear();
     if (this.results.length) {
       this.results = [];
@@ -5225,14 +5561,19 @@ class App {
     this.termRules.clear();
     try {
       await this.excel.load(file);
+      const st = this.excel.savedState;
+      this.baselineFixed = !!st?.baseline;
+      this.baseline = new Map(st?.baseline || []);
+      this.baselinePages = !!st?.baselinePages;
+      this.listOrigin = st ? st.settings?.listOrigin || "app" : "";
+      this.autoRestorePending = !!st;
       this.$("drop-xlsx").classList.add("loaded");
       this.$("hint-xlsx").textContent = t.xlsxLoaded(file.name);
       this.mapper.render();
       this.onMappingChanged();
-      this.$("opt-verify").checked = this.entries.some((e) => e.list.hasAny);
-      this.renderVerifyNote();
       this.renderStateBox();
-      this.setStatus(this.nombreResult || !this.pdfReady ? "" : t.needNombre);
+      const listed = this.entries.some((e) => e.list.hasAny);
+      this.setStatus(st ? "" : listed && !this.nombreResult ? t.listBaseReady : this.nombreResult || !this.pdfReady ? "" : t.needNombre);
     } catch (err) {
       console.error(err);
       this.entries = [];
@@ -5251,46 +5592,219 @@ class App {
     this.setPill("pill-xlsx", ok ? "ok" : "warn");
     this.pipeline.set(App.STEP.excel, ok);
     this.renderHeaderNote();
-    this.renderVerifyNote();
+    this.captureBaseline();
+    const listed = this.entries.some((e) => e.list.hasAny);
+    if (!this.excel.savedState) this.listOrigin = listed ? "premade" : "app";
+    this.$("opt-listbase").checked = listed;
+    this.renderListBaseNote();
     this.invalidateResults();
-    this.renderProofNote();
+  }
+  captureBaseline() {
+    const listed = this.entries.some((e) => e.list.hasAny);
+    const snap = (e) => ({ term: e.term, adopt: [...e.list.adopt], hold: [...e.list.hold], exclude: [...e.list.exclude] });
+    if (!this.baselineFixed) {
+      this.baseline = new Map(this.entries.map((e) => [e.row, snap(e)]));
+      this.baselinePages = listed;
+      return;
+    }
+    if (!this.baselinePages && listed) {
+      for (const e of this.entries) {
+        const b = this.baseline.get(e.row);
+        if (b) this.baseline.set(e.row, { ...snap(e), term: b.term });
+      }
+      this.baselinePages = true;
+    }
+  }
+  fixesFor(result, raw) {
+    const t = USER_SETTINGS.text;
+    const entry = result.entry;
+    const b = this.baseline.get(entry.row);
+    const parts = [];
+    if (!b) {
+      if (entry.added || this.baseline.size) parts.push(t.fixAdded);
+    } else if (b.term !== entry.term) {
+      parts.push(t.fixTerm(b.term, entry.term));
+    }
+    if (b && this.baselinePages) {
+      const before = new Map();
+      const after = new Map();
+      for (const k of ["adopt", "hold", "exclude"]) {
+        for (const p of b[k] || []) before.set(p, k);
+        for (const p of raw[k] || []) after.set(p, k);
+      }
+      const groups = new Map();
+      for (const p of [...new Set([...before.keys(), ...after.keys()])].sort((x, y) => x - y)) {
+        const from = before.get(p) || "none";
+        const to = after.get(p) || "none";
+        if (from === to) continue;
+        const key = `${from}>${to}`;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(p);
+      }
+      const sep = this.currentOptions?.separator || ", ";
+      for (const [key, pages] of groups) {
+        const [from, to] = key.split(">");
+        parts.push(t.fixMove(from, to, pages.join(sep)));
+      }
+    }
+    return parts.join("／");
   }
   mappingProblem() {
     const t = USER_SETTINGS.text;
     const m = this.excel.mapping;
     if (!this.excel.workbook) return "";
-    const outs = [m.pages, m.held, m.excluded, m.note].filter(Boolean);
+    const outs = [m.pages, m.held, m.excluded, m.note, m.pending, m.fixes].filter(Boolean);
     if (outs.includes(m.term)) return t.mapSameAsTerm;
     if (new Set(outs).size !== outs.length) return t.mapDuplicate;
     return "";
   }
-  listCols() {
-    return { hold: this.entries.some((e) => e.list.hold.length), exclude: this.entries.some((e) => e.list.exclude.length) };
-  }
-  renderVerifyNote() {
+  renderListBaseNote() {
     const t = USER_SETTINGS.text;
     const n = this.entries.filter((e) => e.list.hasAny).length;
-    const box = this.$("opt-verify");
+    const box = this.$("opt-listbase");
     box.disabled = n === 0;
     if (n === 0) box.checked = false;
-    this.$("verify-note").textContent = n === 0 ? t.verifyNoteEmpty : box.checked ? t.verifyNoteOn(n, this.entries.length) : t.verifyNoteOff;
+    this.$("listbase-note").textContent = n === 0 ? t.listBaseNoteEmpty : box.checked ? t.listBaseNoteOn(n, this.entries.length) : t.listBaseNoteOff;
   }
-  onVerifyToggle() {
-    this.renderVerifyNote();
+  onListBaseToggle() {
+    this.renderListBaseNote();
     if (!this.currentOptions) return;
-    this.currentOptions = { ...this.currentOptions, verify: this.$("opt-verify").checked, listCols: this.listCols() };
-    this.refreshAllRows();
-  }
-  refreshAllRows() {
-    return this.recomputeAll(USER_SETTINGS.text.actVerify);
-  }
-  applyList(index) {
-    const result = this.results[index];
-    if (!result || !result.entry.list?.hasAny) return;
-    result.applyList(this.currentOptions);
-    this.refreshTerm(index);
+    this.currentOptions = { ...this.currentOptions, listBase: this.$("opt-listbase").checked };
     this.pipeline.set(App.STEP.save, false);
+    this.recomputeAll(USER_SETTINGS.text.actListBase);
+  }
+  renderPendingBox() {
+    const t = USER_SETTINGS.text;
+    const box = this.$("pending-box");
+    const opts = this.currentOptions;
+    if (!opts?.listBase || !this.results.length) { box.hidden = true; this.pendingGroups = []; return; }
+    const groups = new Map();
+    const all = [];
+    const terms = new Set();
+    this.results.forEach((r, i) => {
+      for (const p of r.allPages(opts)) {
+        if (r.stateOf(p, opts) !== "pending") continue;
+        const tag = r.pendingTag(p);
+        const occ = r.onPage(p).find((o) => r.isActive(o)) || r.onPage(p)[0];
+        const style = occ ? StyleRule.label(StyleRule.of(occ)) : "";
+        const key = `${tag.kind}|${style}`;
+        if (!groups.has(key)) groups.set(key, { label: style ? `${t.pendKind[tag.kind]}・${style}` : t.pendKind[tag.kind], items: [] });
+        groups.get(key).items.push([i, p]);
+        all.push([i, p]);
+        terms.add(i);
+      }
+    });
+    this.pendingGroups = all.length ? [{ label: t.pendingAll, items: all, all: true }, ...[...groups.values()].sort((a, b) => b.items.length - a.items.length)] : [];
+    this.$("pending-note").textContent = all.length ? t.pendingNote(all.length, terms.size) : t.pendingNone;
+    this.$("btn-pending-filter").hidden = !all.length;
+    const states = [["adopt", t.stateName.adopt], ["hold", t.stateName.hold], ["exclude", t.stateName.exclude]];
+    this.$("pending-groups").replaceChildren(...this.pendingGroups.map((g, idx) => {
+      const row = document.createElement("div");
+      row.className = `pend-row${g.all ? " all" : ""}`;
+      const label = document.createElement("span");
+      label.className = "pend-label";
+      label.textContent = g.label;
+      const count = document.createElement("span");
+      count.className = "pend-count";
+      count.textContent = t.pendingCount(g.items.length);
+      const seg = document.createElement("div");
+      seg.className = "seg";
+      for (const [state, name] of states) {
+        const b = document.createElement("button");
+        b.dataset.pend = idx;
+        b.dataset.state = state;
+        b.textContent = name;
+        seg.append(b);
+      }
+      row.append(label, count, seg);
+      return row;
+    }));
+    box.hidden = false;
+  }
+  async applyPendingGroup(idx, state) {
+    const t = USER_SETTINGS.text;
+    const g = this.pendingGroups[idx];
+    if (!g || !["adopt", "hold", "exclude"].includes(state)) return;
+    for (const [i, p] of g.items) this.results[i]?.setState(p, state, this.currentOptions, "manual");
+    this.pipeline.set(App.STEP.save, false);
+    await this.recomputeAll(t.actPending);
+    this.setStatus(t.pendingApplied(g.items.length, t.stateName[state]));
+  }
+  openTermDialog(mode) {
+    const t = USER_SETTINGS.text;
+    if (this.activity.isBusy() || this.aiAbort) { this.setStatus(t.termBusy, true); return; }
+    const result = this.results[this.selectedIndex];
+    if (mode === "edit" && !result) return;
+    if (!this.results.length) return;
+    this.termDialogMode = mode;
+    this.$("term-dialog-title").textContent = mode === "edit" ? t.termEditTitle : t.termAddTitle;
+    this.$("term-input").value = mode === "edit" ? result.entry.term : "";
+    const note = this.$("term-note");
+    note.textContent = mode === "edit" ? t.termEditHint : t.termAddHint;
+    note.classList.remove("error");
+    this.$("term-dialog").showModal();
+    this.$("term-input").focus();
+    this.$("term-input").select();
+  }
+  submitTermDialog() {
+    const t = USER_SETTINGS.text;
+    const note = this.$("term-note");
+    const value = String(this.$("term-input").value || "").trim();
+    const fail = (msg) => { note.textContent = msg; note.classList.add("error"); };
+    if (!value) { fail(t.termEmpty); return; }
+    const key = TextNormalizer.normalize(value);
+    const editing = this.termDialogMode === "edit" ? this.results[this.selectedIndex]?.entry : null;
+    if (this.entries.some((e) => e !== editing && TextNormalizer.normalize(e.term) === key)) { fail(t.termDuplicate(value)); return; }
+    this.$("term-dialog").close();
+    if (this.termDialogMode === "edit") this.editTerm(this.selectedIndex, value);
+    else this.addTerm(value);
+  }
+  editTerm(index, value) {
+    const t = USER_SETTINGS.text;
+    const old = this.results[index];
+    if (!old || value === old.entry.term) return;
+    const entry = old.entry;
+    const before = entry.term;
+    const fresh = ExcelIO.makeEntry(entry.row, value, entry.list);
+    Object.assign(entry, { term: fresh.term, searchKey: fresh.searchKey, bracketStripped: fresh.bracketStripped, edited: true });
+    const result = this.buildResult(entry, old.fontChoice, this.currentOptions);
+    result.overrides = old.overrides;
+    for (const o of old.manualOccs()) result.addManual(o);
+    this.results[index] = result;
+    this.refreshTerm(index);
+    if (index === this.selectedIndex) this.viewer.open(result, true);
+    this.pipeline.set(App.STEP.save, false);
+    this.setStatus(t.termEdited(before, value, result.pageNumbers().length));
     this.refreshButtons();
+  }
+  addTerm(value) {
+    const t = USER_SETTINGS.text;
+    const sheet = this.excel.sheet();
+    const col = this.excel.mapping.term;
+    let row = Math.max(this.excel.mapping.start - 1, ...this.entries.map((e) => e.row)) + 1;
+    while (ExcelIO.cellText(sheet.getRow(row).getCell(col)).trim()) row++;
+    const entry = ExcelIO.makeEntry(row, value, ExcelIO.emptyList());
+    entry.added = true;
+    this.entries.push(entry);
+    const result = this.buildResult(entry, "", this.currentOptions);
+    this.results.push(result);
+    this.view.filter = "all";
+    this.view.replaceRows([...this.view.rows, result.compute(this.currentOptions)]);
+    this.selectTerm(this.results.length - 1);
+    this.renderPendingBox();
+    this.pipeline.set(App.STEP.save, false);
+    this.setStatus(t.termAdded(value, row, result.pageNumbers().length));
+    this.refreshButtons();
+  }
+  stateMismatch() {
+    const st = this.excel.savedState;
+    return !!(this.pdfReady && st?.pdf && (st.pdf.pages !== this.pdf.pages.length || (st.pdf.fingerprint && this.pdf.fingerprint && st.pdf.fingerprint !== this.pdf.fingerprint)));
+  }
+  async maybeAutoRestore() {
+    if (!this.autoRestorePending || !this.pdfReady || !this.excel.savedState || !this.entries.length) return;
+    if (this.stateMismatch()) { this.renderStateBox(); return; }
+    this.autoRestorePending = false;
+    await this.handlers.restore();
   }
   renderStateBox() {
     const t = USER_SETTINGS.text;
@@ -5298,9 +5812,9 @@ class App {
     this.$("state-box").hidden = !st;
     if (!st) { this.refreshButtons(); return; }
     const at = new Date(st.savedAt).toLocaleString("ja-JP");
-    this.$("state-info").textContent = `${t.stateInfo(at, st.pdf?.name || "", st.pdf?.pages || 0, st.terms?.length || 0)}${this.pdfReady ? "" : t.stateNeedPdf}`;
+    this.$("state-info").textContent = `${t.stateInfo(at, st.pdf?.name || "", st.pdf?.pages || 0, st.terms?.length || 0)}${!this.pdfReady ? t.stateNeedPdf : this.results.length && !this.autoRestorePending ? t.stateRestored : ""}`;
     const warn = this.$("state-warn");
-    const mismatch = this.pdfReady && st.pdf && (st.pdf.pages !== this.pdf.pages.length || (st.pdf.fingerprint && this.pdf.fingerprint && st.pdf.fingerprint !== this.pdf.fingerprint));
+    const mismatch = this.stateMismatch();
     warn.hidden = !mismatch;
     if (mismatch) warn.textContent = t.stateMismatch(st.pdf.pages, this.pdf.pages.length);
     this.refreshButtons();
@@ -5326,7 +5840,7 @@ class App {
     rows.push([L.savedAt, new Date(st.savedAt).toLocaleString("ja-JP")]);
     rows.push([L.pdf, `${st.pdf.name}（${st.pdf.pages}ページ）`]);
     rows.push([L.sheet, `${st.mapping.sheetName}（${L.startRow(st.mapping.start)}）`]);
-    rows.push([L.columns, [`${L.colTerm}：${col(st.mapping.term)}`, `${L.colPages}：${col(st.mapping.pages)}`, `${L.colHeld}：${col(st.mapping.held)}`, `${L.colExcluded}：${col(st.mapping.excluded)}`, `${L.colNote}：${col(st.mapping.note)}`].join("\n")]);
+    rows.push([L.columns, [`${L.colTerm}：${col(st.mapping.term)}`, `${L.colPages}：${col(st.mapping.pages)}`, `${L.colHeld}：${col(st.mapping.held)}`, `${L.colExcluded}：${col(st.mapping.excluded)}`, `${L.colNote}：${col(st.mapping.note)}`, `${L.colPending}：${col(st.mapping.pending)}`, `${L.colFixes}：${col(st.mapping.fixes)}`].join("\n")]);
     rows.push([L.secPages, null]);
     rows.push([L.nombre, s.serial ? L.serial(s.firstPage) : areas(s.nombreAreas) || L.notSet]);
     rows.push([L.firstSide, s.firstSide === "left" ? t.sideLeft : t.sideRight]);
@@ -5351,11 +5865,12 @@ class App {
     rows.push([L.secResult, null]);
     const computed = this.results.map((r) => r.compute(this.currentOptions));
     const count = (status) => computed.filter((r) => r.status === status).length;
-    rows.push([L.terms, L.termCounts(computed.length, count("ok"), count("review"), count("excluded"), count("none"))]);
+    rows.push([L.terms, L.termCounts(computed.length, count("ok"), count("review") + count("pending"), count("excluded"), count("none"))]);
     const manual = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "manual").length + (x.added?.length || 0), 0);
     const ai = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "ai").length, 0);
-    const list = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "list").length + x.listOnly.length, 0);
-    rows.push([L.changes, L.changeCounts(manual, ai, list)]);
+    const pendingTotal = computed.reduce((n, r) => n + r.pendingCount, 0);
+    rows.push([L.listBase, s.listBase ? L.listBaseOn : L.listBaseOff]);
+    rows.push([L.changes, L.changeCounts(manual, ai, pendingTotal)]);
     const aiModels = [...new Set(st.terms.map((x) => x.ai?.model).filter(Boolean))];
     rows.push([L.aiModel, aiModels.length ? aiModels.join("、") : L.aiNone]);
     rows.push([L.instruction, s.aiInstruction ? s.aiInstruction : L.none]);
@@ -5386,7 +5901,8 @@ class App {
         separator: this.$("opt-sep").value,
         useRanges: this.$("opt-range").checked,
         header: this.$("opt-header").checked,
-        verify: this.$("opt-verify").checked,
+        listBase: this.$("opt-listbase").checked,
+        listOrigin: this.listOrigin || "app",
         aiInstruction: this.$("ai-instruction").value
       },
       mapping: { ...this.excel.mapping, sheetName: this.excel.sheet().name, start: this.excel.mapping.start + offset },
@@ -5397,12 +5913,13 @@ class App {
         fontChoice: r.fontChoice,
         rules: this.termRulesFor(r.entry.row),
         overrides: [...r.overrides],
-        listOnly: [...r.listOnly],
         added: r.manualOccs().map((o) => ({ pageIndex: o.pageIndex, refs: o.refKeys })),
         ruleDone: !!r.ruleDone,
         ai: r.ai ? { pages: [...(r.ai.pages || new Map())], error: r.ai.error || "", model: r.ai.model || "" } : null
       })),
-      originalNotes: [...originalNotes]
+      originalNotes: [...originalNotes],
+      baseline: [...this.baseline].map(([row, b]) => [row + offset, b]),
+      baselinePages: this.baselinePages
     };
   }
   async restoreState() {
@@ -5445,7 +5962,7 @@ class App {
     delete this.excel.mapping.sheetName;
     this.mapper.render();
     this.onMappingChanged();
-    this.$("opt-verify").checked = this.entries.some((e) => e.list.hasAny);
+    if (s.listBase === false) { this.$("opt-listbase").checked = false; this.renderListBaseNote(); }
     this.globalRules = st.globalRules || [];
     this.termFonts.clear();
     this.termRules.clear();
@@ -5467,15 +5984,15 @@ class App {
         const occ = this.restoreManualOcc(a);
         if (occ) result.addManual(occ);
       }
-      result.overrides = new Map(saved.overrides || []);
-      result.listOnly = new Map(saved.listOnly || []);
+      const listBase = this.$("opt-listbase").checked;
+      result.overrides = new Map((saved.overrides || []).filter(([p, o]) => !listBase || (o.state === "pending" ? result.listPending(p) : result.listStateOf(p) === o.state && !result.listPending(p))));
       result.ruleDone = !!saved.ruleDone;
       result.ai = saved.ai ? { pages: new Map(saved.ai.pages || []), error: saved.ai.error || "", model: saved.ai.model || "" } : null;
       if (result.ai && !result.ai.error) delete result.ai.error;
     }
-    this.currentOptions = { ...this.currentOptions, verify: this.$("opt-verify").checked, listCols: this.listCols() };
     await this.recomputeAll(t.actRestore);
-    this.renderVerifyNote();
+    this.renderStateBox();
+    this.pipeline.set(App.STEP.save, true);
     this.setStatus(t.restored(this.results.length, missing));
   }
   renderHeaderNote() {
@@ -5510,8 +6027,8 @@ class App {
       separator: this.$("opt-sep").value,
       useRanges: this.$("opt-range").checked,
       excludeRuby: this.$("opt-ruby").checked,
-      verify: this.$("opt-verify").checked,
-      listCols: this.listCols(),
+      listBase: this.$("opt-listbase").checked,
+      listNotes: this.listOrigin !== "premade",
       narrowed: !!fontSet || this.searchAreas.hasAny() || this.styleFilter.isNarrowed()
     };
   }
@@ -5591,7 +6108,8 @@ class App {
     const result = new TermResult(entry, inScope.concat(outScope), this.nombreResult, choice, {
       rules: () => this.rulesFor(entry.row),
       filterReason: (occ, fontChoice) => this.filterReason(occ, fontChoice),
-      version: () => String(this.filterVersion)
+      version: () => String(this.filterVersion),
+      fixes: (r, raw) => this.fixesFor(r, raw)
     });
     result.fontLabel = this.fontChoiceLabel(choice);
     return result;
@@ -5632,10 +6150,12 @@ class App {
       if (gen !== this.gen) { this.setStatus(t.runCancelled, true); return; }
       this.results = results;
       this.selectedIndex = -1;
-      this.view.show(this.results.map((r) => r.compute(opts)), false);
+      const rows = this.results.map((r) => r.compute(opts));
+      this.view.show(rows, false);
       this.viewer.clear();
+      this.renderPendingBox();
       this.pipeline.set(App.STEP.run, true);
-      this.setStatus(t.done(this.entries.length, this.pdf.pages.length));
+      this.setStatus(opts.listBase ? t.doneListBase(this.entries.length, rows.reduce((n, r) => n + r.pendingCount, 0)) : t.done(this.entries.length, this.pdf.pages.length));
     } finally {
       this.activity.end();
       this.refreshButtons();
@@ -5660,6 +6180,7 @@ class App {
         }
       }
       this.view.replaceRows(rows);
+      this.renderPendingBox();
       if (this.selectedIndex >= 0) this.viewer.refreshState();
     } finally {
       this.activity.end();
@@ -5692,6 +6213,7 @@ class App {
     this.view.updateRow(index, result.compute(this.currentOptions));
     this.view.select(this.selectedIndex);
     if (index === this.selectedIndex) this.viewer.refreshState();
+    this.renderPendingBox();
   }
   setPageState(pageNo, state) {
     const result = this.results[this.selectedIndex];
@@ -5814,72 +6336,6 @@ class App {
       this.refreshButtons();
     }
   }
-  async runProof() {
-    const t = USER_SETTINGS.text;
-    if (!this.entries.some((e) => e.list.hasAny)) { this.setStatus(t.proofNeedList, true); return; }
-    if (!this.nombreResult) { this.setStatus(t.needNombre, true); return; }
-    this.$("opt-verify").disabled = false;
-    this.$("opt-verify").checked = true;
-    this.renderVerifyNote();
-    await this.run();
-    if (!this.results.length) return;
-    this.currentOptions = { ...this.currentOptions, verify: true, listCols: this.listCols() };
-    await this.recomputeAll(t.actVerify);
-    const rows = [];
-    const counts = { listOnly: 0, appOnly: 0, other: 0 };
-    let terms = 0;
-    for (const r of this.results) {
-      const diffs = r.verify(this.currentOptions);
-      if (!diffs.length) continue;
-      terms++;
-      for (const d of diffs) {
-        counts[d.cat]++;
-        const occ = r.onPage(d.page)[0];
-        const reason = occ ? r.exclusionReason(occ) : null;
-        rows.push({ row: r.entry.row, term: r.entry.term, page: d.page, cat: d.cat, list: d.list, app: d.app, detail: reason ? TermResult.reasonLabel(reason) : occ ? occ.context : "" });
-      }
-    }
-    this.proofReport = { at: new Date(), terms: this.results.length, issueTerms: terms, counts, rows, settings: this.proofSettingsText() };
-    this.view.filter = rows.length ? "diff" : "all";
-    this.view.render();
-    this.renderProofNote();
-    this.setStatus(t.proofDone(this.results.length, terms, counts), rows.length > 0);
-    this.refreshButtons();
-  }
-  proofSettingsText() {
-    const t = USER_SETTINGS.text;
-    const preset = this.fontFilter.matchingPreset();
-    const fonts = preset ? t.fontPresetLabel[preset] : t.proofFontsCustom(this.fontFilter.selected.size, this.fontFilter.fonts.length);
-    return t.proofSettings(fonts, this.pageRange.isActive() ? this.pageRange.label() : t.sum.all, this.searchAreas.hasAny());
-  }
-  renderProofNote() {
-    const t = USER_SETTINGS.text;
-    const el = this.$("proof-note");
-    const r = this.proofReport;
-    if (!r) { el.textContent = !this.entries.some((e) => e.list.hasAny) ? t.proofNeedList : this.excel.savedState ? `${t.proofHint}${t.proofRestoreHint}` : t.proofHint; return; }
-    el.textContent = t.proofSummary(r.terms, r.issueTerms, r.counts);
-  }
-  async saveProof() {
-    const t = USER_SETTINGS.text;
-    if (!this.proofReport) return;
-    this.activity.start(t.actSave);
-    await tick();
-    let out;
-    try {
-      out = await this.excel.exportProof(this.proofReport, { pdfName: this.pdfName || "" });
-    } finally {
-      this.activity.end();
-    }
-    const url = URL.createObjectURL(out.blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = out.name;
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    this.setStatus(t.saved(out.name));
-  }
   async runAi(scope) {
     const t = USER_SETTINGS.text;
     const targets = this.results.map((r, i) => [r, i]).filter(([r]) => r.occurrences.length && (scope === "all" || r.compute(this.currentOptions).status === "review"));
@@ -5929,7 +6385,12 @@ class App {
     this.recomputeAll(USER_SETTINGS.text.actApplyAi).then(() => this.setStatus(USER_SETTINGS.text.aiApplied(n)));
   }
   pdfMarkStates() {
-    return new Set(["adopt", "hold", "exclude"].filter((k) => this.$(`opt-pdf-${k}`).checked));
+    return new Set(["adopt", "hold", "exclude", "pending"].filter((k) => this.$(`opt-pdf-${k}`).checked));
+  }
+  markState(r, occ) {
+    const state = r.stateOf(occ.pageNo, this.currentOptions);
+    if (state === "pending") return "pending";
+    return r.isActive(occ) ? state : "exclude";
   }
   collectMarks() {
     const t = USER_SETTINGS.text;
@@ -5939,7 +6400,7 @@ class App {
     for (const r of this.results) {
       for (const occ of r.occurrences) {
         const active = r.isActive(occ);
-        const state = active ? r.stateOf(occ.pageNo, opts) : "exclude";
+        const state = this.markState(r, occ);
         if (!want.has(state)) continue;
         const dims = this.pdf.dims[occ.pageIndex];
         if (!dims) continue;
@@ -5948,7 +6409,7 @@ class App {
         if (!rects.length) continue;
         const reason = r.exclusionReason(occ);
         const override = r.overrides.get(occ.pageNo);
-        const detail = occ.manual ? t.pdfMarkManual : !active && reason ? TermResult.reasonLabel(reason) : override?.reason ? override.reason : occ.kind === "compound" ? t.pdfMarkCompound(occ.word) : "";
+        const detail = occ.manual ? t.pdfMarkManual : state === "pending" ? r.pendingTag(occ.pageNo).label : !active && reason ? TermResult.reasonLabel(reason) : override?.reason ? override.reason : occ.kind === "compound" ? t.pdfMarkCompound(occ.word) : "";
         marks.push({
           pageIndex: occ.pageIndex,
           state,
@@ -5967,7 +6428,7 @@ class App {
     if (!this.results.length || this.activity?.isBusy()) { el.textContent = ""; return; }
     const want = this.pdfMarkStates();
     let n = 0;
-    for (const r of this.results) for (const occ of r.occurrences) if (want.has(r.isActive(occ) ? r.stateOf(occ.pageNo, this.currentOptions) : "exclude")) n++;
+    for (const r of this.results) for (const occ of r.occurrences) if (want.has(this.markState(r, occ))) n++;
     el.textContent = USER_SETTINGS.text.pdfMarkHint(n);
   }
   download(blob, name) {
@@ -6031,6 +6492,7 @@ class App {
   destroy() {
     this.drops.forEach((d) => d.destroy());
     this.globalDrop.destroy();
+    this.guide.destroy();
     for (const [el, ev, fn] of this.bindings) el.removeEventListener(ev, fn);
     this.aiAbort?.abort();
     this.view.destroy();
