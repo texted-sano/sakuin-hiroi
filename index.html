@@ -1201,6 +1201,7 @@ const USER_SETTINGS = {
   compoundMaxSpan: 8,
   outputSuffix: "_さくいん",
   progressYieldEvery: 5,
+  rubyBase: { reach: 3, ratio: 0.6, overhang: 0.5, minRise: 0.5, maxRise: 1.6 },
   rubyHeightRatio: 0.62,
   sparsePageRatio: 0.1,
   minBox: 0.004,
@@ -1260,6 +1261,8 @@ const USER_SETTINGS = {
   zoomLevels: [1, 1.5, 2, 3, 4],
   pickMinSize: 0.004,
   guideSpyOffset: 80,
+  searchSeparators: "・･=＝―‐‑–—-",
+  qualifierWindow: 40,
   termSearchDebounceMs: 250,
   editFill: "FFFDE3C8",
   maxTableColumns: 12,
@@ -1426,6 +1429,7 @@ const USER_SETTINGS = {
     pdfMarkState: { adopt: "確定", hold: "申し送り", exclude: "対象外", pending: "保留" },
     pdfMarkContents: (term, p, state, detail) => `「${term}」p.${PageNo.label(p)}　${state}${detail ? `\n${detail}` : ""}`,
     pdfMarkManual: "目視確認で追加",
+    pdfMarkRuby: "ルビと判定した文字に一致",
     pdfMarkCompound: (w) => `複合語「${w}」の一部`,
     pdfMarkHint: (n) => `いまの設定で枠を付けるのは ${n}か所です。`,
     stateSheetTitle: "さくいん拾い　作業の設定",
@@ -1476,12 +1480,13 @@ const USER_SETTINGS = {
     menuPendingLine: (label) => `保留の理由：${label}`,
     pendTag: {
       notInList: "リストになし",
+      ruby: "ルビとして除いた文字に一致",
       compound: (w) => `リストになし・複合語「${w}」`,
       notFound: "PDFで見つからない",
       inactive: (r) => `アプリでは対象外${r ? `：${r}` : ""}`,
       listed: (s) => `リストでは${s}`
     },
-    pendKind: { notInList: "リストになし", compound: "リストになし（複合語）", notFound: "PDFで見つからない", inactive: "アプリでは対象外", listed: "保留に戻したページ" },
+    pendKind: { ruby: "ルビとして除いた文字に一致", notInList: "リストになし", compound: "リストになし（複合語）", notFound: "PDFで見つからない", inactive: "アプリでは対象外", listed: "保留に戻したページ" },
     pendingItem: (p, label) => `${PageNo.label(p)}（${label}）`,
     pendingTag: (n) => `保留${n}`,
     pendingAll: "保留すべて",
@@ -1587,6 +1592,11 @@ const USER_SETTINGS = {
     manualExcluded: (pages) => `p.${pages}は目視確認で外した。拾う場合、p.${pages}追加。`,
     manualAdopted: (pages) => `p.${pages}は目視確認で拾った。`,
     bracketNote: (searched) => `括弧内を除いた「${searched}」で検索した。`,
+    aliasNote: (aliases) => `「${aliases}」の表記でも検索した。`,
+    unqualifiedNote: (q, base, pages) => `p.${pages}は近くに「${q}」がなく、別の「${base}」の可能性あり。拾う場合、p.${pages}追加。`,
+    homonymNote: (other, q, pages) => `p.${pages}は近くに「${q}」があり、「${other}」の可能性あり。拾う場合、p.${pages}追加。`,
+    bracketHitNote: (q, pages) => `p.${pages}は括弧内の「${q}」の表記で出現。拾う場合、p.${pages}追加。`,
+    rubyHitNote: (pages) => `p.${pages}はルビ（ふりがな）と判定した文字に一致。拾う場合、p.${pages}追加。`,
     estimatedNote: (pages) => `p.${pages}はノンブルを読み取れず前後から推定した番号。要確認。`,
     noNombreNote: (pdfPages) => `PDF ${pdfPages}枚目　ノンブルがないページのため対象外（索引から参照できない）`,
     termSearchNone: "見つかりません",
@@ -1687,6 +1697,14 @@ class TextNormalizer {
   }
   static fold(s) {
     return String(s).replace(/[A-Z]/g, (c) => c.toLowerCase());
+  }
+  static isSep(ch) {
+    return USER_SETTINGS.searchSeparators.includes(ch);
+  }
+  static key(s) {
+    let k = [...TextNormalizer.fold(s)].filter((c) => !TextNormalizer.isSep(c)).join("");
+    while (k.length > 2 && k.endsWith("ー") && TextNormalizer.charClass(k[k.length - 2]) === "katakana") k = k.slice(0, -1);
+    return k;
   }
   static stripBrackets(s) {
     return s.replace(/[（(][^）)]*[）)]/g, "");
@@ -1871,13 +1889,33 @@ class PdfReader {
     if (!heights.length) return 0;
     const median = heights[Math.floor(heights.length / 2)];
     let count = 0;
-    for (const it of items) {
-      if (it.h > 0 && it.h < median * USER_SETTINGS.rubyHeightRatio && TextNormalizer.isKanaOnly(TextNormalizer.strip(it.s))) {
+    items.forEach((it, i) => {
+      if (!(it.h > 0) || !TextNormalizer.isKanaOnly(TextNormalizer.strip(it.s))) return;
+      if (it.h < median * USER_SETTINGS.rubyHeightRatio || PdfReader.sitsOnBase(it, items, i)) {
         it.ruby = true;
         count++;
       }
-    }
+    });
     return count;
+  }
+  static sitsOnBase(it, items, i) {
+    const r = USER_SETTINGS.rubyBase;
+    for (let k = Math.max(0, i - r.reach); k <= Math.min(items.length - 1, i + r.reach); k++) {
+      const base = items[k];
+      if (k === i || base.vertical !== it.vertical || !(base.h > 0) || it.h > base.h * r.ratio) continue;
+      if (!/[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF々〆ヶ]/.test(base.s)) continue;
+      const pad = base.size * r.overhang;
+      if (!it.vertical) {
+        const xOverlap = it.px < base.px + base.pw + pad && it.px + it.pw > base.px - pad;
+        const rise = it.py - base.py;
+        if (xOverlap && rise > base.size * r.minRise && rise < base.size * r.maxRise) return true;
+      } else {
+        const yOverlap = it.py - it.ph < base.py + pad && it.py > base.py - base.ph - pad;
+        const shift = it.px - base.px;
+        if (yOverlap && shift > base.size * r.minRise && shift < base.size * r.maxRise) return true;
+      }
+    }
+    return false;
   }
   static markBlockGaps(items) {
     const r = USER_SETTINGS.blockGap;
@@ -1959,7 +1997,7 @@ class PdfReader {
       const map = [];
       let compact = "";
       for (let i = 0; i < raw.length; i++) {
-        if (raw[i] === GAP) continue;
+        if (raw[i] === GAP || TextNormalizer.isSep(raw[i])) continue;
         map.push(i);
         compact += raw[i];
       }
@@ -3008,6 +3046,11 @@ class TermMatcher {
     this.reader = reader;
   }
   compoundWordAt(text, start, end) {
+    if (TextNormalizer.charClass(text[end - 1]) === "katakana") {
+      let e2 = end;
+      while (text[e2] === "ー" || TextNormalizer.isSep(text[e2]) && text[e2 + 1] === "ー") e2++;
+      if (e2 > end && TextNormalizer.charClass(text[e2]) !== "katakana") end = e2;
+    }
     const firstClass = TextNormalizer.charClass(text[start]);
     const lastClass = TextNormalizer.charClass(text[end - 1]);
     const joinsLeft = firstClass !== "other" && TextNormalizer.charClass(text[start - 1]) === firstClass;
@@ -3039,9 +3082,10 @@ class TermMatcher {
     };
   }
   collect(entry, pageTexts, allKeys, nombre, scopeOf) {
-    const key = TextNormalizer.fold(entry.searchKey || "");
+    const key = TextNormalizer.key(entry.searchKey || "");
     if (!key) return [];
-    const longerKeys = allKeys.map((k) => TextNormalizer.fold(k)).filter((k) => k !== key && k.includes(key));
+    const W = USER_SETTINGS.qualifierWindow;
+    const longerKeys = allKeys.map((k) => TextNormalizer.key(k)).filter((k) => k !== key && k.includes(key));
     const occurrences = [];
     pageTexts.forEach(({ raw, compact, map, src }, pageIndex) => {
       const pageNo = nombre.numbers[pageIndex];
@@ -3054,7 +3098,9 @@ class TermMatcher {
         const scope = scopeOf ? scopeOf(pageIndex, refs) : "in";
         const word = this.compoundWordAt(raw, rawStart, rawEnd);
         if (scope && (word === null || !longerKeys.some((k) => word.includes(k)))) {
-          occurrences.push(TermMatcher.makeOcc(this.reader, { pageIndex, pageNo, refs, kind: word === null ? "plain" : "compound", word, scope, matched: compact.slice(pos, pos + key.length) }));
+          const occ = TermMatcher.makeOcc(this.reader, { pageIndex, pageNo, refs, kind: word === null ? "plain" : "compound", word, scope, matched: compact.slice(pos, pos + key.length) });
+          occ.near = compact.slice(Math.max(0, pos - W), pos + key.length + W);
+          occurrences.push(occ);
         }
         pos = compact.indexOf(key, pos + 1);
       }
@@ -3153,6 +3199,8 @@ class TermResult {
     const active = occ.filter((o) => this.isActive(o));
     if (lv === "none" && active.length) {
       if (active.some((o) => o.kind === "plain")) return { kind: "notInList", label: t.pendTag.notInList };
+      if (active.every((o) => o.kind === "ruby")) return { kind: "ruby", label: t.pendTag.ruby };
+      if (!active.some((o) => o.kind === "compound")) return { kind: "notInList", label: t.pendTag.notInList };
       return { kind: "compound", label: t.pendTag.compound(active[0].word) };
     }
     if (!occ.length) return { kind: "notFound", label: t.pendTag.notFound };
@@ -3305,6 +3353,22 @@ class TermResult {
       if (!compoundPages.has(o.word)) compoundPages.set(o.word, new Set());
       compoundPages.get(o.word).add(o.pageNo);
     }
+    if (this.entry.aliases?.length) notes.push(t.aliasNote(this.entry.aliases.join("」「")));
+    const special = new Map();
+    for (const o of this.occurrences) {
+      if (!["ruby", "unqualified", "homonym", "bracket"].includes(o.kind) || !this.isActive(o) || this.overrides.has(o.pageNo) || !auto(o.pageNo) || states.get(o.pageNo) !== "hold") continue;
+      if (this.onPage(o.pageNo).some((p) => (p.kind === "plain" || p.kind === "compound") && this.isActive(p))) continue;
+      const k = `${o.kind}\u0000${o.word || ""}\u0000${o.qualifierWord || ""}`;
+      if (!special.has(k)) special.set(k, { o, pages: new Set() });
+      special.get(k).pages.add(o.pageNo);
+    }
+    for (const { o, pages } of special.values()) {
+      const ps = fmt([...pages]);
+      if (o.kind === "ruby") notes.push(t.rubyHitNote(ps));
+      else if (o.kind === "unqualified") notes.push(t.unqualifiedNote(o.word, this.entry.searchKey, ps));
+      else if (o.kind === "homonym") notes.push(t.homonymNote(o.word, o.qualifierWord, ps));
+      else notes.push(t.bracketHitNote(o.word, ps));
+    }
     for (const [word, set] of compoundPages) {
       notes.push(opts.compoundMode === "include" ? t.compoundIncluded(word, fmt([...set])) : t.compoundNote(word, this.entry.term, fmt([...set])));
     }
@@ -3455,7 +3519,15 @@ class ExcelIO {
   static makeEntry(row, raw, list) {
     const normalized = TextNormalizer.normalize(raw);
     const stripped = TextNormalizer.stripBrackets(normalized) || normalized;
-    return { row, term: raw, searchKey: stripped, bracketStripped: stripped !== normalized, list };
+    const aliases = [];
+    let qualifier = "";
+    const m = normalized.match(/^(.*?)[（(]([^）)]+)[）)](.*)$/);
+    if (m && m[1].trim()) {
+      const inner = m[2].trim();
+      if (/^[A-Za-z][A-Za-z0-9&.]*$/.test(inner)) aliases.push(`${inner}${m[3]}`);
+      else if (inner.length >= 2 && !/[0-9]/.test(inner)) qualifier = inner;
+    }
+    return { row, term: raw, searchKey: stripped, bracketStripped: stripped !== normalized, list, aliases, qualifier };
   }
   static parsePages(text) {
     const r = new PageRange(String(text || "").replace(/[、，]/g, ","));
@@ -5236,7 +5308,7 @@ class AiReviewer {
       const occ = result.onPage(p).filter((o) => o.scope === "in" && !o.manual).slice(0, cfg.contextsPerPageRule);
       occ.forEach((o, i) => {
         lines.push(`  ${i + 1}. ${o.context}`);
-        lines.push(`     書式：${this.describe(o)}${o.kind === "compound" ? `／複合語「${o.word}」の一部` : ""}`);
+        lines.push(`     書式：${this.describe(o)}${o.kind === "compound" ? `／複合語「${o.word}」の一部` : o.kind === "ruby" ? "／ルビ（ふりがな）と判定した文字" : ""}`);
       });
     }
     const user = cfg.rulePrompt.replace("{instruction}", instruction.trim()).replace("{term}", result.entry.term).replace("{examples}", lines.join("\n"));
@@ -6489,6 +6561,19 @@ class App {
     this.textCache.set(key, texts);
     return texts;
   }
+  rubyTexts(opts) {
+    const key = "\u0000ruby";
+    if (this.textCache.has(key)) return this.textCache.get(key);
+    const texts = this.pdf.pageTexts({
+      excludeRuby: false,
+      excludeHidden: opts.excludeHidden,
+      allow: null,
+      areaFor: this.searchAreas.hasAny() ? (i) => this.searchAreas.rectFor(i, this.layout) : null,
+      skip: (i) => !this.inSearch(i)
+    });
+    this.textCache.set(key, texts);
+    return texts;
+  }
   cachedFontSet(choice) {
     const key = choice || "";
     if (this.fontSetCache.version !== this.filterVersion) this.fontSetCache = { version: this.filterVersion, map: new Map() };
@@ -6556,9 +6641,41 @@ class App {
   buildResult(entry, choice, opts) {
     const keys = this.entries.map((e) => e.searchKey).filter(Boolean);
     const matcher = new TermMatcher(this.pdf);
-    const inScope = matcher.collect(entry, this.textsFor(opts), keys, this.nombreResult);
-    const outScope = matcher.collect(entry, this.fullTexts(opts), keys, this.nombreResult, (i, refs) => this.scopeOf(i, refs));
-    const result = new TermResult(entry, inScope.concat(outScope), this.nombreResult, choice, {
+    const runAll = (e) => {
+      const inScope = matcher.collect(e, this.textsFor(opts), keys, this.nombreResult);
+      const outScope = matcher.collect(e, this.fullTexts(opts), keys, this.nombreResult, (i, refs) => this.scopeOf(i, refs));
+      const rubyHits = opts.excludeRuby ? matcher.collect(e, this.rubyTexts(opts), keys, this.nombreResult).filter((o) => [...o.parts.keys()].some((it) => it.ruby)) : [];
+      for (const o of rubyHits) { o.kind = "ruby"; o.word = null; }
+      return inScope.concat(outScope, rubyHits);
+    };
+    let occs = runAll(entry);
+    for (const alias of entry.aliases || []) {
+      for (const o of runAll({ ...entry, searchKey: alias })) { o.alias = alias; occs.push(o); }
+    }
+    const base = TextNormalizer.key(entry.searchKey || "");
+    const homonyms = this.entries.filter((e) => e !== entry && TextNormalizer.key(e.searchKey || "") === base);
+    const near = (o, word) => !!word && o.near?.includes(TextNormalizer.key(word));
+    if (homonyms.length) {
+      for (const o of occs) {
+        if (o.kind !== "plain" || o.alias) continue;
+        if (entry.qualifier) {
+          if (!near(o, entry.qualifier)) { o.kind = "unqualified"; o.word = entry.qualifier; }
+        } else {
+          const other = homonyms.find((h) => near(o, h.qualifier));
+          if (other) { o.kind = "homonym"; o.word = other.term; o.qualifierWord = other.qualifier; }
+        }
+      }
+    }
+    if (entry.qualifier) {
+      const pages = new Set(occs.map((o) => o.pageIndex));
+      for (const o of runAll({ ...entry, searchKey: entry.qualifier, aliases: [], qualifier: "" })) {
+        if (pages.has(o.pageIndex) || o.kind !== "plain") continue;
+        o.kind = "bracket";
+        o.word = entry.qualifier;
+        occs.push(o);
+      }
+    }
+    const result = new TermResult(entry, occs, this.nombreResult, choice, {
       rules: () => this.rulesFor(entry.row),
       filterReason: (occ, fontChoice) => this.filterReason(occ, fontChoice),
       version: () => String(this.filterVersion),
@@ -6570,7 +6687,7 @@ class App {
       }
     });
     result.fontLabel = this.fontChoiceLabel(choice);
-    const key = TextNormalizer.fold(entry.searchKey || "");
+    const key = TextNormalizer.key(entry.searchKey || "");
     result.noNombre = key ? this.noNombreTexts(opts).map((x, i) => (x.compact.includes(key) ? i : -1)).filter((i) => i >= 0) : [];
     return result;
   }
@@ -6869,7 +6986,7 @@ class App {
         if (!rects.length) continue;
         const reason = r.exclusionReason(occ);
         const override = r.overrides.get(occ.pageNo);
-        const detail = occ.manual ? t.pdfMarkManual : state === "pending" ? r.pendingTag(occ.pageNo).label : !active && reason ? TermResult.reasonLabel(reason) : override?.reason ? override.reason : occ.kind === "compound" ? t.pdfMarkCompound(occ.word) : "";
+        const detail = occ.manual ? t.pdfMarkManual : state === "pending" ? r.pendingTag(occ.pageNo).label : !active && reason ? TermResult.reasonLabel(reason) : override?.reason ? override.reason : occ.kind === "compound" ? t.pdfMarkCompound(occ.word) : occ.kind === "ruby" ? t.pdfMarkRuby : "";
         marks.push({
           pageIndex: occ.pageIndex,
           state,
