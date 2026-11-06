@@ -402,6 +402,61 @@ textarea:focus { border-color: var(--accent-text); outline: none; box-shadow: 0 
 table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 12px; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { position: sticky; top: 0; z-index: 1; background: var(--head); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+.result-table th { cursor: pointer; user-select: none; }
+.result-table th:hover { color: var(--ink); background: var(--accent-soft); }
+.result-table th::after { content: " ◂"; font-size: 9px; opacity: .45; }
+.result-table.cc-1 th:nth-child(1), .result-table.cc-1 td:nth-child(1),
+.result-table.cc-2 th:nth-child(2), .result-table.cc-2 td:nth-child(2),
+.result-table.cc-3 th:nth-child(3), .result-table.cc-3 td:nth-child(3),
+.result-table.cc-4 th:nth-child(4), .result-table.cc-4 td:nth-child(4),
+.result-table.cc-5 th:nth-child(5), .result-table.cc-5 td:nth-child(5),
+.result-table.cc-6 th:nth-child(6), .result-table.cc-6 td:nth-child(6),
+.result-table.cc-7 th:nth-child(7), .result-table.cc-7 td:nth-child(7),
+.result-table.cc-8 th:nth-child(8), .result-table.cc-8 td:nth-child(8),
+.result-table.cc-9 th:nth-child(9), .result-table.cc-9 td:nth-child(9),
+.result-table.cc-10 th:nth-child(10), .result-table.cc-10 td:nth-child(10),
+.result-table.cc-11 th:nth-child(11), .result-table.cc-11 td:nth-child(11),
+.result-table.cc-12 th:nth-child(12), .result-table.cc-12 td:nth-child(12) { width: 18px; min-width: 18px; max-width: 18px; padding-left: 2px; padding-right: 2px; font-size: 0; overflow: hidden; }
+.result-table.cc-1 th:nth-child(1),
+.result-table.cc-2 th:nth-child(2),
+.result-table.cc-3 th:nth-child(3),
+.result-table.cc-4 th:nth-child(4),
+.result-table.cc-5 th:nth-child(5),
+.result-table.cc-6 th:nth-child(6),
+.result-table.cc-7 th:nth-child(7),
+.result-table.cc-8 th:nth-child(8),
+.result-table.cc-9 th:nth-child(9),
+.result-table.cc-10 th:nth-child(10),
+.result-table.cc-11 th:nth-child(11),
+.result-table.cc-12 th:nth-child(12) { font-size: 0; }
+.result-table.cc-1 th:nth-child(1)::after,
+.result-table.cc-2 th:nth-child(2)::after,
+.result-table.cc-3 th:nth-child(3)::after,
+.result-table.cc-4 th:nth-child(4)::after,
+.result-table.cc-5 th:nth-child(5)::after,
+.result-table.cc-6 th:nth-child(6)::after,
+.result-table.cc-7 th:nth-child(7)::after,
+.result-table.cc-8 th:nth-child(8)::after,
+.result-table.cc-9 th:nth-child(9)::after,
+.result-table.cc-10 th:nth-child(10)::after,
+.result-table.cc-11 th:nth-child(11)::after,
+.result-table.cc-12 th:nth-child(12)::after { content: "▸"; font-size: 11px; opacity: 1; }
+.result-table.cc-1 td:nth-child(1) > *,
+.result-table.cc-2 td:nth-child(2) > *,
+.result-table.cc-3 td:nth-child(3) > *,
+.result-table.cc-4 td:nth-child(4) > *,
+.result-table.cc-5 td:nth-child(5) > *,
+.result-table.cc-6 td:nth-child(6) > *,
+.result-table.cc-7 td:nth-child(7) > *,
+.result-table.cc-8 td:nth-child(8) > *,
+.result-table.cc-9 td:nth-child(9) > *,
+.result-table.cc-10 td:nth-child(10) > *,
+.result-table.cc-11 td:nth-child(11) > *,
+.result-table.cc-12 td:nth-child(12) > * { display: none; }
+.result-table tr.search-hit td.c-term { background: color-mix(in srgb, var(--lamp) 28%, transparent); }
+.term-search { display: flex; align-items: center; gap: 4px; }
+.term-search input { width: 150px; min-height: 26px; }
+.term-search .count { font-size: 11px; color: var(--muted); min-width: 3em; }
 tbody tr { cursor: pointer; }
 tbody tr:hover td { background: var(--control-hover); }
 tbody tr[aria-selected="true"] td { background: var(--accent-soft); }
@@ -411,6 +466,7 @@ td.c-term { font-weight: 700; white-space: nowrap; }
 td.c-pages, td.c-held { font-family: var(--font-num); font-variant-numeric: tabular-nums; min-width: 7em; }
 td.c-held { color: var(--lamp); }
 td.c-note { white-space: pre-wrap; min-width: 16em; }
+td.c-exnote { white-space: pre-wrap; min-width: 14em; color: var(--muted); font-size: 11px; }
 td.c-fixes { white-space: pre-wrap; min-width: 12em; color: var(--accent-text); }
 td.c-pending { white-space: nowrap; }
 .state { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 0 6px; white-space: nowrap; }
@@ -615,6 +671,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
               <div class="prop"><label class="prop-label" for="map-note">備考</label><select id="map-note" data-role="note"></select></div>
               <div class="prop"><label class="prop-label" for="map-pending">保留</label><select id="map-pending" data-role="pending"></select></div>
               <div class="prop"><label class="prop-label" for="map-fixes">訂正箇所</label><select id="map-fixes" data-role="fixes"></select></div>
+              <div class="prop"><label class="prop-label" for="map-exclNote">対象外の理由</label><select id="map-exclNote" data-role="exclNote"></select></div>
               <label class="check top"><input type="checkbox" id="opt-header" checked><span>保存時に見出し行を書き込む</span></label>
               <p class="note" id="header-note"></p>
               <p class="note" id="map-info"></p>
@@ -728,13 +785,17 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
         <div class="split-resizer" id="split-resizer" role="separator" aria-orientation="vertical" tabindex="0" aria-label="結果と目視確認の境目（ドラッグで変更、ダブルクリックで元に戻す）" title="ドラッグで幅を変更（ダブルクリックで元の幅）"></div>
         <div class="panel-head">
           <h2 id="result-title">結果</h2>
+          <div class="term-search">
+            <input type="search" id="term-search" placeholder="用語を検索" aria-label="結果の用語を検索してジャンプ" title="Enterで次の候補、Shift+Enterで前の候補へ移動します" autocomplete="off">
+            <span class="count" id="term-search-count"></span>
+          </div>
           <div class="head-tools" id="summary"></div>
           <button class="quiet detach-btn" id="btn-term-add" disabled>＋ 用語を追加</button>
           <button class="quiet detach-btn" data-detach="result-panel">別ウィンドウ</button>
         </div>
         <div class="table-scroll">
-          <table>
-            <thead><tr><th>行</th><th>用語</th><th>対象フォント</th><th>確定ページ</th><th>申し送り</th><th>対象外</th><th>判定</th><th>AI</th><th>保留</th><th>備考</th><th>訂正箇所</th></tr></thead>
+          <table class="result-table" id="result-table">
+            <thead id="result-head"><tr><th>行</th><th>用語</th><th>対象フォント</th><th>確定ページ</th><th>申し送り</th><th>対象外</th><th>判定</th><th>AI</th><th>保留</th><th>備考</th><th>対象外の理由</th><th>訂正箇所</th></tr></thead>
             <tbody id="result-body"></tbody>
           </table>
         </div>
@@ -852,6 +913,8 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
         <ul>
           <li>パネルの境目をドラッグすると、幅を変えられます。</li>
           <li>「別ウィンドウ」を押すと、そのパネルを別のウィンドウに切り離せます。画面が2枚あるときに便利です。</li>
+          <li>結果の上の「用語を検索」に語を入れると、その用語までジャンプしてPDFを開きます。Enterで次の候補へ移ります。ひらがなで読みを入れても探せます。</li>
+          <li>結果の表の列の見出しをクリックすると、その列だけを細く折りたためます。もう一度クリックすると元に戻ります。</li>
           <li>右上の丸いマーク（PDF・ノンブル・Excelなど）が緑になれば、その準備ができています。</li>
         </ul>
       </section>
@@ -864,7 +927,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <li><span class="step-no">3</span><div><b>検索する範囲とページを決める</b><p>柱（ページ上の章名など）を拾わないように、「検索範囲を指定」で本文の部分だけを囲みます。「検索するページ」には本文のページ（例：<code>1-250</code>）を入れ、索引のページを外します。</p></div></li>
           <li><span class="step-no">4</span><div><b>対象のフォントを選ぶ（必要なとき）</b><p>「太字の語だけを索引に拾う」本なら、「3 対象のフォント」で「本文中の太字」などを押します。PDFにあるフォント・文字サイズ・色ごとに、拾うかどうかを選べます。</p><p class="tip">検索した後に変えても、検索し直さずに結果へすぐ反映されます。PDFを見ながら調整できます。</p></div></li>
           <li><span class="step-no">5</span><div><b>Excelを読み込み、列を確かめる</b><p>用語のExcelを読み込み、「4 索引用語のExcel」で列を確認します。初期値は次のとおりです。</p>
-            <table class="guide-table"><tr><th>B</th><td>用語</td><th>C</th><td>確定ページ</td><th>D</th><td>申し送りページ</td><th>E</th><td>備考</td></tr><tr><th>F</th><td>対象外ページ</td><th>G</th><td>保留</td><th>H</th><td>訂正箇所</td><th></th><td></td></tr></table></div></li>
+            <table class="guide-table"><tr><th>B</th><td>用語</td><th>C</th><td>確定ページ</td><th>D</th><td>申し送りページ</td><th>E</th><td>備考</td></tr><tr><th>F</th><td>対象外ページ</td><th>G</th><td>保留</td><th>H</th><td>訂正箇所</td><th>I</th><td>対象外の理由</td></tr></table></div></li>
           <li><span class="step-no">6</span><div><b>「検索して転記」を押す</b><p>左下の青いボタンです。結果の表に、用語ごとのページが並びます。判定が「要確認」の用語は、申し送りがあるので目視で確かめてください。</p></div></li>
           <li><span class="step-no">7</span><div><b>目視で確かめる</b><p>結果の用語をクリックすると、右にPDFのページが出て、拾った箇所が強調されます。詳しくは「目視確認のしかた」をご覧ください。</p></div></li>
           <li><span class="step-no">8</span><div><b>保存する</b><p>「結果をExcelで保存」を押すと、<code>元のファイル名_さくいん.xlsx</code> を保存します。作業の設定も一緒に保存されるので、後日このファイルから続きを始められます。</p></div></li>
@@ -887,7 +950,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <tr><th>扱い</th><th>意味</th><th>色</th><th>書き込む列</th></tr>
           <tr><td><span class="g-tag adopt">確定</span></td><td>索引に載せるページ</td><td>赤</td><td>C（確定ページ）</td></tr>
           <tr><td><span class="g-tag hold">申し送り</span></td><td>拾うべきか要確認のページ。備考に「拾う場合、p.○追加。」と書きます</td><td>青</td><td>D（申し送りページ）</td></tr>
-          <tr><td><span class="g-tag exclude">対象外</span></td><td>見つかったが索引に載せないページ（書式・範囲外・手動で外したもの）</td><td>緑</td><td>F（対象外ページ）</td></tr>
+          <tr><td><span class="g-tag exclude">対象外</span></td><td>見つかったが索引に載せないページ（書式・範囲外・手動で外したもの）。理由はI列に分けて書きます</td><td>緑</td><td>F（対象外ページ）</td></tr>
           <tr><td><span class="g-tag pending">保留</span></td><td>リストと検索結果が食い違っていて、まだ振り分けていないページ（既存のリストを確かめるときだけ）</td><td>オレンジ</td><td>G（保留）</td></tr>
         </table>
         <p>「黒人奴隷」の中の「奴隷」のように、長い語の一部として見つかったものは、初期設定では申し送りになります。「5 検索の設定」で「ページに含める」を選ぶと、確定に含めます。</p>
@@ -1124,8 +1187,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 </script>
 <script>
 const USER_SETTINGS = {
-  defaultColumns: { term: 2, pages: 3, held: 4, note: 5, excluded: 6, pending: 7, fixes: 8 },
-  headerWords: ["用語", "単語", "語句", "索引語", "さくいん", "索引", "項目", "ページ", "頁", "備考", "申し送り", "保留", "訂正箇所"],
+  defaultColumns: { term: 2, pages: 3, held: 4, note: 5, excluded: 6, pending: 7, fixes: 8, exclNote: 9 },
+  headerWords: ["用語", "単語", "語句", "索引語", "さくいん", "索引", "項目", "ページ", "頁", "備考", "申し送り", "保留", "訂正箇所", "対象外の理由"],
   extraColumns: 3,
   compoundMaxSpan: 8,
   outputSuffix: "_さくいん",
@@ -1189,6 +1252,8 @@ const USER_SETTINGS = {
   zoomLevels: [1, 1.5, 2, 3, 4],
   pickMinSize: 0.004,
   guideSpyOffset: 80,
+  termSearchDebounceMs: 250,
+  maxTableColumns: 12,
   pagePrefixes: { before: ["巻頭", "口絵"], after: ["巻末", "付録"] },
   pageGroupSpan: 100000,
   guideNavLockMs: 1200,
@@ -1204,7 +1269,7 @@ const USER_SETTINGS = {
   maxRangeSpan: 5000,
   detach: { width: 960, height: 820, placeholderWidth: 150 },
   hitPad: { x: 0.15, y: 0.25 },
-  blockGap: { sizeRatio: 1.3, sameLine: 0.5, inlineSpace: 0.8, lineJump: 2.5 },
+  blockGap: { sizeRatio: 1.3, sameLine: 0.5, inlineSpace: 0.8, lineJump: 2.5, lineSizeRatio: 1.1, shortLine: 1.5 },
   grade: { high: 95, mid: 80, garbledWeight: 20, nonJapaneseThreshold: 0.2, nonJapanesePenalty: 0.3 },
   radicalMap: { "⺟": "母", "⺠": "民", "⻁": "虎", "⻄": "西", "⻆": "角", "⻑": "長", "⻘": "青", "⻝": "食", "⻣": "骨", "⻤": "鬼", "⻨": "麦", "⻩": "黄", "⻫": "斉", "⻬": "斎", "⻭": "歯", "⻯": "竜", "⻲": "亀" },
   patterns: {
@@ -1372,11 +1437,12 @@ const USER_SETTINGS = {
       ruby: "ルビ", rubyExclude: "除いて検索する", rubyInclude: "含めて検索する", hidden: "見えない文字（透明テキスト）",
       format: "ページの書き方", separator: (sep) => `区切り「${sep.trim() || sep}」`, ranges: "、連続ページは範囲でまとめる",
       globalRules: "書式で対象外（全用語）", perTerm: "用語ごとの設定", none: "なし",
+      secExcluded: "対象外にした書式", noNombre: "ノンブルのないページ", secTarget: "対象にした書式", preset: "選んだ絞り込み", custom: "個別に選択", allCount: (n) => `すべて（${n}種類）`, someCount: (n, total) => `${total}種類中 ${n}種類`, exFonts: "対象外のフォント", exSizes: "対象外の文字サイズ", exColors: "対象外の文字色", exByReason: "対象外になった箇所（理由別）",
       termFont: (label) => `フォント「${label}」`, termRules: (labels) => `書式で対象外「${labels}」`,
       terms: "用語の数", termCounts: (n, ok, review, ex, none) => `${n}件（確定 ${ok}、要確認 ${review}、対象外のみ ${ex}、見つからず ${none}）`,
       changes: "手動などでの変更", changeCounts: (m, a, p) => `目視確認 ${m}ページ、AI校正 ${a}ページ、未振り分けの保留 ${p}ページ`,
       listBase: "突合せ確認", listBaseOn: "リストを基準に突き合わせ", listBaseOff: "アプリの判定で転記",
-      colPending: "保留", colFixes: "訂正箇所",
+      colPending: "保留", colFixes: "訂正箇所", colExclNote: "対象外の理由",
       aiModel: "AI校正のモデル", aiNone: "使用なし",
       instruction: "AIへの作業指示", ruleChanges: "指示によるAIの振り分け"
     },
@@ -1388,7 +1454,8 @@ const USER_SETTINGS = {
     restored: (n, missing) => `前回の作業状態を復元しました（用語 ${n}件）。${missing ? `リストから見つからなかった用語：${missing}件。` : ""}`,
     excludeReason: { pageRange: "検索ページ外", area: "検索範囲外", font: "対象フォント外", size: "対象サイズ外", color: "対象色外", manual: "目視確認で対象外", ai: "AI校正で対象外", list: "リストの記載に従い対象外" },
     excludeStyle: (label) => `書式「${label}」で対象外`,
-    excludedNote: (pages, label) => `対象外：p.${pages}（${label}）`,
+    excludedNote: (pages, label) => `p.${pages}　${label}`,
+    excludedSummary: (terms, pages, names) => `${terms}語・${pages}ページ（${names}）`,
     menuHead: (word, p) => `p.${PageNo.label(p)}「${word}」`,
     menuPage: "このページを",
     stateAdopt: "確定にする",
@@ -1449,7 +1516,7 @@ const USER_SETTINGS = {
     hitLabel: (w) => `「${w}」の操作メニューを開く`,
     hitTitle: (w, style) => `${w}（${style}）`,
     viewerHint: "強調した箇所をクリックすると、ページの扱いや書式ごとの対象外を選べます。",
-    headerLabels: { term: "用語", pages: "確定ページ", held: "申し送りページ", excluded: "対象外ページ", note: "備考", pending: "保留", fixes: "訂正箇所" },
+    headerLabels: { term: "用語", pages: "確定ページ", held: "申し送りページ", excluded: "対象外ページ", note: "備考", pending: "保留", fixes: "訂正箇所", exclNote: "対象外の理由" },
     headerNoteInsert: "1行目に見出し行を挿入して保存します（データは1行下にずれます）。",
     headerNoteOverwrite: (row) => `${row}行目の見出しを、確定ページ・申し送りページ・対象外ページ・備考に書き換えて保存します。`,
     detach: "別ウィンドウ",
@@ -1506,12 +1573,16 @@ const USER_SETTINGS = {
     resultTitle: "結果",
     sampleBadge: "見本",
     filterAll: "すべて", filterOk: "確定", filterReview: "要確認", filterNone: "見つからず", filterPending: "保留あり",
-    compoundNote: (word, term, pages) => `${word}という用語も「${term}」のさくいんに拾うべきか要確認。\n今回は拾わなかったが、拾う場合、p.${pages}追加。`,
+    compoundNote: (word, term, pages) => `${word}という用語も「${term}」のさくいんに拾うべきか要確認。拾う場合、p.${pages}追加。`,
     compoundIncluded: (word, pages) => `${word}（p.${pages}）も含めて拾った。不要なら削除。`,
     manualExcluded: (pages) => `p.${pages}は目視確認で外した。拾う場合、p.${pages}追加。`,
     manualAdopted: (pages) => `p.${pages}は目視確認で拾った。`,
     bracketNote: (searched) => `括弧内を除いた「${searched}」で検索した。`,
     estimatedNote: (pages) => `p.${pages}はノンブルを読み取れず前後から推定した番号。要確認。`,
+    noNombreNote: (pdfPages) => `PDF ${pdfPages}枚目　ノンブルがないページのため対象外（索引から参照できない）`,
+    termSearchNone: "見つかりません",
+    termSearchCount: (n, total) => `${n} / ${total}`,
+    colToggle: (label) => `クリックで「${label}」の列を折りたたむ／広げる`,
     notFound: "PDF内に見つからず。表記ゆれ（漢字／かな、旧字体、送り仮名など）を確認のこと。",
     notFoundFont: "選んだフォント・範囲では見つからず。表記ゆれ、またはフォントの選び方を確認のこと。",
     viewerEmpty: "結果の用語をクリックすると、PDFの該当ページを表示して、拾った箇所を強調します。上の「ページ」にノンブルを入れると、好きなページを表示できます。",
@@ -1554,7 +1625,7 @@ const USER_SETTINGS = {
     hitAdoptLabel: (p) => `p.${PageNo.label(p)} を外して申し送りへ`,
     hitHoldLabel: (p) => `p.${PageNo.label(p)} を拾って確定へ`,
     notesAfterRun: [
-      "確定ページ・申し送りページ・対象外ページ・備考・保留・訂正箇所を、指定した列（初期値はC・D・F・E・G・H列）に書き込みます。リストを基準にしたときは、検索結果との過不足を「保留」に分け、振り分けるまでリストの列は変えません。",
+      "確定ページ・申し送りページ・対象外ページ・備考・保留・訂正箇所・対象外の理由を、指定した列（初期値はC・D・F・E・G・H・I列）に書き込みます。備考には要確認の事項だけを1件1行で書き、対象外の理由は別の列に分けます。リストを基準にしたときは、検索結果との過不足を「保留」に分け、振り分けるまでリストの列は変えません。",
       "備考の列に元々書かれている内容は残し、その後ろに追記します。"
     ],
     notesBefore: [
@@ -1562,7 +1633,7 @@ const USER_SETTINGS = {
     ]
   },
   sample: [
-    { row: 2, term: "奴隷", pages: "12, 45, 46, 103", held: "88", status: "review", note: "黒人奴隷という用語も「奴隷」のさくいんに拾うべきか要確認。\n今回は拾わなかったが、拾う場合、p.88追加。" },
+    { row: 2, term: "奴隷", pages: "12, 45, 46, 103", held: "88", status: "review", note: "黒人奴隷という用語も「奴隷」のさくいんに拾うべきか要確認。拾う場合、p.88追加。", exclNote: "" },
     { row: 3, term: "産業革命", pages: "64, 65, 71", held: "", status: "ok", note: "" },
     { row: 4, term: "ルター（マルティン）", pages: "30", held: "31", status: "review", note: "括弧内を除いた「ルター」で検索した。\np.31は目視確認で外した。拾う場合、p.31追加。" },
     { row: 5, term: "囲い込み", pages: "", held: "", status: "none", note: "PDF内に見つからず。表記ゆれ（漢字／かな、旧字体、送り仮名など）を確認のこと。" }
@@ -1813,6 +1884,36 @@ class PdfReader {
         }
       }
       prev = it;
+    }
+    PdfReader.markHardBreaks(items);
+  }
+  static markHardBreaks(items) {
+    const r = USER_SETTINGS.blockGap;
+    const lines = [];
+    let cur = null;
+    let prev = null;
+    for (const it of items) {
+      if (it.ruby || it.hidden) continue;
+      const size = prev ? Math.max(prev.size, it.size) : it.size;
+      const newLine = !prev || prev.vertical !== it.vertical || (!it.vertical ? Math.abs(prev.py - it.py) >= size * r.sameLine : Math.abs(prev.px - it.px) >= size * r.sameLine);
+      if (newLine) {
+        cur = { first: it, vertical: it.vertical, end: it.vertical ? it.py - it.ph : it.px + it.pw, minSize: it.size, maxSize: it.size };
+        lines.push(cur);
+      } else {
+        cur.end = it.vertical ? Math.min(cur.end, it.py - it.ph) : Math.max(cur.end, it.px + it.pw);
+        cur.minSize = Math.min(cur.minSize, it.size);
+        cur.maxSize = Math.max(cur.maxSize, it.size);
+      }
+      prev = it;
+    }
+    for (let k = 1; k < lines.length; k++) {
+      const a = lines[k - 1];
+      const b = lines[k];
+      if (b.first.gapBefore || a.vertical !== b.vertical) continue;
+      const size = Math.max(a.maxSize, b.maxSize);
+      const sizeChange = size / Math.min(a.minSize, b.minSize) > r.lineSizeRatio;
+      const short = !a.vertical ? a.end < b.end - size * r.shortLine : a.end > b.end + size * r.shortLine;
+      if (sizeChange || short) b.first.gapBefore = true;
     }
   }
   static inRect(it, rect) {
@@ -3135,7 +3236,7 @@ class TermResult {
     }
     return parts.join(opts.separator);
   }
-  exclusionNotes(excludedPages, fmt) {
+  exclusionGroups(excludedPages) {
     const t = USER_SETTINGS.text;
     const groups = new Map();
     for (const p of excludedPages) {
@@ -3147,12 +3248,12 @@ class TermResult {
       else if (o && o.source === "rule") label = t.excludeRule(o.reason);
       else {
         const occ = this.onPage(p).map((x) => this.exclusionReason(x)).find(Boolean);
-        label = !occ ? t.excludeReason.manual : TermResult.reasonLabel(occ);
+        label = occ ? TermResult.reasonLabel(occ) : this.listStateOf(p) === "exclude" ? t.excludeReason.list : t.excludeReason.manual;
       }
       if (!groups.has(label)) groups.set(label, []);
       groups.get(label).push(p);
     }
-    return [...groups].map(([label, pages]) => t.excludedNote(fmt(pages), label));
+    return groups;
   }
   compute(opts) {
     const t = USER_SETTINGS.text;
@@ -3203,19 +3304,21 @@ class TermResult {
     for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "rule" && (o.state === "adopt" || o.state === "hold")).sort((a, b) => a[0] - b[0])) {
       notes.push(o.state === "hold" ? t.ruleHold(p, o.reason) : t.ruleAdopt(p, o.reason));
     }
-    const excludedNoted = quiet ? [] : excluded.filter(auto);
-    if (excludedNoted.length) notes.push(...this.exclusionNotes(excludedNoted, fmt));
+    const exclGroups = this.exclusionGroups(excluded);
+    const noNombreAll = this.noNombre || [];
+    const exclNote = [...exclGroups].map(([label, ps]) => t.excludedNote(fmt(ps), label)).concat(noNombreAll.length ? [t.noNombreNote(TextNormalizer.formatList(noNombreAll.map((i) => i + 1), USER_SETTINGS.listLimit))] : []).join("\n");
     const estimatedHits = [...new Set(this.occurrences.filter((o) => this.nombre.estimated.has(o.pageIndex) && states.get(o.pageNo) === "adopt" && auto(o.pageNo)).map((o) => o.pageNo))];
     if (estimatedHits.length) notes.push(t.estimatedNote(fmt(estimatedHits)));
-    if (!pages.length) notes.push(t.notFound);
-    const status = pendingPages.length ? "pending" : held.length || estimatedHits.length ? "review" : adopt.length ? "ok" : excluded.length ? "excluded" : "none";
+    const noNombre = this.noNombre || [];
+    if (!pages.length && !noNombre.length) notes.push(t.notFound);
+    const status = pendingPages.length ? "pending" : held.length || estimatedHits.length ? "review" : adopt.length ? "ok" : excluded.length || noNombre.length ? "excluded" : "none";
     const ai = this.aiSummary(opts);
-    const raw = { adopt, hold: held, exclude: excluded, pending: pendingItems };
+    const raw = { adopt, hold: held, exclude: excluded, pending: pendingItems, exclGroups, noNombre: noNombreAll };
     return {
       row: this.entry.row, term: this.entry.term, termChanged: !!(this.entry.edited || this.entry.added),
       pages: fmt(adopt), held: fmt(held), excluded: fmt(excluded),
       pending: pendingItems.map(([p, tag]) => t.pendingItem(p, tag.label)).join("、"), pendingCount: pendingItems.length,
-      status, note: notes.join("\n"), fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
+      status, note: notes.join("\n"), exclNote, fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
       fixes: this.ctx.fixes ? this.ctx.fixes(this, raw) : "", raw
     };
   }
@@ -3490,7 +3593,7 @@ class ExcelIO {
   async export(rows, { header, buildState } = {}) {
     const wb = await this.openWorkbook();
     const sheet = wb.worksheets[this.mapping.sheet];
-    const { term, pages, held, note, excluded, pending, fixes } = this.mapping;
+    const { term, pages, held, note, excluded, pending, fixes, exclNote } = this.mapping;
     const offset = header ? this.writeHeader(sheet) : 0;
     const notesOut = new Map();
     const wrap = (cell) => { cell.alignment = { ...(cell.alignment || {}), wrapText: true, vertical: cell.alignment?.vertical || "top" }; };
@@ -3501,6 +3604,11 @@ class ExcelIO {
       if (excluded) row.getCell(excluded).value = r.excluded;
       if (r.termChanged && term) row.getCell(term).value = r.term;
       if (pending) row.getCell(pending).value = r.pending || null;
+      if (exclNote) {
+        const cell = row.getCell(exclNote);
+        cell.value = r.exclNote || null;
+        if (r.exclNote) wrap(cell);
+      }
       if (fixes) {
         const cell = row.getCell(fixes);
         cell.value = r.fixes || null;
@@ -3529,7 +3637,7 @@ class ColumnMapper {
   constructor(app) {
     this.app = app;
     this.$ = (id) => UI.byId(id);
-    this.selects = ["term", "pages", "held", "excluded", "note", "pending", "fixes"].map((role) => this.$(`map-${role}`));
+    this.selects = ["term", "pages", "held", "excluded", "note", "pending", "fixes", "exclNote"].map((role) => this.$(`map-${role}`));
     this.handlers = {
       sheet: () => {
         const io = this.app.excel;
@@ -3614,12 +3722,62 @@ class ResultView {
         if (sel) this.app.setTermFont(parseInt(sel.dataset.fontRow, 10), sel.value);
       }
     };
+    this.searchPos = 0;
+    this.searchTimer = 0;
+    this.collapsed = new Set(Prefs.get("collapsedCols", []));
+    this.handlers.head = (e) => {
+      const th = e.target.closest("th");
+      if (!th) return;
+      const n = [...th.parentElement.children].indexOf(th) + 1;
+      if (this.collapsed.has(n)) this.collapsed.delete(n); else this.collapsed.add(n);
+      Prefs.set("collapsedCols", [...this.collapsed]);
+      this.applyCollapse();
+    };
+    this.handlers.searchInput = () => {
+      clearTimeout(this.searchTimer);
+      this.searchTimer = setTimeout(() => this.search(0), USER_SETTINGS.termSearchDebounceMs);
+    };
+    this.handlers.searchKey = (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      clearTimeout(this.searchTimer);
+      this.search(e.shiftKey ? -1 : 1);
+    };
     this.body = UI.byId("result-body");
     this.summary = UI.byId("summary");
+    this.table = UI.byId("result-table");
+    this.head = UI.byId("result-head");
+    this.searchInput = UI.byId("term-search");
+    this.head.addEventListener("click", this.handlers.head);
+    this.searchInput.addEventListener("input", this.handlers.searchInput);
+    this.searchInput.addEventListener("keydown", this.handlers.searchKey);
+    for (const th of this.head.querySelectorAll("th")) th.title = USER_SETTINGS.text.colToggle(th.textContent);
+    this.applyCollapse();
     this.summary.addEventListener("click", this.handlers.filter);
     this.body.addEventListener("click", this.handlers.row);
     this.body.addEventListener("keydown", this.handlers.key);
     this.body.addEventListener("change", this.handlers.font);
+  }
+  applyCollapse() {
+    for (let n = 1; n <= USER_SETTINGS.maxTableColumns; n++) this.table.classList.toggle(`cc-${n}`, this.collapsed.has(n));
+  }
+  search(step) {
+    const t = USER_SETTINGS.text;
+    const count = UI.byId("term-search-count");
+    const key = (v) => TextNormalizer.fold(TextNormalizer.normalize(v)).replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
+    const q = key(this.searchInput.value);
+    for (const tr of this.body.querySelectorAll("tr.search-hit")) tr.classList.remove("search-hit");
+    if (!q || this.isSample) { count.textContent = ""; return; }
+    const matches = [];
+    this.rows.forEach((r, i) => { if (key(r.term).includes(q)) matches.push(i); });
+    if (!matches.length) { count.textContent = t.termSearchNone; return; }
+    this.searchPos = step ? (this.searchPos + step + matches.length) % matches.length : 0;
+    const idx = matches[this.searchPos];
+    if (!matches.every((i) => this.passes(this.rows[i]))) { this.filter = "all"; this.render(); }
+    for (const i of matches) this.body.querySelector(`tr[data-index="${i}"]`)?.classList.add("search-hit");
+    count.textContent = t.termSearchCount(this.searchPos + 1, matches.length);
+    this.app.selectTerm(idx);
+    this.body.querySelector(`tr[data-index="${idx}"]`)?.scrollIntoView({ block: "center" });
   }
   show(rows, isSample) {
     this.rows = rows;
@@ -3702,7 +3860,7 @@ class ResultView {
     tr.dataset.index = index;
     if (this.isSample) tr.className = "sample"; else tr.tabIndex = 0;
     tr.setAttribute("aria-selected", String(index === this.selected));
-    const cells = [["c-row", r.row], ["c-term", r.term], ["c-font", null], ["c-pages", r.pages || "—"], ["c-held", r.held || ""], ["c-excluded", r.excluded || ""], ["c-state", null], ["c-ai", null], ["c-pending", null], ["c-note", r.note], ["c-fixes", r.fixes || ""]];
+    const cells = [["c-row", r.row], ["c-term", r.term], ["c-font", null], ["c-pages", r.pages || "—"], ["c-held", r.held || ""], ["c-excluded", r.excluded || ""], ["c-state", null], ["c-ai", null], ["c-pending", null], ["c-note", r.note], ["c-exnote", r.exclNote || ""], ["c-fixes", r.fixes || ""]];
     for (const [cls, val] of cells) {
       const td = document.createElement("td");
       td.className = cls;
@@ -3736,6 +3894,10 @@ class ResultView {
     return tr;
   }
   destroy() {
+    clearTimeout(this.searchTimer);
+    this.head.removeEventListener("click", this.handlers.head);
+    this.searchInput.removeEventListener("input", this.handlers.searchInput);
+    this.searchInput.removeEventListener("keydown", this.handlers.searchKey);
     this.summary.removeEventListener("click", this.handlers.filter);
     this.body.removeEventListener("click", this.handlers.row);
     this.body.removeEventListener("keydown", this.handlers.key);
@@ -5721,7 +5883,7 @@ class App {
     const t = USER_SETTINGS.text;
     const m = this.excel.mapping;
     if (!this.excel.workbook) return "";
-    const outs = [m.pages, m.held, m.excluded, m.note, m.pending, m.fixes].filter(Boolean);
+    const outs = [m.pages, m.held, m.excluded, m.note, m.pending, m.fixes, m.exclNote].filter(Boolean);
     if (outs.includes(m.term)) return t.mapSameAsTerm;
     if (new Set(outs).size !== outs.length) return t.mapDuplicate;
     return "";
@@ -5908,21 +6070,30 @@ class App {
     rows.push([L.savedAt, new Date(st.savedAt).toLocaleString("ja-JP")]);
     rows.push([L.pdf, `${st.pdf.name}（${st.pdf.pages}ページ）`]);
     rows.push([L.sheet, `${st.mapping.sheetName}（${L.startRow(st.mapping.start)}）`]);
-    rows.push([L.columns, [`${L.colTerm}：${col(st.mapping.term)}`, `${L.colPages}：${col(st.mapping.pages)}`, `${L.colHeld}：${col(st.mapping.held)}`, `${L.colExcluded}：${col(st.mapping.excluded)}`, `${L.colNote}：${col(st.mapping.note)}`, `${L.colPending}：${col(st.mapping.pending)}`, `${L.colFixes}：${col(st.mapping.fixes)}`].join("\n")]);
+    rows.push([L.columns, [`${L.colTerm}：${col(st.mapping.term)}`, `${L.colPages}：${col(st.mapping.pages)}`, `${L.colHeld}：${col(st.mapping.held)}`, `${L.colExcluded}：${col(st.mapping.excluded)}`, `${L.colNote}：${col(st.mapping.note)}`, `${L.colPending}：${col(st.mapping.pending)}`, `${L.colFixes}：${col(st.mapping.fixes)}`, `${L.colExclNote}：${col(st.mapping.exclNote)}`].join("\n")]);
     rows.push([L.secPages, null]);
     rows.push([L.nombre, s.serial ? L.serial(s.firstPage) : areas(s.nombreAreas) || L.notSet]);
     rows.push([L.firstSide, s.firstSide === "left" ? t.sideLeft : t.sideRight]);
     if (!s.serial) rows.push([L.missing, s.skipMissing ? L.missingSkip : L.missingEstimate]);
     rows.push([L.area, areas(s.searchAreas) || L.wholePage]);
     rows.push([L.pageRange, s.pageRange || L.all]);
+    rows.push([L.secTarget, null]);
+    const listAll = (sel, total, fmt) => (sel.length ? `${sel.length === total ? L.allCount(total) : L.someCount(sel.length, total)}\n${sel.map(fmt).join("\n")}` : L.none);
+    const preset = this.fontFilter.matchingPreset();
+    rows.push([L.preset, preset ? t.fontPresetLabel[preset] : L.custom]);
+    rows.push([L.fonts, listAll(s.fonts, this.fontFilter.fonts.length, (x) => x)]);
+    rows.push([L.sizes, listAll(s.sizes, this.styleFilter.sizes.length, (x) => `${x}pt`)]);
+    rows.push([L.colors, !s.colorAnalyzed ? L.colorNone : listAll(s.colors, this.styleFilter.colors.length, (x) => (x === StyleFilter.UNKNOWN ? t.colorUnknown : x))]);
     rows.push([L.secFilter, null]);
-    rows.push([L.fonts, allOr(s.fonts, this.fontFilter.fonts.length, (x) => x)]);
-    rows.push([L.sizes, allOr(s.sizes, this.styleFilter.sizes.length, (x) => `${x}pt`)]);
-    rows.push([L.colors, !s.colorAnalyzed ? L.colorNone : allOr(s.colors, this.styleFilter.colors.length, (x) => (x === StyleFilter.UNKNOWN ? t.colorUnknown : x))]);
     rows.push([L.compound, s.compoundMode === "include" ? L.compoundInclude : L.compoundNote]);
     rows.push([L.ruby, s.ruby ? L.rubyExclude : L.rubyInclude]);
     rows.push([L.hidden, s.hidden === false ? L.rubyInclude : L.rubyExclude]);
     rows.push([L.format, `${L.separator(s.separator)}${s.useRanges ? L.ranges : ""}`]);
+    rows.push([L.secExcluded, null]);
+    const notIn = (all, sel, fmt) => { const out = all.filter((x) => !sel.includes(x)); return out.length ? out.map(fmt).join("\n") : L.none; };
+    rows.push([L.exFonts, notIn(this.fontFilter.fonts.map((f) => f.name), s.fonts, (x) => x)]);
+    rows.push([L.exSizes, notIn(this.styleFilter.sizes.map((x) => x.key), s.sizes, (x) => `${x}pt`)]);
+    rows.push([L.exColors, !s.colorAnalyzed ? L.colorNone : notIn(this.styleFilter.colors.map((x) => x.key), s.colors, (x) => (x === StyleFilter.UNKNOWN ? t.colorUnknown : x))]);
     rows.push([L.globalRules, st.globalRules.length ? st.globalRules.map((r) => StyleRule.label(r)).join("\n") : L.none]);
     const perTerm = st.terms.filter((x) => x.fontChoice || x.rules?.length).map((x) => {
       const parts = [];
@@ -5931,8 +6102,25 @@ class App {
       return `${x.term}（${x.row}行目）：${parts.join("／")}`;
     });
     rows.push([L.perTerm, perTerm.length ? perTerm.join("\n") : L.none]);
-    rows.push([L.secResult, null]);
     const computed = this.results.map((r) => r.compute(this.currentOptions));
+    const byReason = new Map();
+    for (const r of computed) {
+      for (const [label, ps] of r.raw.exclGroups) {
+        if (!byReason.has(label)) byReason.set(label, { terms: [], pages: 0 });
+        const g = byReason.get(label);
+        g.terms.push(r.term);
+        g.pages += ps.length;
+      }
+      if (r.raw.noNombre.length) {
+        if (!byReason.has(L.noNombre)) byReason.set(L.noNombre, { terms: [], pages: 0 });
+        const g = byReason.get(L.noNombre);
+        g.terms.push(r.term);
+        g.pages += r.raw.noNombre.length;
+      }
+    }
+    const limit = USER_SETTINGS.listLimit;
+    rows.push([L.exByReason, byReason.size ? [...byReason].sort((a, b) => b[1].pages - a[1].pages).map(([label, g]) => `${label}：${t.excludedSummary(g.terms.length, g.pages, TextNormalizer.formatList(g.terms, limit))}`).join("\n") : L.none]);
+    rows.push([L.secResult, null]);
     const count = (status) => computed.filter((r) => r.status === status).length;
     rows.push([L.terms, L.termCounts(computed.length, count("ok"), count("review") + count("pending"), count("excluded"), count("none"))]);
     const manual = st.terms.reduce((n, x) => n + x.overrides.filter(([, o]) => o.source === "manual").length + (x.added?.length || 0), 0);
@@ -6161,6 +6349,14 @@ class App {
     this.textCache.set(key, texts);
     return texts;
   }
+  noNombreTexts(opts) {
+    const key = "\u0000nonombre";
+    if (this.textCache.has(key)) return this.textCache.get(key);
+    const nums = this.nombreResult.numbers;
+    const texts = this.pdf.pageTexts({ excludeRuby: opts.excludeRuby, excludeHidden: opts.excludeHidden, allow: null, areaFor: null, skip: (i) => nums[i] !== null && nums[i] !== undefined && PageNo.number(nums[i]) >= 1 });
+    this.textCache.set(key, texts);
+    return texts;
+  }
   scopeOf(pageIndex, refs) {
     if (!this.inSearch(pageIndex)) return "pageRange";
     const area = this.searchAreas.hasAny() ? this.searchAreas.rectFor(pageIndex, this.layout) : null;
@@ -6185,6 +6381,8 @@ class App {
       fixes: (r, raw) => this.fixesFor(r, raw)
     });
     result.fontLabel = this.fontChoiceLabel(choice);
+    const key = TextNormalizer.fold(entry.searchKey || "");
+    result.noNombre = key ? this.noNombreTexts(opts).map((x, i) => (x.compact.includes(key) ? i : -1)).filter((i) => i >= 0) : [];
     return result;
   }
   async run() {
