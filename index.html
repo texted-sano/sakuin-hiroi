@@ -134,6 +134,12 @@ details[open] > summary::before { transform: rotate(90deg); }
 .psec-title .no { font-family: var(--font-num); color: var(--accent-text); }
 .psec-body { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 8px; }
 .psec.locked .psec-body { opacity: .5; pointer-events: none; }
+.psec-title { cursor: pointer; user-select: none; }
+.psec-title::after { content: "▾"; margin-left: auto; font-size: 11px; color: var(--muted); }
+.psec-title:hover { color: var(--ink); }
+.psec.closed .psec-title::after { content: "▸"; }
+.psec.closed .psec-title { border-bottom: 0; }
+.psec.closed .psec-body { display: none; }
 .prop { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 8px; align-items: center; }
 .prop-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
 .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
@@ -174,6 +180,25 @@ body.resizing canvas, body.resizing .page-stage { pointer-events: none; }
 .chip-list:empty { display: none; }
 .chip-list button.chip { gap: 5px; }
 .chip-count { font-family: var(--font-num); font-size: 10px; opacity: .75; }
+.size-box { border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--surface-2); max-height: 240px; overflow: auto; }
+.size-table { width: 100%; min-width: 0; font-size: 12px; border-collapse: collapse; }
+.size-table th { position: sticky; top: 0; z-index: 1; padding: 3px 8px; font-size: 10px; background: var(--head); }
+.size-table th button { min-height: 20px; padding: 0 6px; font-size: 10px; }
+.size-table td { padding: 3px 8px; vertical-align: middle; border-bottom: 1px solid var(--line); }
+.size-table tbody tr:last-child td { border-bottom: 0; }
+.size-table tbody tr { cursor: pointer; }
+.size-table tbody tr:hover td { background: var(--control-hover); }
+.size-table tr.off td { color: var(--muted); }
+.size-table td:first-child, .size-table th:first-child { width: 1%; white-space: nowrap; }
+.size-table input[type="checkbox"] { width: 28px; height: 16px; }
+.size-table input[type="checkbox"]::before { width: 12px; height: 12px; }
+.size-table input[type="checkbox"]:checked::before { transform: translateX(12px); }
+.size-table td.size { font-family: var(--font-num); white-space: nowrap; }
+.size-table td.num { text-align: right; font-family: var(--font-num); white-space: nowrap; width: 1%; }
+.size-table td.share { width: 45%; }
+.size-table .bar { display: inline-block; vertical-align: middle; height: 7px; border-radius: 3px; background: var(--accent); max-width: calc(100% - 46px); }
+.size-table tr.off .bar { background: var(--line-strong); }
+.size-table .pct { display: inline-block; margin-left: 6px; font-family: var(--font-num); font-size: 10px; color: var(--muted); vertical-align: middle; }
 .swatch { width: 11px; height: 11px; border-radius: 2px; border: 1px solid var(--line-strong); flex: none; }
 .swatch.unknown { background: repeating-linear-gradient(45deg, var(--line) 0 2px, transparent 2px 4px); }
 .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none; }
@@ -197,7 +222,7 @@ td.c-font { white-space: nowrap; }
 .page-chips button.ai-diff[aria-current="true"]::after { color: inherit; }
 
 /* ===== EXCLUDE / MENU ===== */
-.page-chips button.exclude { border-color: var(--hit-exclude-c); color: var(--hit-exclude-c); border-style: dotted; text-decoration: line-through; }
+.page-chips button.exclude { border-color: var(--hit-exclude-c); color: var(--hit-exclude-c); border-style: dotted; }
 .page-chips button.exclude[aria-current="true"] { background: var(--hit-exclude-c); border-color: var(--hit-exclude-c); color: #fff; text-decoration: none; }
 .state.excluded { background: var(--surface); color: var(--muted); border: 1px dotted var(--line-strong); }
 td.c-excluded { font-family: var(--font-num); color: var(--muted); }
@@ -309,6 +334,32 @@ textarea:focus { border-color: var(--accent-text); outline: none; box-shadow: 0 
 .viewer-nav .goto label { font-size: 12px; color: var(--muted); }
 .viewer-nav .goto input { width: 72px; }
 .viewer-nav #viewer-pick { margin-left: auto; }
+.viewer-nav .state-seg button { min-width: 64px; font-weight: 700; }
+.viewer-nav .aim-nav button { min-width: 0; }
+.nav-break { flex-basis: 100%; height: 0; }
+.nav-break:has(+ .aim-label[hidden]) { display: none; }
+.viewer-nav .aim-label { white-space: normal; overflow: visible; }
+.aim-label { font-size: 11px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--radius-s); padding: 2px 8px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.viewer-nav .state-seg button[data-state="adopt"][aria-pressed="true"] { background: var(--hit-adopt-c); border-color: var(--hit-adopt-c); color: #fff; }
+.viewer-nav .state-seg button[data-state="hold"][aria-pressed="true"] { background: var(--hit-hold-c); border-color: var(--hit-hold-c); color: #fff; }
+.viewer-nav .state-seg button[data-state="exclude"][aria-pressed="true"] { background: var(--hit-exclude-c); border-color: var(--hit-exclude-c); color: #fff; }
+.viewer-nav .state-seg button[data-state="pending"][aria-pressed="true"] { background: var(--hit-pending-c); border-color: var(--hit-pending-c); color: #fff; }
+.viewer-nav .key-mode button { font-size: 11px; min-height: 26px; }
+kbd.key-hint { display: inline-block; margin-left: 5px; padding: 0 4px; border: 1px solid currentColor; border-radius: 3px; font: 600 9px/1.5 var(--mono, monospace); opacity: .7; vertical-align: 1px; }
+kbd.key-hint:empty { display: none; }
+.key-dialog { border: 1px solid var(--line-strong); border-radius: var(--radius-l); background: var(--surface); color: var(--ink); padding: 18px 20px; width: min(680px, calc(100vw - 32px)); }
+.key-dialog::backdrop { background: rgba(0, 0, 0, .5); }
+.key-dialog h2 { font-size: 15px; margin: 0 0 6px; }
+.key-dialog label.check { margin-top: 4px; }
+.key-scope { display: flex; flex-direction: column; gap: 4px; margin: 6px 0 4px; }
+.key-scope .seg button { min-height: 28px; padding: 3px 6px; }
+.key-scope .sub-title + .seg { margin-top: 0; }
+.key-scope .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.key-table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+.key-table th { text-align: left; font-weight: 400; padding: 4px 6px; background: transparent; color: var(--ink); position: static; letter-spacing: 0; font-size: 13px; }
+.key-table td { padding: 3px; width: 140px; }
+.key-slot { width: 100%; min-height: 28px; font-family: var(--mono, monospace); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.key-slot.recording { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .viewer-nav #viewer-pick[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 .viewer-nav .note { flex-basis: 100%; }
 .viewer-nav .note:empty { display: none; }
@@ -328,6 +379,13 @@ textarea:focus { border-color: var(--accent-text); outline: none; box-shadow: 0 
 .detached-body { height: 100%; }
 .detached-body > .detached-panel { flex: 1 1 auto; min-height: 0; height: 100%; }
 .detached-panel .side-resizer, .detached-panel .split-resizer { display: none; }
+.detached-panel .fold-btn { display: none; }
+.folded > :not(.panel-head) { display: none !important; }
+.folded > .panel-head { flex-direction: column; flex-wrap: nowrap; height: 100%; padding: 8px 2px; gap: 10px; align-items: center; justify-content: flex-start; border-bottom: 0; cursor: pointer; }
+.folded > .panel-head * { display: none; }
+.folded > .panel-head h2 { display: block; writing-mode: vertical-rl; letter-spacing: .2em; }
+.folded > .panel-head :has(> .fold-btn) { display: flex; }
+.folded > .panel-head .fold-btn { display: inline-flex; writing-mode: vertical-rl; padding: 8px 0; min-height: 0; width: 22px; border: 1px solid var(--line-strong); }
 
 /* ===== STATUS ===== */
 .status-panel { flex: none; padding: 6px 10px; display: flex; flex-direction: column; gap: 4px; background: var(--surface); border-bottom: 1px solid var(--line); }
@@ -456,6 +514,8 @@ th { position: sticky; top: 0; z-index: 1; background: var(--head); color: var(-
 .cell-editor .ex-label { display: flex; flex-direction: column; gap: 2px; font-size: 10px; color: var(--muted); }
 .cell-editor .ex-label input { font-size: 12px; min-height: 24px; }
 .term-ex { display: block; margin-top: 2px; font-size: 10px; font-weight: 400; color: var(--muted); }
+.term-ex.term-sw { color: var(--accent-text); }
+.cell-editor .ex-label select { font-size: 12px; min-height: 24px; width: 100%; }
 .result-table td.edited { box-shadow: inset 3px 0 0 var(--hit-pending-c); background: color-mix(in srgb, var(--hit-pending-c) 9%, transparent); }
 .result-table td.edited::before { content: "手"; display: inline-block; margin-right: 4px; padding: 0 3px; border-radius: 2px; background: var(--hit-pending-c); color: #fff; font-size: 9px; font-weight: 700; line-height: 1.5; vertical-align: 1px; }
 .cell-editor { display: flex; flex-direction: column; gap: 4px; min-width: 14em; }
@@ -465,6 +525,21 @@ th { position: sticky; top: 0; z-index: 1; background: var(--head); color: var(-
 .cell-editor .row-btns span { font-size: 10px; color: var(--muted); }
 .result-table tr.search-hit td.c-term { background: color-mix(in srgb, var(--lamp) 28%, transparent); }
 .term-search { display: flex; align-items: center; gap: 4px; }
+#result-panel > .panel-head .fold-btn { margin-left: auto; }
+.filter-bar { flex: none; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 4px 10px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.filter-label { font-size: 11px; font-weight: 700; color: var(--muted); }
+.filter-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.filter-bar input[type="search"] { width: 170px; min-height: 26px; margin-left: 14px; }
+.filter-bar select { width: auto; min-height: 26px; font-size: 12px; padding: 1px 6px; }
+.filter-count { font-size: 11px; color: var(--muted); }
+.result-table th { position: sticky; }
+.col-grip { position: absolute; top: 0; right: 0; width: 7px; height: 100%; cursor: col-resize; z-index: 2; touch-action: none; }
+.col-grip::after { content: ""; position: absolute; top: 4px; bottom: 4px; right: 2px; width: 2px; border-radius: 1px; background: transparent; }
+.result-table th:hover .col-grip::after, .col-grip.dragging::after { background: var(--accent-text); }
+.result-table.fixed td { overflow: hidden; overflow-wrap: anywhere; min-width: 0; }
+.result-table.fixed td.c-term, .result-table.fixed td.c-pending { white-space: normal; }
+.result-table.fixed .cell-editor { min-width: 0; }
+.result-table.fixed select.row-font { width: 100%; min-width: 0; }
 .term-search input { width: 150px; min-height: 26px; }
 .term-search .count { font-size: 11px; color: var(--muted); min-width: 3em; }
 tbody tr { cursor: pointer; }
@@ -510,12 +585,20 @@ td.c-pending { white-space: nowrap; }
 .hit:hover:not(:disabled) { border-color: var(--hc); background: color-mix(in srgb, var(--hc) 28%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc) 35%, transparent); }
 .hit.focus { animation: hit-pop .45s cubic-bezier(.2, .9, .3, 1.4) both, hit-ring 1.1s ease-out .45s 3; }
 .hit:not(.focus) { opacity: .75; }
+.hit.aim { opacity: 1; }
+.aim-arrow { --hc: var(--hit-adopt-c); position: absolute; z-index: 4; width: 22px; height: 22px; margin: -19px 0 0 -3px; pointer-events: none; color: var(--hc); filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1px #fff); animation: aim-nudge 1s ease-in-out infinite alternate; }
+.aim-arrow.hold { --hc: var(--hit-hold-c); }
+.aim-arrow.exclude { --hc: var(--hit-exclude-c); }
+.aim-arrow.pending { --hc: var(--hit-pending-c); }
+.aim-arrow svg { display: block; width: 100%; height: 100%; }
+@keyframes aim-nudge { from { transform: translate(0, 0); } to { transform: translate(3px, -3px); } }
+@media (prefers-reduced-motion: reduce) { .aim-arrow { animation: none; } }
 @keyframes hit-pop { 0% { transform: scale(2.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes hit-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--hc) 75%, transparent); } 100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--hc) 0%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .hit.focus { animation: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc) 45%, transparent); } }
 #viewer-zoom { min-width: 0; }
 #viewer-zoom button { flex: none; min-width: 30px; }
-#viewer-zoom-label { min-width: 48px !important; font-family: var(--font-num); }
+#viewer-zoom-label { min-width: 48px !important; font-family: var(--font); font-variant-numeric: tabular-nums; line-height: 1; padding-top: 0; padding-bottom: 0; }
 .l-color { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
 .l-color input[type="color"] { width: 18px; height: 14px; padding: 0; border: 1px solid var(--line-strong); border-radius: 3px; background: none; cursor: pointer; }
 .l-color input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
@@ -594,7 +677,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
     <div class="side-resizer" id="side-resizer" role="separator" aria-orientation="vertical" tabindex="0" aria-label="設定パネルの幅（ドラッグで変更、ダブルクリックで元に戻す）" title="ドラッグで幅を変更（ダブルクリックで元の幅）"></div>
     <div class="panel-head side-head">
       <h2>設定</h2>
-      <div class="head-tools"><button class="quiet detach-btn" data-detach="settings-panel">別ウィンドウ</button></div>
+      <div class="head-tools"><button class="quiet detach-btn fold-btn" data-fold="settings-panel">折りたたむ</button><button class="quiet detach-btn" data-detach="settings-panel">別ウィンドウ</button></div>
     </div>
     <div class="side-scroll">
       <section class="psec">
@@ -646,7 +729,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <div class="font-list" id="font-list"></div>
           <p class="note" id="font-status"></p>
           <p class="sub-title">文字サイズ</p>
-          <div class="chip-list" id="size-list"></div>
+          <div class="size-box" id="size-list"></div>
           <p class="sub-title">文字色</p>
           <div class="row"><button id="btn-analyze-color" disabled>文字色を解析</button></div>
           <p class="note" id="color-status"></p>
@@ -801,9 +884,17 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
             <input type="search" id="term-search" placeholder="用語を検索" aria-label="結果の用語を検索してジャンプ" title="Enterで次の候補、Shift+Enterで前の候補へ移動します" autocomplete="off">
             <span class="count" id="term-search-count"></span>
           </div>
-          <div class="head-tools" id="summary"></div>
           <button class="quiet detach-btn" id="btn-term-add" disabled>＋ 用語を追加</button>
+          <button class="quiet detach-btn fold-btn" data-fold="result-panel">折りたたむ</button>
           <button class="quiet detach-btn" data-detach="result-panel">別ウィンドウ</button>
+        </div>
+        <div class="filter-bar" id="filter-bar">
+          <span class="filter-label">判定</span>
+          <div class="filter-chips" id="summary"></div>
+          <input type="search" id="row-filter" placeholder="この語を含む行だけ表示" aria-label="語で絞り込む" autocomplete="off">
+          <select id="row-filter-col" aria-label="絞り込む列"></select>
+          <span class="filter-count" id="row-filter-count"></span>
+          <button class="quiet detach-btn" id="row-filter-clear" hidden>絞り込みを解除</button>
         </div>
         <div class="table-scroll">
           <table class="result-table" id="result-table">
@@ -823,6 +914,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
             <label class="l-color"><input type="color" id="hit-color-pending" data-hit-color="pending" aria-label="保留の強調色"><span>保留</span></label>
             <button class="quiet detach-btn" id="hit-colors-reset" title="初期の色に戻す">色を戻す</button>
           </div>
+          <button class="quiet detach-btn fold-btn" data-fold="viewer-panel">折りたたむ</button>
           <button class="quiet detach-btn" data-detach="viewer-panel">別ウィンドウ</button>
         </div>
         <div class="viewer-bar" id="viewer-bar" hidden>
@@ -840,19 +932,32 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
               <button data-zoom="0" id="viewer-zoom-label" title="全体を表示">全体</button>
               <button data-zoom="1" aria-label="拡大">＋</button>
             </div>
-            <button id="viewer-prev" aria-label="前の該当ページ" title="前の該当ページ">◀</button>
-            <button id="viewer-next" aria-label="次の該当ページ" title="次の該当ページ">▶</button>
+            <button id="viewer-prev" data-key="prevHit" aria-label="前の該当ページ" title="前の該当ページ">◀</button>
+            <button id="viewer-next" data-key="nextHit" aria-label="次の該当ページ" title="次の該当ページ">▶</button>
           </div>
         </div>
         <div class="viewer-nav" id="viewer-nav" hidden>
-          <button id="viewer-page-prev" title="前のページ（PDFの順）">‹ 前のページ</button>
-          <button id="viewer-page-next" title="次のページ（PDFの順）">次のページ ›</button>
+          <button id="viewer-page-prev" data-key="prevPage" title="前のページ（PDFの順）">‹ 前のページ</button>
+          <button id="viewer-page-next" data-key="nextPage" title="次のページ（PDFの順）">次のページ ›</button>
+          <div class="seg state-seg" id="viewer-state" role="group" aria-label="このページの扱い" hidden>
+            <button data-state="adopt" data-key="adopt">確定</button>
+            <button data-state="hold" data-key="hold">申し送り</button>
+            <button data-state="exclude" data-key="exclude">対象外</button>
+            <button data-state="pending" data-key="pending" hidden>保留</button>
+          </div>
+          <div class="seg aim-nav" id="viewer-aim-nav" role="group" aria-label="語の移動" hidden>
+            <button id="viewer-aim-prev" data-key="prevOcc" title="前の語">‹ 前の語</button>
+            <button id="viewer-aim-next" data-key="nextOcc" title="次の語">次の語 ›</button>
+          </div>
           <form class="goto" id="viewer-goto-form" autocomplete="off">
             <label for="viewer-goto">ページ</label>
             <input type="text" id="viewer-goto" inputmode="numeric" placeholder="例：88">
             <button type="submit">移動</button>
           </form>
           <button id="viewer-pick" aria-pressed="false" title="ページ上の文字をドラッグで囲むと、選択中の用語の確定ページに追加します">文字をドラッグして追加</button>
+          <button id="viewer-keys" title="ショートカットキーと、キーで変える範囲を設定する">キー設定</button>
+          <span class="nav-break" aria-hidden="true"></span>
+          <span class="aim-label" id="viewer-aim" hidden></span>
           <span class="note" id="viewer-goto-note"></span>
         </div>
         <div class="page-chips" id="viewer-chips" hidden></div>
@@ -864,12 +969,6 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <div class="viewer-spread" id="viewer-spread" hidden></div>
         </div>
         <div class="viewer-foot" id="viewer-foot" hidden>
-          <div class="seg" id="viewer-state" role="group" aria-label="このページの扱い">
-            <button data-state="adopt">確定</button>
-            <button data-state="hold">申し送り</button>
-            <button data-state="exclude">対象外</button>
-            <button data-state="pending" hidden>保留</button>
-          </div>
           <button id="viewer-ai-apply" hidden></button>
           <span class="note" id="viewer-hint"></span>
         </div>
@@ -926,8 +1025,10 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <li>パネルの境目をドラッグすると、幅を変えられます。</li>
           <li>「別ウィンドウ」を押すと、そのパネルを別のウィンドウに切り離せます。画面が2枚あるときに便利です。</li>
           <li>結果の上の「用語を検索」に語を入れると、その用語までジャンプしてPDFを開きます。Enterで次の候補へ移ります。ひらがなで読みを入れても探せます。</li>
-          <li>結果の表の列の見出しをクリックすると、その列だけを細く折りたためます。もう一度クリックすると元に戻ります。</li>
-          <li>結果の表のセルをダブルクリックすると、その場で書き換えられます（用語・確定ページ・申し送り・対象外・備考・対象外の理由・訂正箇所）。書き換えたセルには「手」の印が付き、Excelでは薄いオレンジで塗られます。用語のセルでは「検索除外ワード」も指定でき、その語に当たる箇所を検索から外せます（例：「インド」の除外ワードに「インド洋」）。</li>
+          <li>結果の表の列の見出しをクリックすると、その列だけを細く折りたためます。もう一度クリックすると元に戻ります。見出しの右端をドラッグすると列の幅を変えられます（右端をダブルクリックで元の幅）。</li>
+          <li>表のすぐ上の「判定」（確定・要確認など）や「この語を含む行だけ表示」の欄で、表示する行を絞り込めます。語で絞り込むときは探す列も選べます。</li>
+          <li>各パネルの「折りたたむ」で、そのパネルを細い帯にして隠せます。帯の「開く」で元に戻ります。</li>
+          <li>結果の表のセルをダブルクリックすると、その場で書き換えられます（用語・確定ページ・申し送り・対象外・備考・対象外の理由・訂正箇所）。書き換えたセルには「手」の印が付き、Excelでは薄いオレンジで塗られます。用語のセルでは、その用語だけの「検索ワード」（用語とは別の語で検索する。例：用語「あいうえお」を「かきくけこ」で検索）、「検索除外ワード」（その語に当たる箇所を検索から外す。例：「インド」の除外ワードに「インド洋」）、「対象フォント」も指定できます。</li>
           <li>右上の丸いマーク（PDF・ノンブル・Excelなど）が緑になれば、その準備ができています。</li>
         </ul>
       </section>
@@ -953,6 +1054,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <div class="guide-card"><strong>強調箇所をクリック</strong><p>メニューが開き、このページを確定・申し送り・対象外にできます。同じ書式（フォント・サイズ・色）の箇所をまとめて対象外にすることもできます。</p></div>
           <div class="guide-card"><strong>ページを移動する</strong><p>上の「ページ」にノンブルを入れてEnterで、好きなページを開けます。「#12」のように入れると、PDFの12枚目を開きます。「◀ ▶」は、その用語が見つかったページだけをたどります。</p></div>
           <div class="guide-card"><strong>拾われなかったページを足す</strong><p>そのページを開き、「文字をドラッグして追加」を押してから、本文の該当する文字をドラッグで囲みます。選んでいる用語の確定ページに入ります。</p></div>
+          <div class="guide-card"><strong>キーボードで操作する</strong><p>PageDown・→で次の該当ページ、PageUp・←で前の該当ページ、Shiftを押しながらだとPDFの順に1ページずつ移動します。↓↑で次・前の用語です。ページを開くと、そのページの判定のもとになっている語の右上に矢印が付きます（矢印の色はその語の判定の色）。1・2・3で確定・申し送り・対象外を決めます。変える範囲（この語だけ／このページのこの書式／このページ／この書式（全ページ））と、Enterで移る単位（書式ごと／1語ずつ）は「キー設定」で選べます（初期設定は「このページのこの書式を」と「書式ごと」）。Enterで次の語へ、Shift+EnterまたはBackspaceで前の語へ移ります（「前の語」「次の語」ボタンでも移れます）。ページ内の語を終えると、Enterで次の該当ページへ、最後の語では次の用語へ進みます（結果表も自動でスクロールします）。「◀」「▶」も、最初・最後のページでは前・次の用語へ移ります。4は保留（ページ単位）です。キーは「キー設定」で自分用に変えられます。ボタンの横にキーを表示することもできます。</p></div>
           <div class="guide-card"><strong>見やすくする</strong><p>「単ページ／見開き」で表示を切り替えられます。「＋」で拡大し、「全体」で元に戻します。強調の色は、パネル上部の色見本を押すと変えられます。</p></div>
         </div>
       </section>
@@ -1213,7 +1315,7 @@ const USER_SETTINGS = {
   minBox: 0.004,
   sizeStep: 0.5,
   color: { scale: 3, ascent: 0.85, descent: 0.15, minContrast: 90, coreRatio: 0.75, ringPx: 2, levelStep: 51 },
-  panels: { sideDefault: 340, sideMin: 260, sideMaxRatio: 0.5, splitDefault: 50, splitMin: 25, splitMax: 80, keyStepPx: 20, keyStepPercent: 2 },
+  panels: { foldedWidth: 30, sideDefault: 340, sideMin: 260, sideMaxRatio: 0.5, splitDefault: 50, splitMin: 25, splitMax: 80, keyStepPx: 20, keyStepPercent: 2 },
   ai: {
     defaultUrl: "http://localhost:1234/v1",
     knownServers: [
@@ -1244,6 +1346,13 @@ const USER_SETTINGS = {
   fontSampleLength: 18,
   resizeDebounceMs: 150,
   menuWidth: 264,
+  menuGap: 4,
+  keyScopeDefault: "pagestyle",
+  keyUnitDefault: "style",
+  hitPadPx: 3,
+  hitMergeGap: 0.004,
+  menuMinHeight: 160,
+  aimArrowSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4 6 18"/><path d="M6 8v10h10"/></svg>',
   legacySheets: ["校正結果"],
   boldWeight: 600,
   contrastWeight: 500,
@@ -1274,7 +1383,24 @@ const USER_SETTINGS = {
   qualifierSlack: 2,
   termSearchDebounceMs: 250,
   editFill: "FFFDE3C8",
+  shortcuts: {
+    nextHit: ["PageDown", "ArrowRight"],
+    prevHit: ["PageUp", "ArrowLeft"],
+    nextPage: ["Shift+PageDown", "Shift+ArrowRight"],
+    nextOcc: ["Enter"],
+    prevOcc: ["Shift+Enter", "Backspace"],
+    prevPage: ["Shift+PageUp", "Shift+ArrowLeft"],
+    nextTerm: ["ArrowDown"],
+    prevTerm: ["ArrowUp"],
+    adopt: ["1"],
+    hold: ["2"],
+    exclude: ["3"],
+    pending: ["4"]
+  },
+  reservedKeys: ["Escape", "Tab", "Shift+Tab", "Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z", "Ctrl+S", "Ctrl+P", "Ctrl+W", "Ctrl+R", "F5", "Meta+C", "Meta+V", "Meta+Q", "Meta+W", "Meta+R"],
   maxTableColumns: 12,
+  colMinWidth: 36,
+  colFoldedWidth: 18,
   pagePrefixes: { before: ["巻頭", "口絵"], after: ["巻末", "付録"] },
   pageGroupSpan: 100000,
   guideNavLockMs: 1200,
@@ -1349,6 +1475,10 @@ const USER_SETTINGS = {
     rangeAll: "すべてのページを検索します。索引ページなどを外す場合は、ページ番号で範囲を入力してください。巻頭・巻末のページは、範囲に「巻末1-4」のように書いたときだけ絞り込みます。",
     rangeSet: (text, count) => `ページ番号 ${text} を検索します（PDF ${count}枚分）。`,
     rangeInvalid: "書き方を確認してください。例：1-238、12-240, 245、巻頭1-8",
+    sizeAll: "すべて",
+    sizeHeads: ["文字サイズ", "文字数", "割合"],
+    sizeBody: "本文",
+    sizeCheck: (k) => `${k}ptを対象にする`,
     chipAll: "すべて",
     colorUnknown: "判定できず",
     colorNotAnalyzed: "文字色は未解析です。解析すると色で絞り込めます。",
@@ -1459,7 +1589,7 @@ const USER_SETTINGS = {
       ruby: "ルビ", rubyExclude: "除いて検索する", rubyInclude: "含めて検索する", hidden: "見えない文字（透明テキスト）", spatial: "1字ずつ置かれた文字をつなげる", on: "する", off: "しない",
       format: "ページの書き方", separator: (sep) => `区切り「${sep.trim() || sep}」`, ranges: "、連続ページは範囲でまとめる",
       globalRules: "書式で対象外（全用語）", perTerm: "用語ごとの設定", none: "なし",
-      secExcluded: "対象外にした書式", termExclude: (w) => `検索除外ワード「${w}」`, edited: "手修正したセル", editedCount: (n) => `${n}か所（Excelでは薄いオレンジで塗っています）`, noNombre: "ノンブルのないページ", secTarget: "対象にした書式", preset: "選んだ絞り込み", custom: "個別に選択", allCount: (n) => `すべて（${n}種類）`, someCount: (n, total) => `${total}種類中 ${n}種類`, exFonts: "対象外のフォント", exSizes: "対象外の文字サイズ", exColors: "対象外の文字色", exByReason: "対象外になった箇所（理由別）",
+      secExcluded: "対象外にした書式", termExclude: (w) => `検索除外ワード「${w}」`, termSearch: (w) => `検索ワード「${w}」`, edited: "手修正したセル", editedCount: (n) => `${n}か所（Excelでは薄いオレンジで塗っています）`, noNombre: "ノンブルのないページ", secTarget: "対象にした書式", preset: "選んだ絞り込み", custom: "個別に選択", allCount: (n) => `すべて（${n}種類）`, someCount: (n, total) => `${total}種類中 ${n}種類`, exFonts: "対象外のフォント", exSizes: "対象外の文字サイズ", exColors: "対象外の文字色", exByReason: "対象外になった箇所（理由別）",
       termFont: (label) => `フォント「${label}」`, termRules: (labels) => `書式で対象外「${labels}」`,
       terms: "用語の数", termCounts: (n, ok, review, ex, none) => `${n}件（確定 ${ok}、要確認 ${review}、対象外のみ ${ex}、見つからず ${none}）`,
       changes: "手動などでの変更", changeCounts: (m, a, p) => `目視確認 ${m}ページ、AI校正 ${a}ページ、未振り分けの保留 ${p}ページ`,
@@ -1472,6 +1602,8 @@ const USER_SETTINGS = {
     stateNeedPdf: "同じPDFを読み込むと、自動で続きから始めます。",
     stateMismatch: (prevPages, nowPages) => `読み込んだPDFが前回と違う可能性があるため、自動では復元しませんでした（前回 ${prevPages}ページ／今回 ${nowPages}ページ、または内容の違い）。このPDFで続けるときは、下のボタンを押してください。結果がずれる場合があります。`,
     stateRestored: "前回の作業状態から続けています。",
+    settingsOnlyApplied: "PDFが前回と違うため、ページごとの判定は復元せず、ノンブルの位置・検索範囲・対象の書式・用語ごとの設定だけを設定シートから読み込みました。内容を確かめてから「検索して転記」を押してください。",
+    settingsOnlyNote: "\nノンブルの位置・検索範囲・対象の書式・用語ごとの設定は、設定シートから読み込み済みです。",
     restoring: "前回の作業状態を復元しています…",
     restored: (n, missing) => `前回の作業状態を復元しました（用語 ${n}件）。${missing ? `リストから見つからなかった用語：${missing}件。` : ""}`,
     excludeReason: { edit: "手修正で対象外", pageRange: "検索ページ外", area: "検索範囲外", font: "対象フォント外", size: "対象サイズ外", color: "対象色外", manual: "目視確認で対象外", ai: "AI校正で対象外", list: "リストの記載に従い対象外" },
@@ -1543,6 +1675,11 @@ const USER_SETTINGS = {
     headerNoteInsert: "1行目に見出し行を挿入して保存します（データは1行下にずれます）。",
     headerNoteOverwrite: (row) => `${row}行目の見出しを、確定ページ・申し送りページ・対象外ページ・備考に書き換えて保存します。`,
     detach: "別ウィンドウ",
+    fold: "折りたたむ",
+    secToggle: "クリックでこの項目を折りたたむ／広げる",
+    unfold: "開く",
+    foldTitle: (name) => `「${name}」を折りたたんで隠します`,
+    unfoldTitle: (name) => `「${name}」を開きます`,
     attachBack: "ここに戻す",
     detachedHere: "別ウィンドウで表示中",
     popupBlocked: "別ウィンドウを開けませんでした。ブラウザのポップアップを許可してください。",
@@ -1595,6 +1732,9 @@ const USER_SETTINGS = {
     mapInfo: (n, sheet) => `「${sheet}」から用語 ${n}件を読み込みました。`,
     resultTitle: "結果",
     sampleBadge: "見本",
+    filterCols: [["all", "すべての列"], ["term", "用語"], ["pages", "確定ページ"], ["held", "申し送り"], ["excluded", "対象外"], ["note", "備考"], ["exclNote", "対象外の理由"], ["fixes", "訂正箇所"], ["pending", "保留"]],
+    filterShown: (n, total) => `${total}件中 ${n}件を表示`,
+    colWidthTitle: "ドラッグで列の幅を変更（ダブルクリックで元の幅）",
     filterAll: "すべて", filterOk: "確定", filterReview: "要確認", filterNone: "見つからず", filterPending: "保留あり",
     compoundNote: (word, term, pages) => `${word}という用語も「${term}」のさくいんに拾うべきか要確認。拾う場合、p.${pages}追加。`,
     compoundIncluded: (word, pages) => `${word}（p.${pages}）も含めて拾った。不要なら削除。`,
@@ -1608,6 +1748,17 @@ const USER_SETTINGS = {
     excludeWordsNote: (words) => `「${words}」に当たる箇所は除外して検索した。`,
     excludeWordHit: (w) => `除外ワード「${w}」に一致`,
     excludeWordsLabel: "検索除外ワード（、で区切る）",
+    searchWordsLabel: "検索ワード（、で区切る。空欄なら用語のまま検索）",
+    searchWordsHint: "例：用語が「あいうえお」でも、ここに「かきくけこ」と書くと「かきくけこ」で検索します。複数書くと、どれかに当たったページを拾います。",
+    searchWordsPlaceholder: "例：かきくけこ",
+    excludeWordsPlaceholder: "例：インド洋、東インド会社",
+    searchWordsNote: (words) => `「${words}」で検索した。`,
+    searchWordsTag: (w) => `検索：${w}`,
+    termFontLabel: "対象フォント（この用語だけ）",
+    termSettingsSet: (term, parts) => `「${term}」の${parts.join("・")}を変えました。`,
+    termPartSearch: "検索ワード",
+    termPartExclude: "検索除外ワード",
+    termPartFont: "対象フォント",
     excludeWordsHint: "例：インド洋、東インド会社。この語に当たる箇所や、括弧内がこの語の場合の検索を外します。",
     excludeWordsSet: (term, words) => words ? `「${term}」の検索除外ワードを「${words}」にしました。` : `「${term}」の検索除外ワードを外しました。`,
     bracketAdoptNote: (q, pages) => `p.${pages}は括弧内の「${q}」の表記で拾った。`,
@@ -1618,6 +1769,50 @@ const USER_SETTINGS = {
     noNombreNote: (pdfPages) => `PDF ${pdfPages}枚目　ノンブルがないページのため対象外（索引から参照できない）`,
     termSearchNone: "見つかりません",
     editMark: "手修正",
+    keyTitle: "ショートカットキーの設定",
+    keyLead: "変えたい欄を押してから、使いたいキーを押してください（Shiftなどとの組み合わせも使えます）。Backspaceでそのキーを外し、Escでやめます。設定はこのブラウザに保存されます。",
+    keyActions: { nextHit: "次の該当ページ", prevHit: "前の該当ページ", nextPage: "次のページ（PDFの順）", prevPage: "前のページ（PDFの順）", nextTerm: "次の用語", prevTerm: "前の用語", nextOcc: "次の語（ページ内→次の該当ページ）", prevOcc: "前の語（ページ内→前の該当ページ）", adopt: "確定にする", hold: "申し送りにする", exclude: "対象外にする", pending: "保留にする（突合せ確認のとき）" },
+    keyNames: { ArrowRight: "→", ArrowLeft: "←", ArrowUp: "↑", ArrowDown: "↓", PageDown: "PgDn", PageUp: "PgUp", Space: "Space", Ctrl: "Ctrl", Alt: "Alt", Meta: "Cmd", Shift: "Shift" },
+    keyPress: "キーを押してください…",
+    keyNone: "（なし）",
+    keyReset: "初期設定に戻す",
+    keyResetDone: "初期設定に戻しました。",
+    keyClose: "閉じる",
+    keyAutoNext: "確定・申し送り・対象外をキーで決めたら、自動で次へ進む（「このページを」なら次の該当ページ、それ以外は次の語）",
+    keyScopeTitle: "キー（と「確定」「申し送り」「対象外」ボタン）で変える範囲",
+    keyScopes: { occ: "この語だけを", pagestyle: "このページのこの書式を", page: "このページを", style: "この書式を（全ページ）" },
+    keyScopeNote: {
+      occ: "矢印の付いた語だけを変えます。同じページのほかの語は変わりません。ページの判定は、ページ内の語の判定から決まります。",
+      pagestyle: "表示中のページの中で、矢印の付いた語と同じ書式（フォント・サイズ・色）の語だけを変えます。別の書式の語や、ほかのページは変わりません。",
+      page: "表示中のページをまとめて変えます（ページ内のすべての語）。",
+      style: "矢印の付いた語と同じ書式（フォント・サイズ・色）の、この用語の語をすべてのページでまとめて変えます。"
+    },
+    keyUnitTitle: "Enter・Shift+Enter（次の語・前の語）で移る単位",
+    keyUnits: { style: "書式ごとに移る", word: "1語ずつ移る" },
+    keyUnitNote: {
+      style: "同じページで同じ書式の語をひとまとまりにして移ります。矢印は、まとまりの語すべてに付きます。",
+      word: "語を1つずつ移ります。"
+    },
+    scopeTag: (label) => `・範囲：${label}`,
+    keyPageStyleDone: (p, style, term, n, state, pageState) => `p.${PageNo.label(p)}の書式「${style}」の「${term}」${n}か所を${state}にしました（ページの判定：${pageState}）。`,
+    keyStyleDone: (style, term, n, pages, state) => `書式「${style}」の「${term}」${n}か所（${pages}ページ）を${state}にしました。`,
+    keyShowHints: "ボタンの横に割り当てたキーを表示する",
+    keySet: (action, key) => `「${action}」を ${key} にしました。`,
+    keyCleared: (action) => `「${action}」のキーを外しました。`,
+    keyMoved: (key, other) => `（${key} は「${other}」から外しました）`,
+    keyReserved: (key) => `${key} はブラウザや入力で使うキーのため設定できません。`,
+    keyOccDone: (p, word, state, pageState) => `p.${PageNo.label(p)}の「${word}」を${state}にしました（ページの判定：${pageState}）。`,
+    aimLabel: (i, n, word, pageState) => `語 ${i}/${n}「${word}」・ページ：${pageState}`,
+    aimStyleLabel: (i, n, word, count, style, pageState) => `書式 ${i}/${n}「${word}」${count > 1 ? `ほか${count - 1}語` : ""}（${style}）・ページ：${pageState}`,
+    aimManualStyle: "手動で追加",
+    aimTitle: "枠で囲んだ語が、キーやボタンで決める対象です。Enterで次の語、ページ内の語を終えると次の該当ページへ進みます。",
+    aimLast: "最後の用語の、最後の該当箇所です。",
+    termMoved: (term) => `用語「${term}」に移りました。`,
+    aimFirst: "最初の該当箇所です。",
+    menuOcc: "この語だけを",
+    menuPageStyle: (n) => `このページのこの書式を（${n}語）`,
+    keyNoState: "このページには、この用語の該当箇所がないため決められません。",
+    keyStateDone: (p, state) => `p.${PageNo.label(p)}を${state}にしました。`,
     editOk: "決定",
     editRevert: "自動の内容に戻す",
     editHint: "Enterで決定、Escでやめる（改行はShift+Enter）",
@@ -3005,10 +3200,22 @@ class StyleFilter {
     this.sizeSel = new Set();
     this.colorSel = new Set();
     this.handlers = {
-      size: (e) => this.onChip(e, "size"),
+      size: (e) => {
+        if (e.target.closest("button[data-size-all]")) { this.sizes.forEach((x) => this.sizeSel.add(x.key)); this.render(); this.onChange?.(); return; }
+        const tr = e.target.closest("tr[data-size]");
+        if (!tr || e.target.closest("input")) return;
+        const cb = tr.querySelector("input");
+        cb.checked = !cb.checked;
+        this.toggleSize(tr.dataset.size, cb.checked);
+      },
+      sizeChange: (e) => {
+        const cb = e.target.closest("input[data-size]");
+        if (cb) this.toggleSize(cb.dataset.size, cb.checked);
+      },
       color: (e) => this.onChip(e, "color")
     };
     this.sizeEl.addEventListener("click", this.handlers.size);
+    this.sizeEl.addEventListener("change", this.handlers.sizeChange);
     this.colorEl.addEventListener("click", this.handlers.color);
   }
   static sizeKey(size) {
@@ -3080,13 +3287,82 @@ class StyleFilter {
     }
     return b;
   }
+  toggleSize(key, on) {
+    if (on) this.sizeSel.add(key);
+    else if (this.sizeSel.size > 1) this.sizeSel.delete(key);
+    this.render();
+    this.onChange?.();
+  }
+  renderSizes() {
+    const t = USER_SETTINGS.text;
+    if (!this.sizes.length) { this.sizeEl.replaceChildren(); this.sizeEl.hidden = true; return; }
+    this.sizeEl.hidden = false;
+    const total = this.sizes.reduce((n, s) => n + s.chars, 0) || 1;
+    const max = Math.max(1, ...this.sizes.map((s) => s.chars));
+    const body = this.sizes.reduce((a, b) => (b.chars > a.chars ? b : a), this.sizes[0]).key;
+    const all = this.sizeSel.size === this.sizes.length;
+    const table = document.createElement("table");
+    table.className = "size-table";
+    const head = document.createElement("thead");
+    const hr = document.createElement("tr");
+    const h0 = document.createElement("th");
+    const allBtn = document.createElement("button");
+    allBtn.type = "button";
+    allBtn.dataset.sizeAll = "1";
+    allBtn.textContent = t.sizeAll;
+    allBtn.disabled = all;
+    h0.append(allBtn);
+    hr.append(h0);
+    for (const label of t.sizeHeads) {
+      const th = document.createElement("th");
+      th.textContent = label;
+      hr.append(th);
+    }
+    head.append(hr);
+    const tb = document.createElement("tbody");
+    for (const sz of this.sizes) {
+      const on = this.sizeSel.has(sz.key);
+      const tr = document.createElement("tr");
+      tr.dataset.size = sz.key;
+      if (!on) tr.className = "off";
+      const c0 = document.createElement("td");
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = on;
+      cb.dataset.size = sz.key;
+      cb.setAttribute("aria-label", t.sizeCheck(sz.key));
+      c0.append(cb);
+      const c1 = document.createElement("td");
+      c1.className = "size";
+      c1.append(`${sz.key}pt`);
+      if (sz.key === body) {
+        const tag = document.createElement("span");
+        tag.className = "tag body";
+        tag.textContent = t.sizeBody;
+        c1.append(tag);
+      }
+      const c2 = document.createElement("td");
+      c2.className = "num";
+      c2.textContent = sz.chars.toLocaleString();
+      const c3 = document.createElement("td");
+      c3.className = "share";
+      const bar = document.createElement("span");
+      bar.className = "bar";
+      bar.style.width = `${Math.max(2, (sz.chars / max) * 100)}%`;
+      const pct = document.createElement("span");
+      pct.className = "pct";
+      const share = (sz.chars / total) * 100;
+      pct.textContent = share < 0.1 ? "<0.1%" : `${share.toFixed(1)}%`;
+      c3.append(bar, pct);
+      tr.append(c0, c1, c2, c3);
+      tb.append(tr);
+    }
+    table.append(head, tb);
+    this.sizeEl.replaceChildren(table);
+  }
   render() {
     const t = USER_SETTINGS.text;
-    const allSize = this.sizeSel.size === this.sizes.length;
-    this.sizeEl.replaceChildren(
-      this.chip("*", t.chipAll, null, allSize),
-      ...this.sizes.map((s) => this.chip(s.key, `${s.key}pt`, s.chars, !allSize && this.sizeSel.has(s.key)))
-    );
+    this.renderSizes();
     const allColor = this.colorSel.size === this.colors.length;
     this.colorEl.replaceChildren(...(this.colors.length ? [
       this.chip("*", t.chipAll, null, allColor),
@@ -3113,6 +3389,7 @@ class StyleFilter {
   }
   destroy() {
     this.sizeEl.removeEventListener("click", this.handlers.size);
+    this.sizeEl.removeEventListener("change", this.handlers.sizeChange);
     this.colorEl.removeEventListener("click", this.handlers.color);
   }
 }
@@ -3187,6 +3464,9 @@ class TermMatcher {
     const parts = new Map();
     for (const ref of refs) parts.set(ref.item, (parts.get(ref.item) || 0) + 1);
     const main = [...parts].sort((a, b) => b[1] - a[1])[0]?.[0] || refs[0]?.item;
+    const posOf = (ref) => `${reader.pages?.[pageIndex]?.indexOf(ref?.item) ?? -1}.${ref?.off ?? 0}`;
+    let key = null;
+    let order = null;
     return {
       pageIndex,
       pageNo,
@@ -3194,6 +3474,14 @@ class TermMatcher {
       word,
       scope,
       parts,
+      get key() { return key ?? (key = `${pageIndex}:${posOf(refs[0])}-${posOf(refs[refs.length - 1])}`); },
+      get order() {
+        if (order === null) {
+          const i = reader.pages?.[pageIndex]?.indexOf(refs[0]?.item) ?? 0;
+          order = i * 100000 + (refs[0]?.off || 0);
+        }
+        return order;
+      },
       get style() { return { font: main?.font || "", size: main ? StyleFilter.sizeKey(main.size) : "", color: main?.color || null }; },
       get boxes() { return boxes || (boxes = reader.boxesFor(pageIndex, refs)); },
       get context() { return context ?? (context = reader.contextAround(pageIndex, refs[0], refs[refs.length - 1], matched)); }
@@ -3240,6 +3528,7 @@ class TermResult {
     this.ctx = ctx || { rules: () => [], filterReason: () => null, version: () => "" };
     this.rulesFn = this.ctx.rules;
     this.overrides = new Map();
+    this.occStates = new Map();
     this.editedCols = new Set();
     this.textEdits = {};
     this.noteEdits = { lines: {}, extra: [] };
@@ -3370,6 +3659,35 @@ class TermResult {
     if (o && (o.state !== "pending" || opts?.listBase)) return o.state;
     return this.defaultState(pageNo, opts);
   }
+  occDefault(occ, opts) {
+    if (!this.isActive(occ)) return "exclude";
+    if (occ.kind === "plain" || occ.manual) return "adopt";
+    return opts?.compoundMode === "include" ? "adopt" : "hold";
+  }
+  occStateOf(occ, opts) {
+    return this.occStates.get(occ.key) || this.occDefault(occ, opts);
+  }
+  derivedState(pageNo, opts) {
+    const states = this.onPage(pageNo).map((o) => this.occStateOf(o, opts));
+    return states.includes("adopt") ? "adopt" : states.includes("hold") ? "hold" : "exclude";
+  }
+  setOccState(occ, state, opts) {
+    this.occStates.set(occ.key, state);
+    this.overrides.delete(occ.pageNo);
+    this.setState(occ.pageNo, this.derivedState(occ.pageNo, opts), opts, "manual");
+  }
+  setOccStates(occs, state, opts) {
+    const pages = new Set();
+    for (const o of occs) { this.occStates.set(o.key, state); pages.add(o.pageNo); }
+    for (const p of pages) {
+      this.overrides.delete(p);
+      this.setState(p, this.derivedState(p, opts), opts, "manual");
+    }
+    return pages.size;
+  }
+  clearOccStates(pageNo) {
+    for (const o of this.onPage(pageNo)) this.occStates.delete(o.key);
+  }
   setState(pageNo, state, opts, source, reason) {
     if (state === this.defaultState(pageNo, opts)) this.overrides.delete(pageNo);
     else this.overrides.set(pageNo, { state, source, reason: reason || "" });
@@ -3467,7 +3785,9 @@ class TermResult {
     const auto = (p) => !quiet || this.overrides.has(p);
     const notes = [];
     const add = (key, text) => notes.push({ key, text });
-    if (this.entry.bracketStripped) add("bracket", t.bracketNote(this.entry.searchKey));
+    const custom = this.entry.searchWords?.length;
+    if (custom) add("search", t.searchWordsNote(this.entry.searchWords.join("」「")));
+    if (this.entry.bracketStripped && !custom) add("bracket", t.bracketNote(this.entry.searchKey));
     if (this.fontChoice && this.fontLabel) add("font", t.fontNote(this.fontLabel));
     if (this.entry.excludeWords?.length) add("exword", t.excludeWordsNote(this.entry.excludeWords.join("」「")));
     const compoundState = opts.compoundMode === "include" ? "adopt" : "hold";
@@ -3479,7 +3799,7 @@ class TermResult {
       if (!compoundPages.has(o.word)) compoundPages.set(o.word, new Set());
       compoundPages.get(o.word).add(o.pageNo);
     }
-    if (this.entry.aliases?.length) add("alias", t.aliasNote(this.entry.aliases.join("」「")));
+    if (this.entry.aliases?.length && !custom) add("alias", t.aliasNote(this.entry.aliases.join("」「")));
     const special = new Map();
     for (const o of this.occurrences) {
       if (!["ruby", "unqualified", "homonym", "bracket", "spanning"].includes(o.kind) || !this.isActive(o) || this.overrides.has(o.pageNo) || !auto(o.pageNo) || states.get(o.pageNo) !== "hold") continue;
@@ -3548,7 +3868,7 @@ class TermResult {
     const editedCols = [...this.editedCols];
     if (this.entry.edited || this.entry.added || this.ctx.termEdited?.()) editedCols.push("term");
     return {
-      row: this.entry.row, term: this.entry.term, excludeWords: this.entry.excludeWords || [], termChanged: !!(this.entry.edited || this.entry.added), editedCols,
+      row: this.entry.row, term: this.entry.term, excludeWords: this.entry.excludeWords || [], searchWords: this.entry.searchWords || [], termChanged: !!(this.entry.edited || this.entry.added), editedCols,
       pages: fmt(adopt), held: fmt(held), excluded: fmt(excluded),
       pending: pendingItems.map(([p, tag]) => t.pendingItem(p, tag.label)).join("、"), pendingCount: pendingItems.length,
       status, note: ed.note ?? noteLines.map((n) => n.text).join("\n"), noteLines, exclNote: ed.exclNote ?? exclNote, fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
@@ -3964,6 +4284,7 @@ class ResultView {
         if (e.key !== "Enter" && e.key !== " ") return;
         const tr = e.target.closest("tr[data-index]");
         if (!tr || this.isSample) return;
+        if (e.key === "Enter" && parseInt(tr.dataset.index, 10) === this.selected) return;
         e.preventDefault();
         this.app.selectTerm(parseInt(tr.dataset.index, 10));
       },
@@ -3977,7 +4298,7 @@ class ResultView {
     this.collapsed = new Set(Prefs.get("collapsedCols", []));
     this.handlers.head = (e) => {
       const th = e.target.closest("th");
-      if (!th) return;
+      if (!th || e.target.closest(".col-grip")) return;
       const n = [...th.parentElement.children].indexOf(th) + 1;
       if (this.collapsed.has(n)) this.collapsed.delete(n); else this.collapsed.add(n);
       Prefs.set("collapsedCols", [...this.collapsed]);
@@ -4013,6 +4334,63 @@ class ResultView {
     this.searchInput.addEventListener("input", this.handlers.searchInput);
     this.searchInput.addEventListener("keydown", this.handlers.searchKey);
     for (const th of this.head.querySelectorAll("th")) th.title = USER_SETTINGS.text.colToggle(th.textContent);
+    this.word = "";
+    this.wordCol = "all";
+    this.filterInput = UI.byId("row-filter");
+    this.filterCol = UI.byId("row-filter-col");
+    this.filterClear = UI.byId("row-filter-clear");
+    for (const [value, label] of USER_SETTINGS.text.filterCols) this.filterCol.append(new Option(label, value));
+    this.handlers.word = () => {
+      clearTimeout(this.wordTimer);
+      this.wordTimer = setTimeout(() => { this.word = this.filterInput.value.trim(); this.render(); }, USER_SETTINGS.termSearchDebounceMs);
+    };
+    this.handlers.wordCol = () => { this.wordCol = this.filterCol.value; this.render(); };
+    this.handlers.clear = () => { this.filter = "all"; this.word = ""; this.filterInput.value = ""; this.render(); };
+    this.filterInput.addEventListener("input", this.handlers.word);
+    this.filterCol.addEventListener("change", this.handlers.wordCol);
+    this.filterClear.addEventListener("click", this.handlers.clear);
+    this.widths = Prefs.get("colWidths", null);
+    if (!Array.isArray(this.widths) || this.widths.length !== this.head.querySelectorAll("th").length) this.widths = null;
+    this.grips = [...this.head.querySelectorAll("th")].map((th, i) => {
+      const g = document.createElement("span");
+      g.className = "col-grip";
+      g.title = USER_SETTINGS.text.colWidthTitle;
+      g.dataset.col = i;
+      th.append(g);
+      return g;
+    });
+    this.handlers.gripDown = (e) => {
+      const g = e.target.closest(".col-grip");
+      if (!g || e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const ths = [...this.head.querySelectorAll("th")];
+      if (!this.widths) this.widths = ths.map((th) => Math.round(th.getBoundingClientRect().width));
+      const i = parseInt(g.dataset.col, 10);
+      this.drag = { i, x: e.clientX, w: this.widths[i], g };
+      g.setPointerCapture(e.pointerId);
+      g.classList.add("dragging");
+      this.applyWidths();
+    };
+    this.handlers.gripMove = (e) => {
+      if (!this.drag) return;
+      this.widths[this.drag.i] = Math.max(USER_SETTINGS.colMinWidth, Math.round(this.drag.w + e.clientX - this.drag.x));
+      this.applyWidths();
+    };
+    this.handlers.gripUp = () => {
+      if (!this.drag) return;
+      this.drag.g.classList.remove("dragging");
+      this.drag = null;
+      Prefs.set("colWidths", this.widths);
+    };
+    this.handlers.gripReset = (e) => {
+      if (!e.target.closest(".col-grip")) return;
+      e.stopPropagation();
+      this.widths = null;
+      Prefs.set("colWidths", null);
+      this.applyWidths();
+    };
+    for (const [ev, fn] of [["pointerdown", "gripDown"], ["pointermove", "gripMove"], ["pointerup", "gripUp"], ["pointercancel", "gripUp"], ["dblclick", "gripReset"]]) this.head.addEventListener(ev, this.handlers[fn]);
     this.applyCollapse();
     this.summary.addEventListener("click", this.handlers.filter);
     this.body.addEventListener("click", this.handlers.row);
@@ -4048,17 +4426,36 @@ class ResultView {
     hint.textContent = t.editHint;
     btns.append(hint);
     let ex = null;
+    let sw = null;
+    let fontSel = null;
+    const extras = [];
     if (role === "term") {
-      const label = doc.createElement("label");
-      label.className = "ex-label";
-      label.textContent = t.excludeWordsLabel;
-      ex = doc.createElement("input");
-      ex.type = "text";
-      ex.value = (this.app.results[index]?.entry.excludeWords || []).join("、");
-      ex.placeholder = t.excludeWordsHint;
-      ex.title = t.excludeWordsHint;
-      label.append(ex);
-      box.append(ta, label, btns);
+      const entry = this.app.results[index]?.entry;
+      const field = (labelText, value, hintText, placeholder) => {
+        const label = doc.createElement("label");
+        label.className = "ex-label";
+        label.textContent = labelText;
+        const input = doc.createElement("input");
+        input.type = "text";
+        input.value = value;
+        input.placeholder = placeholder;
+        input.title = hintText;
+        label.append(input);
+        box.append(label);
+        return input;
+      };
+      box.append(ta);
+      sw = field(t.searchWordsLabel, (entry?.searchWords || []).join("、"), t.searchWordsHint, t.searchWordsPlaceholder);
+      ex = field(t.excludeWordsLabel, (entry?.excludeWords || []).join("、"), t.excludeWordsHint, t.excludeWordsPlaceholder);
+      const fl = doc.createElement("label");
+      fl.className = "ex-label";
+      fl.textContent = t.termFontLabel;
+      fontSel = doc.createElement("select");
+      fontSel.className = "row-font";
+      for (const c of this.app.fontChoices()) fontSel.append(new Option(c.label, c.value, false, c.value === (r.fontChoice || "")));
+      fl.append(fontSel);
+      box.append(fl, btns);
+      extras.push(sw, ex, fontSel);
     } else {
       box.append(ta, btns);
     }
@@ -4067,7 +4464,7 @@ class ResultView {
     const commit = () => {
       if (this.editing?.ta !== ta) return;
       this.editing = null;
-      if (ex) this.app.editTermCell(index, ta.value, ex.value);
+      if (ex) this.app.editTermCell(index, ta.value, ex.value, sw.value, fontSel.value);
       else this.app.editCell(index, role, ta.value);
     };
     ok.addEventListener("mousedown", (e) => e.preventDefault());
@@ -4084,13 +4481,14 @@ class ResultView {
       commit();
     }, 0);
     ta.addEventListener("blur", onBlur);
-    if (ex) {
-      ex.addEventListener("blur", onBlur);
-      ex.addEventListener("click", (e) => e.stopPropagation());
-      ex.addEventListener("keydown", (e) => {
+    for (const el of extras) {
+      el.addEventListener("blur", onBlur);
+      el.addEventListener("click", (e) => e.stopPropagation());
+      el.addEventListener("dblclick", (e) => e.stopPropagation());
+      el.addEventListener("keydown", (e) => {
         e.stopPropagation();
         if (e.key === "Escape") { e.preventDefault(); this.cancelEdit(); }
-        else if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); commit(); }
+        else if (e.key === "Enter" && !e.isComposing && el.tagName === "INPUT") { e.preventDefault(); commit(); }
       });
     }
     this.editing = { ta, index };
@@ -4106,6 +4504,46 @@ class ResultView {
   }
   applyCollapse() {
     for (let n = 1; n <= USER_SETTINGS.maxTableColumns; n++) this.table.classList.toggle(`cc-${n}`, this.collapsed.has(n));
+    this.applyWidths();
+  }
+  applyWidths() {
+    const ths = [...this.head.querySelectorAll("th")];
+    const fixed = !!this.widths;
+    this.table.classList.toggle("fixed", fixed);
+    if (!fixed) {
+      this.table.style.tableLayout = "";
+      this.table.style.width = "";
+      this.table.style.minWidth = "";
+      for (const th of ths) th.style.width = "";
+      return;
+    }
+    const folded = USER_SETTINGS.colFoldedWidth;
+    let total = 0;
+    ths.forEach((th, i) => {
+      const w = this.collapsed.has(i + 1) ? folded : this.widths[i];
+      th.style.width = `${w}px`;
+      total += w;
+    });
+    this.table.style.tableLayout = "fixed";
+    this.table.style.width = `${total}px`;
+    this.table.style.minWidth = "0";
+  }
+  wordKey(v) {
+    return TextNormalizer.fold(TextNormalizer.normalize(String(v ?? ""))).replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
+  }
+  matchesWord(r) {
+    if (!this.word) return true;
+    const q = this.wordKey(this.word);
+    if (!q) return true;
+    const pageCols = ["pages", "held", "excluded"];
+    const textOf = (col) => (col === "term" ? [r.term, ...(r.searchWords || [])].join(" ") : col === "pending" ? r.pending : r[col]);
+    const hitCol = (col) => {
+      const text = String(textOf(col) ?? "");
+      if (pageCols.includes(col)) return text.split(/[,、，\s]+/).some((x) => this.wordKey(x) === q);
+      return this.wordKey(text).includes(q);
+    };
+    const cols = this.wordCol === "all" ? USER_SETTINGS.text.filterCols.map(([c]) => c).filter((c) => c !== "all") : [this.wordCol];
+    return cols.some(hitCol);
   }
   search(step) {
     const t = USER_SETTINGS.text;
@@ -4114,12 +4552,13 @@ class ResultView {
     const q = key(this.searchInput.value);
     for (const tr of this.body.querySelectorAll("tr.search-hit")) tr.classList.remove("search-hit");
     if (!q || this.isSample) { count.textContent = ""; return; }
-    const matches = [];
-    this.rows.forEach((r, i) => { if (key(r.term).includes(q)) matches.push(i); });
+    let matches = [];
+    this.rows.forEach((r, i) => { if (key(r.term).includes(q) && this.passes(r)) matches.push(i); });
+    if (!matches.length) this.rows.forEach((r, i) => { if (key(r.term).includes(q)) matches.push(i); });
     if (!matches.length) { count.textContent = t.termSearchNone; return; }
     this.searchPos = step ? (this.searchPos + step + matches.length) % matches.length : 0;
     const idx = matches[this.searchPos];
-    if (!matches.every((i) => this.passes(this.rows[i]))) { this.filter = "all"; this.render(); }
+    if (!matches.every((i) => this.passes(this.rows[i]))) { this.filter = "all"; this.word = ""; this.filterInput.value = ""; this.render(); }
     for (const i of matches) this.body.querySelector(`tr[data-index="${i}"]`)?.classList.add("search-hit");
     count.textContent = t.termSearchCount(this.searchPos + 1, matches.length);
     this.app.selectTerm(idx);
@@ -4129,6 +4568,8 @@ class ResultView {
     this.rows = rows;
     this.isSample = isSample;
     this.filter = "all";
+    this.word = "";
+    this.filterInput.value = "";
     this.selected = -1;
     this.render();
   }
@@ -4137,15 +4578,19 @@ class ResultView {
     this.renderSummary();
     const old = this.body.querySelector(`tr[data-index="${index}"]`);
     if (!old) { if (this.passes(row)) this.render(); return; }
-    if (this.passes(row)) old.replaceWith(this.buildRow(row, index)); else old.remove();
+    if (this.passes(row) || index === this.selected) old.replaceWith(this.buildRow(row, index)); else old.remove();
+    this.renderFilterCount(this.body.querySelectorAll("tr[data-index]").length);
   }
   replaceRows(rows) {
     this.rows = rows;
-    this.render();
+    this.keepSelected = true;
+    try { this.render(); } finally { this.keepSelected = false; }
   }
   select(index) {
     this.selected = index;
     for (const tr of this.body.querySelectorAll("tr")) tr.setAttribute("aria-selected", String(parseInt(tr.dataset.index, 10) === index));
+    const active = this.body.ownerDocument.activeElement;
+    if (active?.matches?.("tr[data-index]") && this.body.contains(active) && parseInt(active.dataset.index, 10) !== index) this.body.querySelector(`tr[data-index="${index}"]`)?.focus({ preventScroll: true });
   }
   statusLabel(status) {
     const t = USER_SETTINGS.text;
@@ -4173,9 +4618,12 @@ class ResultView {
       title.append(badge);
     }
     this.renderSummary();
+    const anchor = this.captureAnchor();
     const trs = [];
-    this.rows.forEach((r, index) => { if (this.passes(r)) trs.push(this.buildRow(r, index)); });
+    this.rows.forEach((r, index) => { if (this.passes(r) || (this.keepSelected && index === this.selected)) trs.push(this.buildRow(r, index)); });
     this.body.replaceChildren(...trs);
+    this.restoreAnchor(anchor);
+    this.renderFilterCount(trs.length);
     const lines = this.isSample ? t.notesBefore : t.notesAfterRun;
     UI.byId("notes").replaceChildren(...lines.map((s) => {
       const li = document.createElement("li");
@@ -4183,8 +4631,46 @@ class ResultView {
       return li;
     }));
   }
+  reveal(index) {
+    const tr = this.body.querySelector(`tr[data-index="${index}"]`);
+    const scroller = this.table.closest(".table-scroll");
+    if (!tr || !scroller) return;
+    const box = scroller.getBoundingClientRect();
+    const head = this.head.getBoundingClientRect().height;
+    const r = tr.getBoundingClientRect();
+    const top = box.top + head;
+    if (r.top >= top && r.bottom <= box.bottom) return;
+    scroller.scrollTop += r.top - top - Math.max(0, (box.bottom - top - r.height) / 2);
+  }
+  captureAnchor() {
+    const scroller = this.table.closest(".table-scroll");
+    if (!scroller) return null;
+    const box = scroller.getBoundingClientRect();
+    const rows = [...this.body.querySelectorAll("tr[data-index]")];
+    if (!rows.length) return null;
+    const sel = rows.find((tr) => parseInt(tr.dataset.index, 10) === this.selected);
+    const inView = (tr) => { const r = tr.getBoundingClientRect(); return r.bottom > box.top && r.top < box.bottom; };
+    const tr = sel && inView(sel) ? sel : rows.find(inView) || sel;
+    if (!tr) return null;
+    return { scroller, index: parseInt(tr.dataset.index, 10), offset: tr.getBoundingClientRect().top - box.top, selected: tr === sel };
+  }
+  restoreAnchor(anchor) {
+    if (!anchor) return;
+    const rows = [...this.body.querySelectorAll("tr[data-index]")];
+    const tr = rows.find((x) => parseInt(x.dataset.index, 10) === anchor.index) || rows.find((x) => parseInt(x.dataset.index, 10) > anchor.index) || rows[rows.length - 1];
+    if (!tr) return;
+    const box = anchor.scroller.getBoundingClientRect();
+    anchor.scroller.scrollTop += tr.getBoundingClientRect().top - box.top - anchor.offset;
+  }
   passes(r) {
-    return this.filter === "all" || (this.filter === "ai" ? r.aiCls === "warn" || r.aiCls === "err" : r.status === this.filter);
+    if (this.isSample) return true;
+    const st = this.filter === "all" || (this.filter === "ai" ? r.aiCls === "warn" || r.aiCls === "err" : r.status === this.filter);
+    return st && this.matchesWord(r);
+  }
+  renderFilterCount(shown) {
+    const active = !this.isSample && (this.filter !== "all" || !!this.word);
+    UI.byId("row-filter-count").textContent = active ? USER_SETTINGS.text.filterShown(shown, this.rows.length) : "";
+    this.filterClear.hidden = !active;
   }
   renderSummary() {
     const t = USER_SETTINGS.text;
@@ -4223,6 +4709,12 @@ class ResultView {
         td.append(s);
       } else if (cls === "c-term") {
         td.append(String(val ?? ""));
+        if (r.searchWords?.length) {
+          const sw = document.createElement("span");
+          sw.className = "term-ex term-sw";
+          sw.textContent = USER_SETTINGS.text.searchWordsTag(r.searchWords.join("、"));
+          td.append(sw);
+        }
         if (r.excludeWords?.length) {
           const ex = document.createElement("span");
           ex.className = "term-ex";
@@ -4255,6 +4747,11 @@ class ResultView {
   }
   destroy() {
     clearTimeout(this.searchTimer);
+    clearTimeout(this.wordTimer);
+    for (const [ev, fn] of [["pointerdown", "gripDown"], ["pointermove", "gripMove"], ["pointerup", "gripUp"], ["pointercancel", "gripUp"], ["dblclick", "gripReset"]]) this.head.removeEventListener(ev, this.handlers[fn]);
+    this.filterInput.removeEventListener("input", this.handlers.word);
+    this.filterCol.removeEventListener("change", this.handlers.wordCol);
+    this.filterClear.removeEventListener("click", this.handlers.clear);
     this.head.removeEventListener("click", this.handlers.head);
     this.body.removeEventListener("dblclick", this.handlers.dbl);
     this.searchInput.removeEventListener("input", this.handlers.searchInput);
@@ -4326,6 +4823,11 @@ class PageViewer {
     this.renderToken = 0;
     this.layoutMode = Prefs.get("viewerLayout", "single");
     this.zoomIndex = 0;
+    this.aim = null;
+    this.aimOrder = [];
+    this.aimPage = null;
+    this.aimResult = null;
+    this.aimBack = false;
     this.handlers = {
       prev: () => this.step(-1),
       next: () => this.step(1),
@@ -4356,7 +4858,9 @@ class PageViewer {
       },
       state: (e) => {
         const btn = e.target.closest("button[data-state]");
-        if (btn) this.app.setPageState(this.pageNo, btn.dataset.state);
+        if (!btn) return;
+        const aim = this.aim && this.aim.pageNo === this.pageNo && !this.missingPage ? this.aim : null;
+        this.app.applyScopedState(aim, btn.dataset.state, this.pageNo);
       },
       rules: (e) => {
         const btn = e.target.closest("button[data-rule]");
@@ -4382,6 +4886,9 @@ class PageViewer {
       applyAi: () => this.app.applyAi(this.app.selectedIndex),
       termEdit: () => this.app.openTermDialog("edit"),
       font: () => this.app.setTermFont(this.app.selectedIndex, this.$("viewer-font").value),
+      keys: (e) => this.app.shortcuts.openDialog(e.target.ownerDocument),
+      aimPrev: () => this.nextAim(-1),
+      aimNext: () => this.nextAim(1),
       resize: () => this.scheduleRender()
     };
     this.bindings = [
@@ -4405,11 +4912,33 @@ class PageViewer {
       [this.$("viewer-ai-apply"), "click", this.handlers.applyAi],
       [this.$("viewer-term-edit"), "click", this.handlers.termEdit],
       [this.$("viewer-font"), "change", this.handlers.font],
+      [this.$("viewer-keys"), "click", this.handlers.keys],
+      [this.$("viewer-aim-prev"), "click", this.handlers.aimPrev],
+      [this.$("viewer-aim-next"), "click", this.handlers.aimNext],
       [window, "resize", this.handlers.resize]
     ];
     for (const [el, ev, fn] of this.bindings) el.addEventListener(ev, fn);
     this.renderToolbar();
     this.clear();
+    this.renderKeyHints();
+  }
+  renderKeyHints() {
+    const sk = this.app.shortcuts;
+    if (!sk) return;
+    const t = USER_SETTINGS.text;
+    const keyFor = (action) => sk.keys[action]?.[0] || "";
+    const root = this.$("viewer-panel") || this.spreadEl.ownerDocument;
+    for (const btn of root.querySelectorAll("button[data-key]")) {
+      const key = keyFor(btn.dataset.key);
+      let kbd = btn.querySelector("kbd.key-hint");
+      if (!kbd) {
+        kbd = btn.ownerDocument.createElement("kbd");
+        kbd.className = "key-hint";
+        btn.append(kbd);
+      }
+      kbd.textContent = sk.showHints ? ShortcutKeys.label(key) : "";
+      btn.title = `${t.keyActions[btn.dataset.key] || btn.title.split("（キー")[0]}${key ? `（キー：${ShortcutKeys.label(key)}）` : ""}`;
+    }
   }
   zoom() {
     return USER_SETTINGS.zoomLevels[this.zoomIndex];
@@ -4438,6 +4967,10 @@ class PageViewer {
     this.pageNo = null;
     this.pageIndex = null;
     this.missingPage = false;
+    this.aim = null;
+    this.aimOrder = [];
+    this.aimPage = null;
+    this.aimResult = null;
     this.closeMenu();
     this.cancelDrag();
     this.pickMode = false;
@@ -4446,7 +4979,7 @@ class PageViewer {
     this.$("viewer-empty").hidden = false;
     this.spreadEl.hidden = true;
     this.spreadEl.replaceChildren();
-    for (const id of ["viewer-chips", "viewer-foot", "viewer-ai", "viewer-rules", "viewer-pending"]) this.$(id).hidden = true;
+    for (const id of ["viewer-chips", "viewer-foot", "viewer-ai", "viewer-rules", "viewer-pending", "viewer-state"]) this.$(id).hidden = true;
     this.$("viewer-goto-note").textContent = "";
     this.renderHead();
     this.renderNav();
@@ -4472,13 +5005,17 @@ class PageViewer {
     this.renderPending();
     const pages = result.allPages(this.app.currentOptions);
     if (keepPage && this.pageIndex !== null) { this.showIndex(this.pageIndex, { keepScroll: true }); return; }
+    if (pages.length && this.openAtEnd) {
+      const list = this.hitIndices();
+      if (list.length) { this.aimBack = true; this.aimPage = null; this.showIndex(list[list.length - 1]); return; }
+    }
     if (pages.length) { this.showPage(pages[0]); return; }
     if (this.pageIndex !== null) { this.showIndex(this.pageIndex, { keepScroll: true }); return; }
     this.closeMenu();
     this.$("viewer-empty").textContent = USER_SETTINGS.text.viewerNoHit;
     this.$("viewer-empty").hidden = false;
     this.spreadEl.hidden = true;
-    for (const id of ["viewer-chips", "viewer-foot", "viewer-ai"]) this.$(id).hidden = true;
+    for (const id of ["viewer-chips", "viewer-foot", "viewer-ai", "viewer-state"]) this.$(id).hidden = true;
     this.renderNav();
   }
   hitIndices() {
@@ -4499,7 +5036,8 @@ class PageViewer {
   }
   step(dir) {
     const target = this.hitTarget(dir);
-    if (target !== null) this.showIndex(target);
+    if (target !== null) { this.showIndex(target); return; }
+    if (this.result && this.app.stepTerm(dir, dir < 0)) this.app.setStatus(USER_SETTINGS.text.termMoved(this.app.results[this.app.selectedIndex]?.entry.term || ""));
   }
   pdfTarget(dir) {
     const total = this.total();
@@ -4679,8 +5217,9 @@ class PageViewer {
     this.$("viewer-page-prev").disabled = this.pdfTarget(-1) === null;
     this.$("viewer-page-next").disabled = this.pdfTarget(1) === null;
     const hasHits = this.hitIndices().length > 0;
-    this.$("viewer-prev").disabled = !hasHits || (this.pageIndex !== null && this.hitTarget(-1) === null);
-    this.$("viewer-next").disabled = !hasHits || (this.pageIndex !== null && this.hitTarget(1) === null);
+    const canTerm = (dir) => !!this.result && this.app.adjacentTerm(dir) !== null;
+    this.$("viewer-prev").disabled = (!hasHits || (this.pageIndex !== null && this.hitTarget(-1) === null)) && !canTerm(-1);
+    this.$("viewer-next").disabled = (!hasHits || (this.pageIndex !== null && this.hitTarget(1) === null)) && !canTerm(1);
     const pick = this.$("viewer-pick");
     pick.disabled = !this.result || !total;
     pick.setAttribute("aria-pressed", String(this.pickMode));
@@ -4698,6 +5237,8 @@ class PageViewer {
     this.closeMenu();
     this.pageNo = pageNo;
     this.missingPage = true;
+    this.aim = null;
+    this.aimOrder = [];
     this.renderNav();
     this.renderChips();
     this.renderAi();
@@ -4715,6 +5256,7 @@ class PageViewer {
     this.pageIndex = pageIndex;
     this.pageNo = this.app.pageNoOf(pageIndex);
     this.missingPage = false;
+    if (this.aimPage !== pageIndex || this.aimResult !== this.result) this.resetAim();
     this.renderHead();
     this.renderNav();
     this.renderChips();
@@ -4786,9 +5328,17 @@ class PageViewer {
     const has = !!this.result && this.pageNo !== null && (this.result.onPage(this.pageNo).length > 0 || (!!opts?.listBase && this.result.isListPage(this.pageNo)));
     seg.hidden = !has;
     seg.querySelector('[data-state="pending"]').hidden = !opts?.listBase;
+    const aimEl = this.$("viewer-aim");
+    const aimOn = has && !this.missingPage && this.aim && this.aim.pageNo === this.pageNo;
     if (has) {
-      const state = this.result.stateOf(this.pageNo, this.app.currentOptions);
+      const state = aimOn && this.app.shortcuts?.scope !== "page" ? this.hitClass(this.aim) : this.result.stateOf(this.pageNo, this.app.currentOptions);
       for (const b of seg.querySelectorAll("button[data-state]")) b.setAttribute("aria-pressed", String(b.dataset.state === state));
+    }
+    aimEl.hidden = !aimOn;
+    this.$("viewer-aim-nav").hidden = !aimOn;
+    if (aimOn) {
+      aimEl.textContent = `${this.aimText()}${t.scopeTag(t.keyScopes[this.app.shortcuts?.scope || USER_SETTINGS.keyScopeDefault])}`;
+      aimEl.title = t.aimTitle;
     }
     const hint = this.missingPage && has ? t.viewerHintMissing(this.pageNo) : this.pickMode ? t.pickHint(this.result.entry.term) : !this.result ? t.viewerHintNoTerm : this.pageNo === null ? t.viewerHintNoNombre : has ? t.viewerHint : t.viewerHintFree(this.result.entry.term);
     this.$("viewer-hint").textContent = hint;
@@ -4808,8 +5358,152 @@ class PageViewer {
   hitClass(occ) {
     const state = this.result.stateOf(occ.pageNo, this.app.currentOptions);
     if (state === "pending") return "pending";
+    const own = this.result.occStates.get(occ.key);
+    if (own) return own;
     if (!this.result.isActive(occ)) return "exclude";
-    return state;
+    if (this.result.overrides.has(occ.pageNo) || this.app.currentOptions?.listBase) return state;
+    return this.result.occDefault(occ, this.app.currentOptions);
+  }
+  aimList() {
+    if (!this.result || this.pageIndex === null) return [];
+    const seen = new Set();
+    const list = this.result.occurrences.filter((o) => o.pageIndex === this.pageIndex).sort((a, b) => a.order - b.order).filter((o) => !seen.has(o.key) && seen.add(o.key));
+    if (!list.length) return [];
+    const state = this.result.stateOf(list[0].pageNo, this.app.currentOptions);
+    const lead = list.find((o) => this.hitClass(o) === state) || list[0];
+    return [lead, ...list.filter((o) => o !== lead)];
+  }
+  styleKey(occ) {
+    return occ.manual ? `manual:${occ.key}` : StyleRule.label(StyleRule.of(occ));
+  }
+  byStyle() {
+    return this.app.shortcuts?.unit !== "word";
+  }
+  aimGroup() {
+    if (!this.aim) return [];
+    if (!this.byStyle()) return [this.aim];
+    const k = this.styleKey(this.aim);
+    const group = this.aimOrder.filter((o) => this.styleKey(o) === k);
+    return group.length ? group : [this.aim];
+  }
+  aimStops() {
+    if (!this.byStyle()) return this.aimOrder;
+    const seen = new Set();
+    return this.aimOrder.filter((o) => { const k = this.styleKey(o); if (seen.has(k)) return false; seen.add(k); return true; });
+  }
+  aimText() {
+    const t = USER_SETTINGS.text;
+    const pageState = t.stateName[this.result.stateOf(this.pageNo, this.app.currentOptions)];
+    const word = this.app.occLabel(this.result, this.aim);
+    if (!this.byStyle()) return t.aimLabel(this.aimOrder.indexOf(this.aim) + 1, this.aimOrder.length, word, pageState);
+    const stops = this.aimStops();
+    const k = this.styleKey(this.aim);
+    const i = stops.findIndex((o) => this.styleKey(o) === k);
+    return t.aimStyleLabel(i + 1, stops.length, word, this.aimGroup().length, this.aim.manual ? t.aimManualStyle : StyleRule.label(StyleRule.of(this.aim)), pageState);
+  }
+  resetAim() {
+    this.aimPage = this.pageIndex;
+    this.aimResult = this.result;
+    this.aimOrder = this.aimList();
+    const stops = this.aimStops();
+    this.aim = this.aimBack ? stops[stops.length - 1] || null : stops[0] || null;
+    this.aimBack = false;
+  }
+  syncAim() {
+    if (!this.result || this.pageIndex === null) return;
+    if (this.aimPage !== this.pageIndex || this.aimResult !== this.result) { this.resetAim(); return; }
+    const current = this.result.occurrences.filter((o) => o.pageIndex === this.pageIndex);
+    const keys = new Set(current.map((o) => o.key));
+    const known = new Set(this.aimOrder.map((o) => o.key));
+    const stale = this.aimOrder.some((o) => !current.includes(o)) || [...keys].some((k) => !known.has(k));
+    if (!stale) return;
+    const keep = this.aim?.key;
+    this.aimOrder = this.aimList();
+    this.aim = this.aimOrder.find((o) => o.key === keep) || this.aimOrder[0] || null;
+  }
+  markAim() {
+    const group = new Set(this.aimGroup().map((o) => this.result.occurrences.indexOf(o)));
+    for (const el of this.spreadEl.querySelectorAll(".hit")) el.classList.toggle("aim", group.has(parseInt(el.dataset.occ, 10)));
+    this.placeArrow();
+  }
+  placeArrow() {
+    this.spreadEl.querySelectorAll(".aim-arrow").forEach((el) => el.remove());
+    if (!this.aim || !this.result || this.missingPage) return;
+    const pad = USER_SETTINGS.hitPadPx;
+    for (const occ of this.aimGroup()) {
+      const stage = this.spreadEl.querySelector(`.page-stage[data-page-index="${occ.pageIndex}"]`);
+      const boxes = occ.boxes || [];
+      if (!stage || !boxes.length) continue;
+      const right = Math.max(...boxes.map((b) => b.right));
+      const top = Math.max(...boxes.filter((b) => b.right >= right - 1e-4).map((b) => b.top));
+      const el = stage.ownerDocument.createElement("span");
+      el.className = `aim-arrow ${this.hitClass(occ)}`;
+      el.setAttribute("aria-hidden", "true");
+      el.innerHTML = USER_SETTINGS.aimArrowSvg;
+      el.style.left = `calc(${right * 100}% + ${pad}px)`;
+      el.style.top = `calc(${(1 - top) * 100}% - ${pad}px)`;
+      stage.append(el);
+    }
+  }
+  scrollToAim() {
+    if (this.zoomIndex === 0) return;
+    const el = this.spreadEl.querySelector(".hit.aim");
+    if (!el) return;
+    const wrap = this.$("viewer-wrap");
+    const w = wrap.getBoundingClientRect();
+    const h = el.getBoundingClientRect();
+    if (h.left >= w.left && h.right <= w.right && h.top >= w.top && h.bottom <= w.bottom) return;
+    wrap.scrollBy({ left: h.left + h.width / 2 - (w.left + w.width / 2), top: h.top + h.height / 2 - (w.top + w.height / 2) });
+  }
+  nextAim(dir) {
+    const t = USER_SETTINGS.text;
+    if (!this.result) return false;
+    this.closeMenu();
+    this.syncAim();
+    const list = this.aimStops();
+    const k = this.aim ? this.styleKey(this.aim) : null;
+    const i = this.byStyle() ? list.findIndex((o) => this.styleKey(o) === k) : list.indexOf(this.aim);
+    const next = i < 0 ? list[dir > 0 ? 0 : list.length - 1] : list[i + dir];
+    if (next && !this.missingPage) {
+      this.aim = next;
+      this.markAim();
+      this.renderStateSeg();
+      this.scrollToAim();
+      return true;
+    }
+    const target = this.hitTarget(dir);
+    if (target === null) {
+      if (this.app.stepTerm(dir, dir < 0)) { this.app.setStatus(t.termMoved(this.result?.entry.term || "")); return true; }
+      this.app.setStatus(dir > 0 ? t.aimLast : t.aimFirst);
+      return false;
+    }
+    this.aimBack = dir < 0;
+    this.showIndex(target);
+    return true;
+  }
+  static mergeBoxes(boxes) {
+    const eps = USER_SETTINGS.hitMergeGap;
+    const out = (boxes || []).map((b) => ({ left: b.left, right: b.right, top: b.top, bottom: b.bottom }));
+    const overlap = (a0, a1, b0, b1) => Math.min(a1, b1) - Math.max(a0, b0);
+    let merged = true;
+    while (merged) {
+      merged = false;
+      for (let i = 0; i < out.length && !merged; i++) {
+        for (let j = i + 1; j < out.length && !merged; j++) {
+          const a = out[i];
+          const b = out[j];
+          const vh = overlap(a.bottom, a.top, b.bottom, b.top) / Math.min(a.top - a.bottom, b.top - b.bottom || 1);
+          const hw = overlap(a.left, a.right, b.left, b.right) / Math.min(a.right - a.left, b.right - b.left || 1);
+          const row = vh > 0.5 && overlap(a.left - eps, a.right + eps, b.left, b.right) >= 0;
+          const col = hw > 0.5 && overlap(a.bottom - eps, a.top + eps, b.bottom, b.top) >= 0;
+          if (!row && !col) continue;
+          out[i] = { left: Math.min(a.left, b.left), right: Math.max(a.right, b.right), top: Math.max(a.top, b.top), bottom: Math.min(a.bottom, b.bottom) };
+          out.splice(j, 1);
+          merged = true;
+        }
+      }
+    }
+    return out;
   }
   drawHits() {
     const t = USER_SETTINGS.text;
@@ -4817,26 +5511,30 @@ class PageViewer {
     this.spreadEl.querySelectorAll(".hit").forEach((el) => el.remove());
     if (!this.result) return;
     const stages = new Map([...this.spreadEl.querySelectorAll(".page-stage[data-page-index]")].map((s) => [parseInt(s.dataset.pageIndex, 10), s]));
+    this.syncAim();
+    const aimSet = new Set(this.aimGroup());
+    const pad = USER_SETTINGS.hitPadPx;
     this.result.occurrences.forEach((occ, index) => {
       const stage = stages.get(occ.pageIndex);
       if (!stage) return;
       const cls = this.hitClass(occ);
-      const focus = occ.pageNo === this.pageNo ? " focus" : "";
+      const focus = `${occ.pageNo === this.pageNo ? " focus" : ""}${aimSet.has(occ) ? " aim" : ""}`;
       const manual = occ.manual ? " manual" : "";
       const label = occ.manual ? occ.text : occ.word || this.result.entry.term;
-      for (const b of occ.boxes) {
+      for (const b of PageViewer.mergeBoxes(occ.boxes)) {
         const btn = doc.createElement("button");
         btn.className = `hit ${cls}${focus}${manual}`;
         btn.dataset.occ = index;
         btn.setAttribute("aria-label", t.hitLabel(label));
         btn.title = occ.manual ? t.menuHeadManual(label, occ.pageNo) : t.hitTitle(label, StyleRule.label(StyleRule.of(occ)));
-        btn.style.left = `${b.left * 100}%`;
-        btn.style.width = `${(b.right - b.left) * 100}%`;
-        btn.style.top = `${(1 - b.top) * 100}%`;
-        btn.style.height = `${(b.top - b.bottom) * 100}%`;
+        btn.style.left = `calc(${b.left * 100}% - ${pad}px)`;
+        btn.style.width = `calc(${(b.right - b.left) * 100}% + ${pad * 2}px)`;
+        btn.style.top = `calc(${(1 - b.top) * 100}% - ${pad}px)`;
+        btn.style.height = `calc(${(b.top - b.bottom) * 100}% + ${pad * 2}px)`;
         stage.append(btn);
       }
     });
+    this.placeArrow();
   }
   focusPage(pageNo, pageIndex) {
     if (pageNo === this.pageNo && !this.missingPage) return;
@@ -4854,6 +5552,10 @@ class PageViewer {
     const occ = this.result.occurrences[occIndex];
     if (!occ) return;
     this.focusPage(occ.pageNo, occ.pageIndex);
+    if (this.aimPage !== occ.pageIndex) { this.aimPage = occ.pageIndex; this.aimResult = this.result; this.aimOrder = this.aimList(); }
+    this.aim = this.aimOrder.find((o) => o.key === occ.key) || occ;
+    this.markAim();
+    this.renderStateSeg();
     const state = this.result.stateOf(occ.pageNo, this.app.currentOptions);
     const reason = this.result.exclusionReason(occ);
     const stage = anchor.closest(".page-stage");
@@ -4911,6 +5613,20 @@ class PageViewer {
       g.textContent = label;
       menu.append(g);
     };
+    const own = this.hitClass(occ);
+    sep(t.menuOcc);
+    add("occ-adopt", t.stateAdopt, own === "adopt");
+    add("occ-hold", t.stateHold, own === "hold");
+    add("occ-exclude", t.stateExclude, own === "exclude");
+    const sameOnPage = this.result.occurrences.filter((o) => o.pageIndex === occ.pageIndex && !o.manual && !occ.manual && StyleRule.same(StyleRule.of(o), StyleRule.of(occ)));
+    const psStates = new Set(sameOnPage.map((o) => this.hitClass(o)));
+    const psState = psStates.size === 1 ? [...psStates][0] : null;
+    if (!occ.manual) {
+      sep(t.menuPageStyle(sameOnPage.length));
+      add("ps-adopt", t.stateAdopt, psState === "adopt");
+      add("ps-hold", t.stateHold, psState === "hold");
+      add("ps-exclude", t.stateExclude, psState === "exclude");
+    }
     sep(t.menuPage);
     add("adopt", t.stateAdopt, state === "adopt");
     add("hold", t.stateHold, state === "hold");
@@ -4933,9 +5649,20 @@ class PageViewer {
     }
     const r = anchor.getBoundingClientRect();
     const s = stage.getBoundingClientRect();
+    const gap = USER_SETTINGS.menuGap;
     menu.style.left = `${Math.max(0, Math.min(s.width - USER_SETTINGS.menuWidth, r.left - s.left))}px`;
-    menu.style.top = `${r.bottom - s.top + 4}px`;
+    menu.style.top = `${r.bottom - s.top + gap}px`;
     stage.append(menu);
+    const view = this.$("viewer-wrap").getBoundingClientRect();
+    const h = menu.offsetHeight;
+    const below = view.bottom - r.bottom - gap;
+    const above = r.top - view.top - gap;
+    if (h > below) {
+      const up = above >= h || above > below;
+      const room = Math.max(USER_SETTINGS.menuMinHeight, up ? above : below);
+      if (h > room) { menu.style.maxHeight = `${room}px`; menu.style.overflowY = "auto"; }
+      if (up) menu.style.top = `${r.top - s.top - gap - Math.min(h, room)}px`;
+    }
     this.menu = menu;
     menu.querySelector("button")?.focus({ preventScroll: true });
   }
@@ -4948,7 +5675,9 @@ class PageViewer {
     const action = btn.dataset.action;
     this.closeMenu();
     if (!occ) return;
-    if (action === "adopt" || action === "hold" || action === "exclude" || action === "pending") this.app.setPageState(occ.pageNo, action);
+    if (action.startsWith("occ-")) this.app.setOccState(occ, action.slice(4));
+    else if (action.startsWith("ps-")) this.app.applyScopedState(occ, action.slice(3), occ.pageNo, "pagestyle");
+    else if (action === "adopt" || action === "hold" || action === "exclude" || action === "pending") this.app.setPageState(occ.pageNo, action);
     else if (action === "manual-remove") this.app.removeManualHit(occ);
     else if (action === "rule-term") this.app.addStyleRule("term", StyleRule.of(occ));
     else if (action === "rule-global") this.app.addStyleRule("global", StyleRule.of(occ));
@@ -5017,6 +5746,257 @@ class GuideDialog {
     this.nav.removeEventListener("click", this.handlers.nav);
     this.content.removeEventListener("scroll", this.handlers.scroll);
     this.dialog.removeEventListener("click", this.handlers.backdrop);
+  }
+}
+
+// ===== SHORTCUT KEYS =====
+class ShortcutKeys {
+  static SCOPES = ["occ", "pagestyle", "page", "style"];
+  static ACTIONS = ["nextHit", "prevHit", "nextPage", "prevPage", "nextTerm", "prevTerm", "nextOcc", "prevOcc", "adopt", "hold", "exclude", "pending"];
+  constructor(app) {
+    this.app = app;
+    this.targets = new Map();
+    this.recording = null;
+    this.load();
+    this.showHints = !!Prefs.get("keyHints", false);
+    const scope = Prefs.get("keyScope", USER_SETTINGS.keyScopeDefault);
+    this.scope = ShortcutKeys.SCOPES.includes(scope) ? scope : USER_SETTINGS.keyScopeDefault;
+    this.unit = Prefs.get("keyUnit", USER_SETTINGS.keyUnitDefault) === "word" ? "word" : "style";
+    this.autoNext = !!Prefs.get("keyAutoNext", false);
+  }
+  load() {
+    const saved = Prefs.get("shortcuts", null);
+    const defaults = USER_SETTINGS.shortcuts;
+    this.keys = {};
+    for (const a of ShortcutKeys.ACTIONS) this.keys[a] = Array.isArray(saved?.[a]) ? saved[a].filter(Boolean).slice(0, 2) : [...defaults[a]];
+    this.buildMap();
+  }
+  save() {
+    Prefs.set("shortcuts", this.keys);
+    this.buildMap();
+    this.app.viewer?.renderKeyHints();
+  }
+  buildMap() {
+    this.map = new Map();
+    for (const a of ShortcutKeys.ACTIONS) for (const k of this.keys[a]) if (k) this.map.set(k, a);
+  }
+  static combo(e) {
+    let key;
+    if (/^Digit\d$/.test(e.code)) key = e.code.slice(5);
+    else if (/^Numpad\d$/.test(e.code)) key = e.code.slice(6);
+    else if (/^Key[A-Z]$/.test(e.code)) key = e.code.slice(3);
+    else if (e.key === " ") key = "Space";
+    else key = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+    if (["Shift", "Control", "Alt", "Meta"].includes(key)) return null;
+    return `${e.ctrlKey ? "Ctrl+" : ""}${e.altKey ? "Alt+" : ""}${e.metaKey ? "Meta+" : ""}${e.shiftKey ? "Shift+" : ""}${key}`;
+  }
+  static label(combo) {
+    if (!combo) return "";
+    const names = USER_SETTINGS.text.keyNames;
+    return combo.split("+").map((p) => names[p] || p).join("+");
+  }
+  attach(win) {
+    if (this.targets.has(win)) return;
+    const fn = (e) => this.onKey(e, win);
+    win.addEventListener("keydown", fn);
+    this.targets.set(win, fn);
+  }
+  detach(win) {
+    const fn = this.targets.get(win);
+    if (!fn) return;
+    try { win.removeEventListener("keydown", fn); } catch (_) { }
+    this.targets.delete(win);
+  }
+  onKey(e, win) {
+    if (this.recording) { this.record(e); return; }
+    if (e.isComposing || e.defaultPrevented) return;
+    const el = e.target;
+    if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+    if (win.document.querySelector("dialog[open]")) return;
+    const combo = ShortcutKeys.combo(e);
+    const action = combo && this.map.get(combo);
+    if (!action) return;
+    e.preventDefault();
+    this.app.runShortcut(action);
+  }
+  resolve(action) {
+    return action;
+  }
+  openDialog(doc) {
+    const t = USER_SETTINGS.text;
+    doc.getElementById("key-dialog")?.remove();
+    const dlg = doc.createElement("dialog");
+    dlg.id = "key-dialog";
+    dlg.className = "key-dialog";
+    const head = doc.createElement("h2");
+    head.textContent = t.keyTitle;
+    const lead = doc.createElement("p");
+    lead.className = "note";
+    lead.textContent = t.keyLead;
+    const table = doc.createElement("table");
+    table.className = "key-table";
+    const body = doc.createElement("tbody");
+    const render = () => {
+      body.replaceChildren(...ShortcutKeys.ACTIONS.map((a) => {
+        const tr = doc.createElement("tr");
+        const th = doc.createElement("th");
+        th.textContent = t.keyActions[a];
+        tr.append(th);
+        for (let slot = 0; slot < 2; slot++) {
+          const td = doc.createElement("td");
+          const b = doc.createElement("button");
+          b.type = "button";
+          b.className = "key-slot";
+          const rec = this.recording && this.recording.action === a && this.recording.slot === slot;
+          b.textContent = rec ? t.keyPress : this.keys[a][slot] ? ShortcutKeys.label(this.keys[a][slot]) : t.keyNone;
+          if (rec) b.classList.add("recording");
+          b.addEventListener("click", () => { this.recording = { action: a, slot, render, note }; render(); });
+          td.append(b);
+          tr.append(td);
+        }
+        return tr;
+      }));
+    };
+    table.append(body);
+    const scopeBox = doc.createElement("div");
+    scopeBox.className = "key-scope";
+    const scopeHead = doc.createElement("p");
+    scopeHead.className = "sub-title";
+    scopeHead.textContent = t.keyScopeTitle;
+    const seg = doc.createElement("div");
+    seg.className = "seg";
+    seg.setAttribute("role", "group");
+    seg.setAttribute("aria-label", t.keyScopeTitle);
+    const scopeNote = doc.createElement("p");
+    scopeNote.className = "note";
+    const renderScope = () => {
+      for (const b of seg.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.scope === this.scope));
+      scopeNote.textContent = t.keyScopeNote[this.scope];
+    };
+    for (const k of ShortcutKeys.SCOPES) {
+      const b = doc.createElement("button");
+      b.type = "button";
+      b.dataset.scope = k;
+      b.textContent = t.keyScopes[k];
+      b.addEventListener("click", () => {
+        this.scope = k;
+        Prefs.set("keyScope", k);
+        renderScope();
+        this.app.viewer?.renderStateSeg();
+      });
+      seg.append(b);
+    }
+    const unitHead = doc.createElement("p");
+    unitHead.className = "sub-title";
+    unitHead.textContent = t.keyUnitTitle;
+    const unitSeg = doc.createElement("div");
+    unitSeg.className = "seg";
+    unitSeg.setAttribute("role", "group");
+    unitSeg.setAttribute("aria-label", t.keyUnitTitle);
+    const unitNote = doc.createElement("p");
+    unitNote.className = "note";
+    const renderUnit = () => {
+      for (const b of unitSeg.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.unit === this.unit));
+      unitNote.textContent = t.keyUnitNote[this.unit];
+    };
+    for (const k of ["style", "word"]) {
+      const b = doc.createElement("button");
+      b.type = "button";
+      b.dataset.unit = k;
+      b.textContent = t.keyUnits[k];
+      b.addEventListener("click", () => {
+        this.unit = k;
+        Prefs.set("keyUnit", k);
+        renderUnit();
+        const v = this.app.viewer;
+        if (v?.result) { v.markAim(); v.renderStateSeg(); }
+      });
+      unitSeg.append(b);
+    }
+    scopeBox.append(scopeHead, seg, scopeNote, unitHead, unitSeg, unitNote);
+    renderScope();
+    renderUnit();
+    const auto = doc.createElement("label");
+    auto.className = "check";
+    const cb = doc.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = this.autoNext;
+    cb.addEventListener("change", () => { this.autoNext = cb.checked; Prefs.set("keyAutoNext", this.autoNext); });
+    const cbText = doc.createElement("span");
+    cbText.textContent = t.keyAutoNext;
+    auto.append(cb, cbText);
+    const hints = doc.createElement("label");
+    hints.className = "check";
+    const hb = doc.createElement("input");
+    hb.type = "checkbox";
+    hb.checked = this.showHints;
+    hb.addEventListener("change", () => { this.showHints = hb.checked; Prefs.set("keyHints", this.showHints); this.app.viewer?.renderKeyHints(); });
+    const hbText = doc.createElement("span");
+    hbText.textContent = t.keyShowHints;
+    hints.append(hb, hbText);
+    const note = doc.createElement("p");
+    note.className = "note";
+    const actions = doc.createElement("div");
+    actions.className = "dialog-actions";
+    const reset = doc.createElement("button");
+    reset.type = "button";
+    reset.textContent = t.keyReset;
+    reset.addEventListener("click", () => {
+      this.recording = null;
+      this.keys = {};
+      for (const a of ShortcutKeys.ACTIONS) this.keys[a] = [...USER_SETTINGS.shortcuts[a]];
+      this.save();
+      note.textContent = t.keyResetDone;
+      render();
+    });
+    const close = doc.createElement("button");
+    close.type = "button";
+    close.className = "primary";
+    close.textContent = t.keyClose;
+    close.addEventListener("click", () => dlg.close());
+    dlg.addEventListener("close", () => { this.recording = null; dlg.remove(); });
+    actions.append(reset, close);
+    dlg.append(head, lead, scopeBox, table, hints, auto, note, actions);
+    doc.body.append(dlg);
+    render();
+    dlg.showModal();
+  }
+  record(e) {
+    const t = USER_SETTINGS.text;
+    const r = this.recording;
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.key === "Escape") { this.recording = null; r.render(); return; }
+    if (e.key === "Backspace" || e.key === "Delete") {
+      this.keys[r.action][r.slot] = "";
+      this.keys[r.action] = this.keys[r.action].filter(Boolean);
+      this.recording = null;
+      this.save();
+      r.note.textContent = t.keyCleared(t.keyActions[r.action]);
+      r.render();
+      return;
+    }
+    const combo = ShortcutKeys.combo(e);
+    if (!combo) return;
+    if (USER_SETTINGS.reservedKeys.includes(combo)) { r.note.textContent = t.keyReserved(ShortcutKeys.label(combo)); return; }
+    let moved = "";
+    for (const a of ShortcutKeys.ACTIONS) {
+      if (a === r.action) continue;
+      if (this.keys[a].includes(combo)) {
+        this.keys[a] = this.keys[a].filter((k) => k !== combo);
+        moved = t.keyMoved(ShortcutKeys.label(combo), t.keyActions[a]);
+      }
+    }
+    const list = [...this.keys[r.action]];
+    list[r.slot] = combo;
+    this.keys[r.action] = [...new Set(list.filter(Boolean))].slice(0, 2);
+    this.recording = null;
+    this.save();
+    r.note.textContent = `${t.keySet(t.keyActions[r.action], ShortcutKeys.label(combo))}${moved}`;
+    r.render();
+  }
+  destroy() {
+    for (const win of [...this.targets.keys()]) this.detach(win);
   }
 }
 
@@ -5587,6 +6567,7 @@ class PanelDetacher {
     const cfg = USER_SETTINGS.detach;
     const panel = UI.byId(id);
     if (!panel || this.windows.has(id)) return;
+    this.app.folder?.unfold(id);
     const w = window.open("", `sakuin-${id}`, `popup,width=${cfg.width},height=${cfg.height}`);
     if (!w) { this.app.setStatus(t.popupBlocked, true); return; }
     const d = w.document;
@@ -5613,6 +6594,7 @@ class PanelDetacher {
     d.body.append(panel);
     UI.docs.add(d);
     this.app.globalDrop?.attach(w);
+    this.app.shortcuts?.attach(w);
     this.app.hitColors?.apply();
     const onHide = () => this.attach(id);
     const onResize = () => this.app.viewer.scheduleRender();
@@ -5633,6 +6615,7 @@ class PanelDetacher {
     entry.panel.classList.remove("detached-panel");
     UI.docs.delete(entry.d);
     this.app.globalDrop?.detach(entry.w);
+    this.app.shortcuts?.detach(entry.w);
     if (!entry.w.closed) entry.w.close();
     this.updateButtons();
     this.applyLayout();
@@ -5646,15 +6629,114 @@ class PanelDetacher {
     const w = USER_SETTINGS.detach.placeholderWidth;
     const work = document.querySelector(".work");
     const layout = document.querySelector(".layout");
-    const r = this.windows.has("result-panel");
-    const v = this.windows.has("viewer-panel");
-    work.style.gridTemplateColumns = r && v ? "minmax(0, 1fr) minmax(0, 1fr)" : r ? `${w}px minmax(0, 1fr)` : v ? `minmax(0, 1fr) ${w}px` : "";
-    layout.style.gridTemplateColumns = this.windows.has("settings-panel") ? `${w}px minmax(0, 1fr)` : "";
+    const fw = USER_SETTINGS.panels.foldedWidth;
+    const size = (id) => (this.windows.has(id) ? w : this.app.folder?.has(id) ? fw : 0);
+    const r = size("result-panel");
+    const v = size("viewer-panel");
+    const both = this.windows.has("result-panel") && this.windows.has("viewer-panel");
+    work.style.gridTemplateColumns = both ? "minmax(0, 1fr) minmax(0, 1fr)" : r && v ? `${r}px ${v}px` : r ? `${r}px minmax(0, 1fr)` : v ? `minmax(0, 1fr) ${v}px` : "";
+    const sw = size("settings-panel");
+    layout.style.gridTemplateColumns = sw ? `${sw}px minmax(0, 1fr)` : "";
   }
   destroy() {
     for (const b of this.buttons) b.removeEventListener("click", this.onClick);
     window.removeEventListener("pagehide", this.onUnload);
     this.onUnload();
+  }
+}
+
+class SectionFolder {
+  constructor(root) {
+    this.root = root;
+    this.closed = new Set(Prefs.get("closedSections", []));
+    this.secs = [...root.querySelectorAll(".psec")];
+    for (const sec of this.secs) {
+      const h = sec.querySelector(".psec-title");
+      h.tabIndex = 0;
+      h.setAttribute("role", "button");
+      h.title = USER_SETTINGS.text.secToggle;
+    }
+    this.onClick = (e) => {
+      const h = e.target.closest(".psec-title");
+      if (h) this.toggle(h.parentElement);
+    };
+    this.onKey = (e) => {
+      if ((e.key !== "Enter" && e.key !== " ") || !e.target.classList?.contains("psec-title")) return;
+      e.preventDefault();
+      this.toggle(e.target.parentElement);
+    };
+    root.addEventListener("click", this.onClick);
+    root.addEventListener("keydown", this.onKey);
+    this.render();
+  }
+  keyOf(sec) {
+    return sec.querySelector(".psec-title").textContent.trim();
+  }
+  toggle(sec) {
+    const k = this.keyOf(sec);
+    if (this.closed.has(k)) this.closed.delete(k); else this.closed.add(k);
+    Prefs.set("closedSections", [...this.closed]);
+    this.render();
+  }
+  render() {
+    for (const sec of this.secs) {
+      const on = this.closed.has(this.keyOf(sec));
+      sec.classList.toggle("closed", on);
+      sec.querySelector(".psec-title").setAttribute("aria-expanded", String(!on));
+    }
+  }
+  destroy() {
+    this.root.removeEventListener("click", this.onClick);
+    this.root.removeEventListener("keydown", this.onKey);
+  }
+}
+
+class PanelFolder {
+  constructor(app) {
+    this.app = app;
+    this.folded = new Set(Prefs.get("foldedPanels", []).filter((id) => UI.byId(id)));
+    this.onClick = (e) => {
+      const btn = e.target.closest("[data-fold]");
+      if (btn) { e.stopPropagation(); this.toggle(btn.dataset.fold); return; }
+      const head = e.target.closest(".panel-head");
+      const panel = head?.parentElement;
+      if (panel && this.folded.has(panel.id)) this.toggle(panel.id);
+    };
+    this.heads = [...document.querySelectorAll("[data-fold]")].map((b) => b.closest(".panel-head"));
+    for (const h of this.heads) h.addEventListener("click", this.onClick);
+    this.render();
+  }
+  has(id) {
+    return this.folded.has(id);
+  }
+  toggle(id) {
+    if (this.folded.has(id)) this.folded.delete(id); else this.folded.add(id);
+    this.save();
+  }
+  unfold(id) {
+    if (!this.folded.delete(id)) return;
+    this.save();
+  }
+  save() {
+    Prefs.set("foldedPanels", [...this.folded]);
+    this.render();
+    this.app.viewer?.scheduleRender();
+  }
+  render() {
+    const t = USER_SETTINGS.text;
+    for (const b of document.querySelectorAll("[data-fold]")) {
+      const panel = UI.byId(b.dataset.fold);
+      const on = this.folded.has(b.dataset.fold);
+      panel?.classList.toggle("folded", on);
+      const name = t.detachTitle[b.dataset.fold] || "";
+      b.textContent = on ? t.unfold : t.fold;
+      b.title = on ? t.unfoldTitle(name) : t.foldTitle(name);
+      b.setAttribute("aria-expanded", String(!on));
+    }
+    this.app.detacher?.applyLayout();
+  }
+  destroy() {
+    for (const h of this.heads) h.removeEventListener("click", this.onClick);
   }
 }
 
@@ -5710,6 +6792,8 @@ class App {
     this.reviewer = new AiReviewer(this.llm, (occ) => this.describeOcc(occ));
     this.llmPanel = new LlmPanel(this);
     this.detacher = new PanelDetacher(this);
+    this.folder = new PanelFolder(this);
+    this.sections = new SectionFolder(this.$("settings-panel"));
     this.hitColors = new HitColors(this);
     this.$("tagline").textContent = USER_SETTINGS.text.tagline;
     this.drops = [
@@ -5717,6 +6801,9 @@ class App {
       new FileDrop(this.$("drop-xlsx"), this.$("file-xlsx"), (files) => this.loadFiles(files))
     ];
     this.guide = new GuideDialog();
+    this.shortcuts = new ShortcutKeys(this);
+    this.viewer.renderKeyHints();
+    this.shortcuts.attach(window);
     this.globalDrop = new GlobalDrop(this.$("drop-overlay"), (files) => this.loadFiles(files));
     this.globalDrop.attach(window);
     this.handlers = {
@@ -5902,7 +6989,7 @@ class App {
     this.refreshTerm(this.selectedIndex);
     this.pipeline.set(App.STEP.save, false);
     const term = result.entry.term;
-    const key = result.entry.searchKey || TextNormalizer.normalize(term);
+    const key = this.searchEntry(result.entry).searchKey || TextNormalizer.normalize(term);
     this.setStatus(TextNormalizer.normalize(occ.text).includes(key) ? t.pickAdded(term, pageNo, occ.text) : t.pickAddedOther(term, pageNo, occ.text));
     this.refreshButtons();
     return true;
@@ -6159,6 +7246,7 @@ class App {
       this.baselinePages = !!st?.baselinePages;
       this.listOrigin = st ? st.settings?.listOrigin || "app" : "";
       this.autoRestorePending = !!st;
+      this.settingsAppliedFor = "";
       this.$("drop-xlsx").classList.add("loaded");
       this.$("hint-xlsx").textContent = t.xlsxLoaded(file.name);
       this.mapper.render();
@@ -6441,18 +7529,28 @@ class App {
     this.setStatus(`${t.cellEdited(result.entry.term, t.colName[role])}${extra}`);
     this.refreshButtons();
   }
-  editTermCell(index, termText, exText) {
+  editTermCell(index, termText, exText, swText, fontChoice) {
     const t = USER_SETTINGS.text;
     const result = this.results[index];
     if (!result) return;
-    const words = [...new Set(String(exText || "").split(/[、,，\n]/).map((w) => w.trim()).filter(Boolean))];
-    const before = (result.entry.excludeWords || []).join("、");
-    const changedWords = words.join("、") !== before;
+    const split = (v) => [...new Set(String(v || "").split(/[、,，\n]/).map((w) => w.trim()).filter(Boolean))];
+    const words = split(exText);
+    const searchWords = split(swText);
+    const changedWords = words.join("、") !== (result.entry.excludeWords || []).join("、");
+    const changedSearch = searchWords.join("、") !== (result.entry.searchWords || []).join("、");
+    const changedFont = fontChoice !== undefined && (fontChoice || "") !== (result.fontChoice || "");
     const term = String(termText || "").trim();
+    const busy = this.activity.isBusy() || this.aiAbort;
+    if ((changedWords || changedSearch) && busy) { this.setStatus(t.termBusy, true); this.refreshTerm(index); return; }
     if (changedWords) result.entry.excludeWords = words;
+    if (changedSearch) result.entry.searchWords = searchWords;
+    if (changedFont) this.setTermFont(index, fontChoice);
     if (term && term !== result.entry.term) { this.editCell(index, "term", term); return; }
-    if (!changedWords) { this.refreshTerm(index); return; }
-    if (this.activity.isBusy() || this.aiAbort) { this.setStatus(t.termBusy, true); this.refreshTerm(index); return; }
+    if (!changedWords && !changedSearch) {
+      if (changedFont) this.setStatus(t.termSettingsSet(result.entry.term, [t.termPartFont]));
+      else this.refreshTerm(index);
+      return;
+    }
     const old = result;
     const fresh = this.buildResult(old.entry, old.fontChoice, this.currentOptions);
     fresh.overrides = old.overrides;
@@ -6466,7 +7564,11 @@ class App {
     this.refreshTerm(index);
     if (index === this.selectedIndex) this.viewer.open(fresh, true);
     this.pipeline.set(App.STEP.save, false);
-    this.setStatus(t.excludeWordsSet(old.entry.term, words.join("、")));
+    const parts = [];
+    if (changedSearch) parts.push(t.termPartSearch);
+    if (changedWords) parts.push(t.termPartExclude);
+    if (changedFont) parts.push(t.termPartFont);
+    this.setStatus(parts.length === 1 && changedWords ? t.excludeWordsSet(old.entry.term, words.join("、")) : t.termSettingsSet(old.entry.term, parts));
   }
   applyNoteEdit(result, row, value) {
     delete result.textEdits.note;
@@ -6543,7 +7645,19 @@ class App {
   }
   async maybeAutoRestore() {
     if (!this.autoRestorePending || !this.pdfReady || !this.excel.savedState || !this.entries.length) return;
-    if (this.stateMismatch()) { this.renderStateBox(); return; }
+    if (this.stateMismatch()) {
+      const key = `${this.pdfName}|${this.pdf.pages.length}|${this.excel.savedState.savedAt}`;
+      if (this.settingsAppliedFor !== key && !this.activity.isBusy()) {
+        this.settingsAppliedFor = key;
+        this.restoreToken = { cancelled: false };
+        this.activity.start(USER_SETTINGS.text.restoring, () => { this.restoreToken.cancelled = true; });
+        let ok = false;
+        try { ok = await this.applySavedSettings(this.excel.savedState); } finally { this.activity.end(); }
+        if (ok) this.setStatus(USER_SETTINGS.text.settingsOnlyApplied);
+      }
+      this.renderStateBox();
+      return;
+    }
     this.autoRestorePending = false;
     await this.handlers.restore();
   }
@@ -6557,7 +7671,7 @@ class App {
     const warn = this.$("state-warn");
     const mismatch = this.stateMismatch();
     warn.hidden = !mismatch;
-    if (mismatch) warn.textContent = t.stateMismatch(st.pdf.pages, this.pdf.pages.length);
+    if (mismatch) warn.textContent = `${t.stateMismatch(st.pdf.pages, this.pdf.pages.length)}${this.settingsAppliedFor ? t.settingsOnlyNote : ""}`;
     this.refreshButtons();
   }
   buildState(offset, originalNotes) {
@@ -6607,8 +7721,9 @@ class App {
     rows.push([L.exSizes, notIn(this.styleFilter.sizes.map((x) => x.key), s.sizes, (x) => `${x}pt`)]);
     rows.push([L.exColors, !s.colorAnalyzed ? L.colorNone : notIn(this.styleFilter.colors.map((x) => x.key), s.colors, (x) => (x === StyleFilter.UNKNOWN ? t.colorUnknown : x))]);
     rows.push([L.globalRules, st.globalRules.length ? st.globalRules.map((r) => StyleRule.label(r)).join("\n") : L.none]);
-    const perTerm = st.terms.filter((x) => x.fontChoice || x.rules?.length || x.excludeWords?.length).map((x) => {
+    const perTerm = st.terms.filter((x) => x.fontChoice || x.rules?.length || x.excludeWords?.length || x.searchWords?.length).map((x) => {
       const parts = [];
+      if (x.searchWords?.length) parts.push(L.termSearch(x.searchWords.join("、")));
       if (x.excludeWords?.length) parts.push(L.termExclude(x.excludeWords.join("、")));
       if (x.fontChoice) parts.push(L.termFont(this.fontChoiceLabel(x.fontChoice)));
       if (x.rules?.length) parts.push(L.termRules(x.rules.map((r) => StyleRule.label(r)).join("、")));
@@ -6687,10 +7802,12 @@ class App {
         fontChoice: r.fontChoice,
         rules: this.termRulesFor(r.entry.row),
         overrides: [...r.overrides],
+        occ: [...r.occStates],
         added: r.manualOccs().map((o) => ({ pageIndex: o.pageIndex, refs: o.refKeys })),
         ruleDone: !!r.ruleDone,
         edits: { cols: [...r.editedCols], texts: r.textEdits, extra: [...r.extraPages], notes: r.noteEdits },
         excludeWords: r.entry.excludeWords || [],
+        searchWords: r.entry.searchWords || [],
         ai: r.ai ? { pages: [...(r.ai.pages || new Map())], error: r.ai.error || "", model: r.ai.model || "" } : null
       })),
       originalNotes: [...originalNotes],
@@ -6703,6 +7820,13 @@ class App {
     const st = this.excel.savedState;
     if (!st || !this.pdfReady) return;
     this.setStatus(t.restoring);
+    if (!(await this.applySavedSettings(st))) return;
+    if (this.restoreToken?.cancelled) { this.setStatus(t.restoreStopped, true); return; }
+    await this.run();
+    await this.continueRestore(st);
+  }
+  async applySavedSettings(st) {
+    const t = USER_SETTINGS.text;
     const s = st.settings || {};
     this.layout.firstSide = s.firstSide || "right";
     this.nombreAreas.rects = { common: null, left: null, right: null, ...(s.nombreAreas || {}) };
@@ -6726,7 +7850,7 @@ class App {
     this.fontFilter.selected = new Set(fonts.length ? fonts : fontNames);
     this.fontFilter.render();
     if (s.colorAnalyzed && !this.styleFilter.colors.length) await this.analyzeColors();
-    if (this.restoreToken?.cancelled) { this.setStatus(t.restoreStopped, true); return; }
+    if (this.restoreToken?.cancelled) { this.setStatus(t.restoreStopped, true); return false; }
     const sizeKeys = new Set(this.styleFilter.sizes.map((x) => x.key));
     const sizes = (s.sizes || []).filter((k) => sizeKeys.has(k));
     this.styleFilter.sizeSel = new Set(sizes.length ? sizes : sizeKeys);
@@ -6747,14 +7871,17 @@ class App {
     for (const term of st.terms || []) {
       const e = this.entries.find((x) => x.row === term.row && x.term === term.term) || this.entries.find((x) => x.term === term.term);
       if (e && term.excludeWords?.length) e.excludeWords = [...term.excludeWords];
+      if (e && term.searchWords?.length) e.searchWords = [...term.searchWords];
       if (term.fontChoice) this.termFonts.set(term.row, term.fontChoice);
       if (term.rules?.length) this.termRules.set(term.row, term.rules);
     }
     this.renderGlobalRules();
     this.renderRangeNote();
     this.updateNombre();
-    if (this.restoreToken?.cancelled) { this.setStatus(t.restoreStopped, true); return; }
-    await this.run();
+    return true;
+  }
+  async continueRestore(st) {
+    const t = USER_SETTINGS.text;
     if (this.restoreToken?.cancelled || !this.results.length) { this.setStatus(t.restoreStopped, true); return; }
     let missing = 0;
     for (const saved of st.terms || []) {
@@ -6766,6 +7893,7 @@ class App {
       }
       const listBase = this.$("opt-listbase").checked;
       result.overrides = new Map((saved.overrides || []).filter(([p, o]) => !listBase || (o.state === "pending" ? result.listPending(p) : result.listStateOf(p) === o.state && !result.listPending(p))));
+      result.occStates = new Map(Array.isArray(saved.occ) ? saved.occ : []);
       result.ruleDone = !!saved.ruleDone;
       result.editedCols = new Set(saved.edits?.cols || []);
       result.textEdits = { ...(saved.edits?.texts || {}) };
@@ -6912,8 +8040,15 @@ class App {
   rulesFor(row) {
     return this.globalRules.concat(this.termRulesFor(row));
   }
-  buildResult(entry, choice, opts) {
-    const keys = this.entries.map((e) => e.searchKey).filter(Boolean);
+  searchEntry(e) {
+    if (!e?.searchWords?.length) return e;
+    const words = e.searchWords.map((w) => TextNormalizer.normalize(w)).filter(Boolean);
+    if (!words.length) return e;
+    return { ...e, searchKey: words[0], aliases: words.slice(1), qualifier: "", bracketStripped: false };
+  }
+  buildResult(source, choice, opts) {
+    const entry = this.searchEntry(source);
+    const keys = this.entries.map((e) => this.searchEntry(e).searchKey).filter(Boolean);
     const matcher = new TermMatcher(this.pdf);
     const runAll = (e) => {
       const inScope = matcher.collect(e, this.textsFor(opts), keys, this.nombreResult);
@@ -6929,7 +8064,7 @@ class App {
       for (const o of runAll({ ...entry, searchKey: alias })) { o.alias = alias; occs.push(o); }
     }
     const base = TextNormalizer.key(entry.searchKey || "");
-    const homonyms = this.entries.filter((e) => e !== entry && TextNormalizer.key(e.searchKey || "") === base);
+    const homonyms = this.entries.filter((e) => e !== source).map((e) => this.searchEntry(e)).filter((e) => TextNormalizer.key(e.searchKey || "") === base);
     const slack = USER_SETTINGS.qualifierSlack;
     const attached = (o, word) => {
       if (!word) return false;
@@ -6982,15 +8117,15 @@ class App {
         return true;
       });
     }
-    const result = new TermResult(entry, occs, this.nombreResult, choice, {
+    const result = new TermResult(source, occs, this.nombreResult, choice, {
       rules: () => this.rulesFor(entry.row),
       filterReason: (occ, fontChoice) => this.filterReason(occ, fontChoice),
       version: () => String(this.filterVersion),
       fixes: (r, raw) => this.fixesFor(r, raw),
       termEdited: () => {
         if (!this.baseline.size) return false;
-        const b = this.baseline.get(entry.row);
-        return !b || b.term !== entry.term;
+        const b = this.baseline.get(source.row);
+        return !b || b.term !== source.term;
       }
     });
     result.fontLabel = this.fontChoiceLabel(choice);
@@ -7099,9 +8234,90 @@ class App {
     if (index === this.selectedIndex) this.viewer.refreshState();
     this.renderPendingBox();
   }
+  runShortcut(action) {
+    const t = USER_SETTINGS.text;
+    const viewer = this.viewer;
+    const a = this.shortcuts.resolve(action);
+    if (a === "nextHit" || a === "prevHit") {
+      if (viewer.result) viewer.step(a === "nextHit" ? 1 : -1);
+      else viewer.stepPdf(a === "nextHit" ? 1 : -1);
+      return;
+    }
+    if (a === "nextPage" || a === "prevPage") { viewer.stepPdf(a === "nextPage" ? 1 : -1); return; }
+    if (a === "nextTerm" || a === "prevTerm") { this.stepTerm(a === "nextTerm" ? 1 : -1); return; }
+    if (a === "nextOcc" || a === "prevOcc") { viewer.nextAim(a === "nextOcc" ? 1 : -1); return; }
+    if (!viewer.result || viewer.pageNo === null) return;
+    const aim = viewer.aim && viewer.aim.pageNo === viewer.pageNo && !viewer.missingPage ? viewer.aim : null;
+    if (a !== "pending" && aim) {
+      this.applyScopedState(aim, a, viewer.pageNo);
+      if (this.shortcuts.autoNext) { if (this.shortcuts.scope === "page") viewer.step(1); else viewer.nextAim(1); }
+      return;
+    }
+    const seg = UI.byId("viewer-state");
+    const btn = seg?.querySelector(`button[data-state="${a}"]`);
+    if (!seg || seg.hidden || !btn || btn.hidden) { this.setStatus(t.keyNoState, true); return; }
+    const pageNo = viewer.pageNo;
+    this.setPageState(pageNo, a);
+    this.setStatus(t.keyStateDone(pageNo, t.stateName[a]));
+    if (this.shortcuts.autoNext) viewer.step(1);
+  }
+  adjacentTerm(dir) {
+    const rows = [...this.view.body.querySelectorAll("tr[data-index]")].map((tr) => parseInt(tr.dataset.index, 10));
+    if (!rows.length || this.view.isSample) return null;
+    const pos = rows.indexOf(this.selectedIndex);
+    const next = pos < 0 ? rows[dir > 0 ? 0 : rows.length - 1] : rows[pos + dir];
+    return next === undefined || next === this.selectedIndex ? null : next;
+  }
+  stepTerm(dir, toEnd) {
+    const next = this.adjacentTerm(dir);
+    if (next === null) return false;
+    if (toEnd) this.viewer.openAtEnd = true;
+    this.selectTerm(next);
+    this.viewer.openAtEnd = false;
+    this.view.reveal(next);
+    return true;
+  }
+  applyScopedState(occ, state, pageNo, forceScope) {
+    const t = USER_SETTINGS.text;
+    const result = this.results[this.selectedIndex];
+    if (!result) return;
+    const scope = forceScope || this.shortcuts.scope;
+    const opts = this.currentOptions;
+    if (state === "pending" || !occ || scope === "page") {
+      this.setPageState(pageNo, state);
+      this.setStatus(t.keyStateDone(pageNo, t.stateName[state]));
+      return;
+    }
+    if ((scope === "style" || scope === "pagestyle") && !occ.manual) {
+      const rule = StyleRule.of(occ);
+      const onPage = scope === "pagestyle";
+      const targets = result.occurrences.filter((o) => !o.manual && StyleRule.matches(rule, o) && (!onPage || o.pageIndex === occ.pageIndex));
+      const pages = result.setOccStates(targets, state, opts);
+      this.refreshTerm(this.selectedIndex);
+      this.pipeline.set(App.STEP.save, false);
+      this.refreshButtons();
+      if (onPage) this.setStatus(t.keyPageStyleDone(occ.pageNo, StyleRule.label(rule), result.entry.term, targets.length, t.stateName[state], t.stateName[result.stateOf(occ.pageNo, opts)]));
+      else this.setStatus(t.keyStyleDone(StyleRule.label(rule), result.entry.term, targets.length, pages, t.stateName[state]));
+      return;
+    }
+    this.setOccState(occ, state);
+    this.setStatus(t.keyOccDone(occ.pageNo, this.occLabel(result, occ), t.stateName[state], t.stateName[result.stateOf(occ.pageNo, opts)]));
+  }
+  setOccState(occ, state) {
+    const result = this.results[this.selectedIndex];
+    if (!result || !occ) return;
+    result.setOccState(occ, state, this.currentOptions);
+    this.refreshTerm(this.selectedIndex);
+    this.pipeline.set(App.STEP.save, false);
+    this.refreshButtons();
+  }
+  occLabel(result, occ) {
+    return occ.manual ? occ.text : occ.word || occ.alias || occ.bracketWord || result.entry.term;
+  }
   setPageState(pageNo, state) {
     const result = this.results[this.selectedIndex];
     if (!result || pageNo === null) return;
+    result.clearOccStates(pageNo);
     result.setState(pageNo, state, this.currentOptions, "manual");
     this.refreshTerm(this.selectedIndex);
     this.pipeline.set(App.STEP.save, false);
@@ -7377,6 +8593,7 @@ class App {
     this.drops.forEach((d) => d.destroy());
     this.globalDrop.destroy();
     this.guide.destroy();
+    this.shortcuts.destroy();
     for (const [el, ev, fn] of this.bindings) el.removeEventListener(ev, fn);
     this.aiAbort?.abort();
     this.view.destroy();
@@ -7388,6 +8605,8 @@ class App {
     this.styleFilter.destroy();
     this.llmPanel.destroy();
     this.detacher.destroy();
+    this.folder.destroy();
+    this.sections.destroy();
     this.hitColors.destroy();
     this.pdf.destroy();
   }
