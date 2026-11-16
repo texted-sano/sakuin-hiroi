@@ -350,6 +350,13 @@ kbd.key-hint:empty { display: none; }
 .key-dialog { border: 1px solid var(--line-strong); border-radius: var(--radius-l); background: var(--surface); color: var(--ink); padding: 18px 20px; width: min(680px, calc(100vw - 32px)); }
 .key-dialog::backdrop { background: rgba(0, 0, 0, .5); }
 .key-dialog h2 { font-size: 15px; margin: 0 0 6px; }
+.confirm-dialog { border: 1px solid var(--line-strong); border-radius: var(--radius-l); background: var(--surface); color: var(--ink); padding: 18px 20px; width: min(520px, calc(100vw - 32px)); }
+.confirm-dialog::backdrop { background: rgba(0, 0, 0, .35); }
+.confirm-dialog h2 { font-size: 15px; margin: 0 0 8px; }
+.confirm-body p { margin: 0 0 6px; font-size: 13px; line-height: 1.6; }
+.confirm-dialog .dialog-actions { margin-top: 12px; }
+.stale-bar { flex: none; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 10px; background: var(--warn-bg, #fff4d6); color: var(--ink); border-bottom: 1px solid var(--line-strong); font-size: 12px; }
+.stale-bar p { margin: 0; flex: 1 1 260px; }
 .key-dialog label.check { margin-top: 4px; }
 .key-scope { display: flex; flex-direction: column; gap: 4px; margin: 6px 0 4px; }
 .key-scope .seg button { min-height: 28px; padding: 3px 6px; }
@@ -888,6 +895,10 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
           <button class="quiet detach-btn fold-btn" data-fold="result-panel">折りたたむ</button>
           <button class="quiet detach-btn" data-detach="result-panel">別ウィンドウ</button>
         </div>
+        <div class="stale-bar" id="stale-bar" role="status" hidden>
+          <p id="stale-note"></p>
+          <button class="primary" id="btn-rerun">検索し直す</button>
+        </div>
         <div class="filter-bar" id="filter-bar">
           <span class="filter-label">判定</span>
           <div class="filter-chips" id="summary"></div>
@@ -1004,7 +1015,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
         <div class="guide-cards">
           <div class="guide-card"><strong>用意するもの</strong><ul><li>教科書の全ページのPDF</li><li>索引に載せる用語を並べたExcel（.xlsx）</li></ul></div>
           <div class="guide-card"><strong>アプリがすること</strong><ul><li>PDFで用語を検索する</li><li>見つかったページのノンブル（ページ番号）をExcelに書き込む</li><li>迷う箇所を「申し送り」として備考に書く</li></ul></div>
-          <div class="guide-card"><strong>安心して使えるように</strong><ul><li>ファイルはこのパソコンの中だけで処理し、外に送りません</li><li>元のPDF・Excelは書き換えず、別のファイルとして保存します</li></ul></div>
+          <div class="guide-card"><strong>安心して使えるように</strong><ul><li>ファイルはこのパソコンの中だけで処理し、外に送りません</li><li>元のPDF・Excelは書き換えず、別のファイルとして保存します</li><li>手で変更した判定や手修正は、設定を変えても自動では書き換えません</li><li>結果の表が消える操作の前には、確認の画面を出します</li></ul></div>
         </div>
         <p class="tip"><b>最初の一回は</b>「基本の流れ」を上から順に読みながら操作すると迷いません。</p>
       </section>
@@ -1350,6 +1361,7 @@ const USER_SETTINGS = {
   keyScopeDefault: "pagestyle",
   keyUnitDefault: "style",
   hitPadPx: 3,
+  autoRerunDelayMs: 400,
   hitMergeGap: 0.004,
   menuMinHeight: 160,
   aimArrowSvg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4 6 18"/><path d="M6 8v10h10"/></svg>',
@@ -1739,7 +1751,7 @@ const USER_SETTINGS = {
     compoundNote: (word, term, pages) => `${word}という用語も「${term}」のさくいんに拾うべきか要確認。拾う場合、p.${pages}追加。`,
     compoundIncluded: (word, pages) => `${word}（p.${pages}）も含めて拾った。不要なら削除。`,
     manualExcluded: (pages) => `p.${pages}は目視確認で外した。拾う場合、p.${pages}追加。`,
-    manualAdopted: (pages) => `p.${pages}は目視確認で拾った。`,
+    manualAdopted: (pages) => `p.${pages}は目視確認で確定。`,
     bracketNote: (searched) => `括弧内を除いた「${searched}」で検索した。`,
     aliasNote: (aliases) => `「${aliases}」の表記でも検索した。`,
     unqualifiedNote: (q, base, pages) => `p.${pages}は同じページに「${q}」と並んだ表記がなく、別の「${base}」の可能性あり。拾う場合、p.${pages}追加。`,
@@ -1857,6 +1869,22 @@ const USER_SETTINGS = {
     dropBusy: "処理中のため、ファイルを読み込めません。処理が終わってからもう一度ドロップしてください。",
     dropManyPdf: "PDFが複数あったため、最初の1つだけを読み込みました。",
     dropReplace: "保存していない作業があります。新しいファイルを読み込むと、いまの作業内容は消えます。読み込みますか？",
+    confirmOk: "実行する",
+    confirmCancel: "やめる",
+    confirmLoadTitle: "結果の表を読み込み直します",
+    confirmLoad: (unsaved) => `新しいファイルを読み込むと、いま表示している結果の表（手で決めた判定・手修正を含む）は消えます。${unsaved ? "\nまだ保存していない作業があります。必要なら、先に「結果をExcelで保存」で保存してください。" : "\n保存済みのExcelを読み込めば、保存した時点の状態に戻せます。"}\n読み込みますか？`,
+    confirmLoadOk: "読み込む",
+    confirmRerunTitle: "新しい設定で検索し直します",
+    confirmRerun: "結果の表を、いまの設定で検索し直します。\n手で変更した内容（目視確認での判定、語ごとの判定、手修正、追加したページ、備考の編集）と、AI校正の結果は、そのまま引き継ぎます。\nそれ以外のページの判定は、新しい設定で決め直します。\n実行しますか？",
+    confirmRerunOk: "検索し直す",
+    confirmRestoreTitle: "作業状態を復元します",
+    confirmRestore: "いま表示している結果の表を、Excelの設定シートに保存された作業状態で置き換えます。\nこの画面で保存後に変更した内容は消えます。\n復元しますか？",
+    confirmRestoreOk: "復元する",
+    staleNote: "検索の設定（検索するページ・ルビ・非表示文字・複合語の扱いなど）が変わりました。いまの表は前の設定の結果です。「検索し直す」を押すと、手で変更した内容は残したまま、新しい設定で判定し直します。",
+    staleRun: "検索し直す",
+    staleSave: "検索の設定が変わっています。先に「検索し直す」を押してから保存してください。",
+    autoRerunDone: (n) => `ノンブル・検索範囲の変更に合わせて、手で変更していない箇所を判定し直しました（手で変更した内容は${n}語ぶん、そのまま残しています）。`,
+    rerunDone: (n) => `新しい設定で検索し直しました。手で変更した内容は${n}語ぶん引き継いでいます。`,
     leaveConfirm: "保存していない作業があります。閉じてもよいですか？",
     viewerToAdopt: "このページを拾う（確定へ）",
     viewerToHold: "このページを外す（申し送りへ）",
@@ -3688,6 +3716,12 @@ class TermResult {
   clearOccStates(pageNo) {
     for (const o of this.onPage(pageNo)) this.occStates.delete(o.key);
   }
+  isManualPage(pageNo) {
+    const o = this.overrides.get(pageNo);
+    if (o && (o.source === "manual" || o.source === "edit")) return true;
+    if (this.extraPages?.has(pageNo)) return true;
+    return this.onPage(pageNo).some((x) => x.manual || this.occStates.has(x.key));
+  }
   setState(pageNo, state, opts, source, reason) {
     if (state === this.defaultState(pageNo, opts)) this.overrides.delete(pageNo);
     else this.overrides.set(pageNo, { state, source, reason: reason || "" });
@@ -3705,6 +3739,7 @@ class TermResult {
     if (!this.ai?.pages || !opts) return [];
     const out = [];
     for (const [pageNo, v] of this.ai.pages) {
+      if (this.isManualPage(pageNo)) continue;
       const state = this.stateOf(pageNo, opts);
       if (v.verdict === "adopt" && state === "hold") out.push({ pageNo, to: "adopt", reason: v.reason });
       if (v.verdict === "reject" && state === "adopt") out.push({ pageNo, to: "hold", reason: v.reason });
@@ -3747,13 +3782,13 @@ class TermResult {
     }
     return parts.join(opts.separator);
   }
-  exclusionGroups(excludedPages) {
+  exclusionGroups(excludedPages, opts) {
     const t = USER_SETTINGS.text;
     const groups = new Map();
     for (const p of excludedPages) {
       const o = this.overrides.get(p);
       let label;
-      if (o && o.source === "manual") label = t.excludeReason.manual;
+      if (o && o.source === "manual" && this.defaultState(p, opts) !== "exclude") label = t.excludeReason.manual;
       else if (o && o.source === "edit") label = t.excludeReason.edit;
       else if (o && o.source === "list") label = t.excludeReason.list;
       else if (o && o.source === "ai") label = t.excludeReason.ai;
@@ -3799,7 +3834,9 @@ class TermResult {
       if (!compoundPages.has(o.word)) compoundPages.set(o.word, new Set());
       compoundPages.get(o.word).add(o.pageNo);
     }
-    if (this.entry.aliases?.length && !custom) add("alias", t.aliasNote(this.entry.aliases.join("」「")));
+    const exKeys = (this.entry.excludeWords || []).map((w) => TextNormalizer.key(w)).filter(Boolean);
+    const shownAliases = (this.entry.aliases || []).filter((a) => !exKeys.some((k) => TextNormalizer.key(a).includes(k)));
+    if (shownAliases.length && !custom) add("alias", t.aliasNote(shownAliases.join("」「")));
     const special = new Map();
     for (const o of this.occurrences) {
       if (!["ruby", "unqualified", "homonym", "bracket", "spanning"].includes(o.kind) || !this.isActive(o) || this.overrides.has(o.pageNo) || !auto(o.pageNo) || states.get(o.pageNo) !== "hold") continue;
@@ -3834,8 +3871,8 @@ class TermResult {
       if (!added.has(o.pageNo)) added.set(o.pageNo, []);
       added.get(o.pageNo).push(o.text);
     }
-    const manualHold = bySource("manual", "hold");
-    const manualIn = bySource("manual", "adopt").filter((p) => !added.has(p) && !(listBase && this.listStateOf(p) === "none"));
+    const manualHold = bySource("manual", "hold").filter((p) => this.defaultState(p, opts) !== "hold");
+    const manualIn = bySource("manual", "adopt").filter((p) => this.defaultState(p, opts) !== "adopt" && !added.has(p) && !(listBase && this.listStateOf(p) === "none"));
     if (manualHold.length) add("manualHold", t.manualExcluded(fmt(manualHold)));
     if (manualIn.length && !listBase) add("manualIn", t.manualAdopted(fmt(manualIn)));
     if (added.size) add("manualAdded", t.manualAddedNote([...added].sort((a, b) => a[0] - b[0]).map(([p, ws]) => t.manualAddedItem(p, [...new Set(ws)].join("」「"))).join("、")));
@@ -3845,7 +3882,7 @@ class TermResult {
     for (const [p, o] of [...this.overrides].filter(([, o]) => o.source === "rule" && (o.state === "adopt" || o.state === "hold")).sort((a, b) => a[0] - b[0])) {
       add(`rule|${p}`, o.state === "hold" ? t.ruleHold(p, o.reason) : t.ruleAdopt(p, o.reason));
     }
-    const exclGroups = this.exclusionGroups(excluded);
+    const exclGroups = this.exclusionGroups(excluded, opts);
     const noNombreAll = this.noNombre || [];
     const exclNote = [...exclGroups].map(([label, ps]) => t.excludedNote(fmt(ps), label)).concat(noNombreAll.length ? [t.noNombreNote(TextNormalizer.formatList(noNombreAll.map((i) => i + 1), USER_SETTINGS.listLimit))] : []).join("\n");
     const estimatedHits = [...new Set(this.occurrences.filter((o) => this.nombre.estimated.has(o.pageIndex) && states.get(o.pageNo) === "adopt" && auto(o.pageNo)).map((o) => o.pageNo))];
@@ -6740,6 +6777,43 @@ class PanelFolder {
   }
 }
 
+class ConfirmDialog {
+  static ask(doc, { title, message, ok, cancel }) {
+    return new Promise((resolve) => {
+      const t = USER_SETTINGS.text;
+      const dlg = doc.createElement("dialog");
+      dlg.className = "confirm-dialog";
+      const h = doc.createElement("h2");
+      h.textContent = title;
+      const body = doc.createElement("div");
+      body.className = "confirm-body";
+      for (const line of String(message).split("\n")) {
+        const para = doc.createElement("p");
+        para.textContent = line;
+        body.append(para);
+      }
+      const actions = doc.createElement("div");
+      actions.className = "dialog-actions";
+      const no = doc.createElement("button");
+      no.type = "button";
+      no.textContent = cancel || t.confirmCancel;
+      const yes = doc.createElement("button");
+      yes.type = "button";
+      yes.className = "primary";
+      yes.textContent = ok || t.confirmOk;
+      actions.append(no, yes);
+      dlg.append(h, body, actions);
+      let answer = false;
+      no.addEventListener("click", () => dlg.close());
+      yes.addEventListener("click", () => { answer = true; dlg.close(); });
+      dlg.addEventListener("close", () => { dlg.remove(); resolve(answer); });
+      doc.body.append(dlg);
+      dlg.showModal();
+      no.focus();
+    });
+  }
+}
+
 // ===== APP =====
 class App {
   static STEP = { pdf: 0, judge: 1, nombre: 2, font: 3, excel: 4, run: 5, save: 6 };
@@ -6808,7 +6882,11 @@ class App {
     this.globalDrop.attach(window);
     this.handlers = {
       run: () => { if (!this.activity.isBusy()) this.run(); },
-      save: () => { if (!this.activity.isBusy()) this.save(); },
+      save: () => {
+        if (this.activity.isBusy()) return;
+        if (this.stale) { this.setStatus(USER_SETTINGS.text.staleSave, true); return; }
+        this.save();
+      },
       savePdf: () => { if (!this.activity.isBusy()) this.savePdf(); },
       pdfOpts: () => this.renderPdfExportNote(),
       editNombre: () => this.editor.open("nombre"),
@@ -6821,13 +6899,13 @@ class App {
         if (!btn) return;
         this.compoundMode = btn.dataset.value;
         for (const b of this.$("opt-compound").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b === btn));
-        this.invalidateResults();
+        this.settingsChanged();
       },
-      invalidate: () => this.invalidateResults(),
+      invalidate: () => this.settingsChanged(),
       range: () => {
         this.pageRange = new PageRange(this.$("opt-page-range").value);
         this.renderRangeNote();
-        this.invalidateResults();
+        this.settingsChanged();
       },
       analyzeColor: () => { if (this.colorRunning) this.colorAbort = true; else if (!this.activity.isBusy()) this.analyzeColors(); },
       aiReview: () => this.runAi("review"),
@@ -6856,6 +6934,8 @@ class App {
       header: () => this.renderHeaderNote(),
       restore: async () => {
         if (this.activity.isBusy()) return;
+        const t = USER_SETTINGS.text;
+        if (this.results.length && !(await ConfirmDialog.ask(document, { title: t.confirmRestoreTitle, message: t.confirmRestore, ok: t.confirmRestoreOk }))) return;
         this.restoreToken = { cancelled: false };
         this.activity.start(USER_SETTINGS.text.restoring, () => { this.restoreToken.cancelled = true; });
         try { await this.restoreState(); } finally { this.activity.end(); }
@@ -6875,6 +6955,7 @@ class App {
     this.bindings = [
       [this.$("btn-run"), "click", this.handlers.run],
       [this.$("btn-save"), "click", this.handlers.save],
+      [this.$("btn-rerun"), "click", this.handlers.run],
       [this.$("btn-save-pdf"), "click", this.handlers.savePdf],
       [this.$("opt-pdf-adopt"), "change", this.handlers.pdfOpts],
       [this.$("opt-pdf-hold"), "change", this.handlers.pdfOpts],
@@ -6933,7 +7014,7 @@ class App {
     const xlsx = list.filter(isXlsx);
     const unknown = list.filter((f) => !isPdf(f) && !isXlsx(f));
     if (!pdfs.length && !xlsx.length) { this.setStatus(t.dropUnknown(unknown.map((f) => f.name).join("、")), true); return; }
-    if (this.hasUnsavedWork() && !window.confirm(t.dropReplace)) return;
+    if (this.results.length && !(await ConfirmDialog.ask(document, { title: t.confirmLoadTitle, message: t.confirmLoad(this.hasUnsavedWork()), ok: t.confirmLoadOk }))) return;
     if (pdfs.length) await this.loadPdf(pdfs[0]);
     if (xlsx.length) await this.loadExcel(xlsx[0]);
     await this.maybeAutoRestore();
@@ -7014,8 +7095,9 @@ class App {
   refreshButtons() {
     const busy = !!this.aiAbort || !!this.activity?.isBusy();
     this.$("btn-run").disabled = busy || !(this.pdfReady && this.nombreResult && this.entries.length && this.fontFilter.selected.size);
-    this.$("btn-save").disabled = busy || !this.results.length;
-    this.$("btn-save-pdf").disabled = busy || !this.results.length || !this.pdfFile;
+    this.$("btn-save").disabled = busy || !this.results.length || !!this.stale;
+    this.$("btn-save-pdf").disabled = busy || !this.results.length || !this.pdfFile || !!this.stale;
+    this.$("btn-rerun").disabled = this.$("btn-run").disabled;
     this.renderPdfExportNote();
     const aiReady = this.llmPanel?.isReady() && this.results.length > 0 && !busy;
     this.$("btn-ai-review").disabled = !aiReady;
@@ -7032,7 +7114,21 @@ class App {
     this.$("btn-analyze-color").disabled = !this.pdfReady || (busy && !this.colorRunning);
     if (this.mappingProblem()) this.$("btn-save").disabled = true;
   }
+  settingsChanged() {
+    if (!this.results.length) { this.invalidateResults(); return; }
+    this.textCache.clear();
+    this.stale = true;
+    this.$("stale-note").textContent = USER_SETTINGS.text.staleNote;
+    this.$("stale-bar").hidden = false;
+    this.pipeline.set(App.STEP.save, false);
+    this.refreshButtons();
+  }
+  clearStale() {
+    this.stale = false;
+    this.$("stale-bar").hidden = true;
+  }
   invalidateResults() {
+    this.clearStale();
     this.gen = (this.gen || 0) + 1;
     this.$("pending-box").hidden = true;
     this.pendingGroups = [];
@@ -7170,7 +7266,27 @@ class App {
     this.pipeline.set(App.STEP.nombre, !!this.nombreResult);
     this.renderAreaSummary();
     this.renderRangeNote();
-    this.invalidateResults();
+    this.nombreChanged();
+  }
+  searchSig() {
+    return JSON.stringify([this.nombreResult?.numbers || null, this.searchAreas.rects, this.layout.firstSide]);
+  }
+  nombreChanged() {
+    if (!this.results.length) { this.invalidateResults(); return; }
+    if (this.suspendAuto || this.stale) return;
+    if (!this.nombreResult) { this.settingsChanged(); return; }
+    if (this.searchSig() === this.resultSig) return;
+    this.textCache.clear();
+    this.pipeline.set(App.STEP.save, false);
+    clearTimeout(this.autoTimer);
+    this.autoTimer = setTimeout(() => this.autoRerun(), USER_SETTINGS.autoRerunDelayMs);
+    this.refreshButtons();
+  }
+  async autoRerun() {
+    if (!this.results.length || this.stale || !this.nombreResult) return;
+    if (this.activity.isBusy() || this.aiAbort) { this.autoTimer = setTimeout(() => this.autoRerun(), USER_SETTINGS.autoRerunDelayMs); return; }
+    if (this.searchSig() === this.resultSig) return;
+    await this.run({ auto: true });
   }
   renderRangeNote() {
     const t = USER_SETTINGS.text;
@@ -7822,10 +7938,14 @@ class App {
     this.setStatus(t.restoring);
     if (!(await this.applySavedSettings(st))) return;
     if (this.restoreToken?.cancelled) { this.setStatus(t.restoreStopped, true); return; }
-    await this.run();
+    await this.run({ restoring: true });
     await this.continueRestore(st);
   }
   async applySavedSettings(st) {
+    this.suspendAuto = true;
+    try { return await this.applySavedSettingsInner(st); } finally { this.suspendAuto = false; }
+  }
+  async applySavedSettingsInner(st) {
     const t = USER_SETTINGS.text;
     const s = st.settings || {};
     this.layout.firstSide = s.firstSide || "right";
@@ -7887,25 +8007,28 @@ class App {
     for (const saved of st.terms || []) {
       const result = this.results.find((r) => r.entry.row === saved.row && r.entry.term === saved.term) || this.results.find((r) => r.entry.term === saved.term);
       if (!result) { missing++; continue; }
-      for (const a of saved.added || []) {
-        const occ = this.restoreManualOcc(a);
-        if (occ) result.addManual(occ);
-      }
-      const listBase = this.$("opt-listbase").checked;
-      result.overrides = new Map((saved.overrides || []).filter(([p, o]) => !listBase || (o.state === "pending" ? result.listPending(p) : result.listStateOf(p) === o.state && !result.listPending(p))));
-      result.occStates = new Map(Array.isArray(saved.occ) ? saved.occ : []);
-      result.ruleDone = !!saved.ruleDone;
-      result.editedCols = new Set(saved.edits?.cols || []);
-      result.textEdits = { ...(saved.edits?.texts || {}) };
-      result.extraPages = new Set(saved.edits?.extra || []);
-      result.noteEdits = saved.edits?.notes ? { lines: { ...(saved.edits.notes.lines || {}) }, extra: [...(saved.edits.notes.extra || [])] } : { lines: {}, extra: [] };
-      result.ai = saved.ai ? { pages: new Map(saved.ai.pages || []), error: saved.ai.error || "", model: saved.ai.model || "" } : null;
-      if (result.ai && !result.ai.error) delete result.ai.error;
+      this.applyTermState(result, saved, true);
     }
     await this.recomputeAll(t.actRestore);
     this.renderStateBox();
     this.pipeline.set(App.STEP.save, true);
     this.setStatus(t.restored(this.results.length, missing));
+  }
+  applyTermState(result, saved, fromList) {
+    for (const a of saved.added || []) {
+      const occ = this.restoreManualOcc(a);
+      if (occ) result.addManual(occ);
+    }
+    const listBase = fromList && this.$("opt-listbase").checked;
+    result.overrides = new Map((saved.overrides || []).filter(([p, o]) => !listBase || (o.state === "pending" ? result.listPending(p) : result.listStateOf(p) === o.state && !result.listPending(p))));
+    result.occStates = new Map(Array.isArray(saved.occ) ? saved.occ : []);
+    result.ruleDone = !!saved.ruleDone;
+    result.editedCols = new Set(saved.edits?.cols || []);
+    result.textEdits = { ...(saved.edits?.texts || {}) };
+    result.extraPages = new Set(saved.edits?.extra || []);
+    result.noteEdits = saved.edits?.notes ? { lines: { ...(saved.edits.notes.lines || {}) }, extra: [...(saved.edits.notes.extra || [])] } : { lines: {}, extra: [] };
+    result.ai = saved.ai ? { pages: new Map(saved.ai.pages || []), error: saved.ai.error || "", model: saved.ai.model || "" } : null;
+    if (result.ai && !result.ai.error) delete result.ai.error;
   }
   renderHeaderNote() {
     const t = USER_SETTINGS.text;
@@ -8060,7 +8183,7 @@ class App {
     const exWords = (entry.excludeWords || []).map((w) => TextNormalizer.key(w)).filter(Boolean);
     const isExcludedKey = (k) => exWords.includes(TextNormalizer.key(k));
     let occs = runAll(entry);
-    for (const alias of (entry.aliases || []).filter((a) => !isExcludedKey(a))) {
+    for (const alias of (entry.aliases || []).filter((a) => !exWords.some((k) => TextNormalizer.key(a).includes(k)))) {
       for (const o of runAll({ ...entry, searchKey: alias })) { o.alias = alias; occs.push(o); }
     }
     const base = TextNormalizer.key(entry.searchKey || "");
@@ -8133,12 +8256,31 @@ class App {
     result.noNombre = key ? this.noNombreTexts(opts).map((x, i) => (x.compact.includes(key) ? i : -1)).filter((i) => i >= 0) : [];
     return result;
   }
-  async run() {
+  async run(mode = {}) {
     const t = USER_SETTINGS.text;
     if (!this.nombreResult) { this.setStatus(t.needNombre, true); return; }
     if (!this.fontFilter.selected.size) { this.setStatus(t.needFont, true); return; }
     if (!this.pageRange.valid) { this.setStatus(t.rangeInvalid, true); return; }
     if (this.nombreResult && !this.nombreResult.serial && this.nombreResult.found === 0) { this.setStatus(t.nombreNone, true); return; }
+    let carry = null;
+    let keepRow = null;
+    if (!mode.restoring && this.results.length) {
+      if (!mode.auto && !(await ConfirmDialog.ask(document, { title: t.confirmRerunTitle, message: t.confirmRerun, ok: t.confirmRerunOk }))) return;
+      if (this.activity.isBusy()) return;
+      const oldNums = this.resultNumbers || [];
+      const newNums = this.nombreResult.numbers || [];
+      const remap = (p) => {
+        const i = oldNums.indexOf(p);
+        const n = i < 0 ? null : newNums[i];
+        return n === null || n === undefined || !Number.isFinite(n) ? p : n;
+      };
+      carry = new Map(this.stateObject(0, []).terms.map((x) => {
+        x.overrides = x.overrides.map(([pg, o]) => [remap(pg), o]);
+        if (x.ai?.pages) x.ai.pages = x.ai.pages.map(([pg, v]) => [remap(pg), v]);
+        return [x.row, x];
+      }));
+      keepRow = this.results[this.selectedIndex]?.entry.row ?? null;
+    }
     const opts = this.readOptions();
     const token = { cancelled: false };
     this.activity.start(t.actPrepare, () => { token.cancelled = true; });
@@ -8167,14 +8309,32 @@ class App {
       await tick();
       if (token.cancelled) { this.setStatus(t.runStopped, true); return; }
       if (gen !== this.gen) { this.setStatus(t.runCancelled, true); return; }
+      let carried = 0;
+      if (carry) {
+        for (const r of results) {
+          const saved = carry.get(r.entry.row);
+          if (!saved) continue;
+          this.applyTermState(r, saved, false);
+          if (saved.overrides.some(([, o]) => o.source === "manual" || o.source === "edit") || saved.occ?.length || saved.added?.length || saved.edits?.cols?.length || saved.edits?.extra?.length) carried++;
+        }
+      }
       this.results = results;
       this.selectedIndex = -1;
       const rows = this.results.map((r) => r.compute(opts));
       this.view.show(rows, false);
       this.viewer.clear();
+      this.clearStale();
+      this.resultNumbers = [...(this.nombreResult.numbers || [])];
+      this.resultSig = this.searchSig();
       this.renderPendingBox();
       this.pipeline.set(App.STEP.run, true);
-      this.setStatus(opts.listBase ? t.doneListBase(this.entries.length, rows.reduce((n, r) => n + r.pendingCount, 0)) : t.done(this.entries.length, this.pdf.pages.length));
+      if (carry) {
+        const idx = this.results.findIndex((r) => r.entry.row === keepRow);
+        if (idx >= 0) { this.selectTerm(idx); this.view.reveal(idx); }
+        this.setStatus(mode.auto ? t.autoRerunDone(carried) : t.rerunDone(carried));
+      } else {
+        this.setStatus(opts.listBase ? t.doneListBase(this.entries.length, rows.reduce((n, r) => n + r.pendingCount, 0)) : t.done(this.entries.length, this.pdf.pages.length));
+      }
     } finally {
       this.activity.end();
       this.refreshButtons();
@@ -8410,7 +8570,7 @@ class App {
         try {
           const decisions = await this.reviewer.classify(result, this.currentOptions, instruction, this.aiAbort.signal);
           for (const [p, d] of decisions) {
-            if (result.overrides.get(p)?.source === "manual") continue;
+            if (result.isManualPage(p)) continue;
             if (!result.hasAuto(p)) continue;
             const before = result.stateOf(p, this.currentOptions);
             if (before === d.state) continue;
