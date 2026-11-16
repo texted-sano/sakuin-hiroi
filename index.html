@@ -1580,6 +1580,7 @@ const USER_SETTINGS = {
     pdfMarkState: { adopt: "確定", hold: "申し送り", exclude: "対象外", pending: "保留" },
     pdfMarkContents: (term, p, state, detail) => `「${term}」p.${PageNo.label(p)}　${state}${detail ? `\n${detail}` : ""}`,
     pdfMarkManual: "目視確認で追加",
+    pdfMarkWordManual: "目視確認でこの語だけ判定",
     pdfMarkRuby: "ルビと判定した文字に一致",
     pdfMarkCompound: (w) => `複合語「${w}」の一部`,
     pdfMarkHint: (n) => `いまの設定で枠を付けるのは ${n}か所です。`,
@@ -3692,6 +3693,15 @@ class TermResult {
     if (occ.kind === "plain" || occ.manual) return "adopt";
     return opts?.compoundMode === "include" ? "adopt" : "hold";
   }
+  wordState(occ, opts) {
+    const state = this.stateOf(occ.pageNo, opts);
+    if (state === "pending") return "pending";
+    const own = this.occStates.get(occ.key);
+    if (own) return own;
+    if (!this.isActive(occ)) return "exclude";
+    if (this.overrides.has(occ.pageNo) || opts?.listBase) return state;
+    return this.occDefault(occ, opts);
+  }
   occStateOf(occ, opts) {
     return this.occStates.get(occ.key) || this.occDefault(occ, opts);
   }
@@ -5393,13 +5403,7 @@ class PageViewer {
     this.drawHits();
   }
   hitClass(occ) {
-    const state = this.result.stateOf(occ.pageNo, this.app.currentOptions);
-    if (state === "pending") return "pending";
-    const own = this.result.occStates.get(occ.key);
-    if (own) return own;
-    if (!this.result.isActive(occ)) return "exclude";
-    if (this.result.overrides.has(occ.pageNo) || this.app.currentOptions?.listBase) return state;
-    return this.result.occDefault(occ, this.app.currentOptions);
+    return this.result.wordState(occ, this.app.currentOptions);
   }
   aimList() {
     if (!this.result || this.pageIndex === null) return [];
@@ -8648,9 +8652,7 @@ class App {
     return new Set(["adopt", "hold", "exclude", "pending"].filter((k) => this.$(`opt-pdf-${k}`).checked));
   }
   markState(r, occ) {
-    const state = r.stateOf(occ.pageNo, this.currentOptions);
-    if (state === "pending") return "pending";
-    return r.isActive(occ) ? state : "exclude";
+    return r.wordState(occ, this.currentOptions);
   }
   collectMarks() {
     const t = USER_SETTINGS.text;
@@ -8669,7 +8671,7 @@ class App {
         if (!rects.length) continue;
         const reason = r.exclusionReason(occ);
         const override = r.overrides.get(occ.pageNo);
-        const detail = occ.manual ? t.pdfMarkManual : state === "pending" ? r.pendingTag(occ.pageNo).label : !active && reason ? TermResult.reasonLabel(reason) : override?.reason ? override.reason : occ.kind === "compound" ? t.pdfMarkCompound(occ.word) : occ.kind === "ruby" ? t.pdfMarkRuby : "";
+        const detail = occ.manual ? t.pdfMarkManual : r.occStates.has(occ.key) ? t.pdfMarkWordManual : state === "pending" ? r.pendingTag(occ.pageNo).label : !active && reason ? TermResult.reasonLabel(reason) : override?.reason ? override.reason : occ.kind === "compound" ? t.pdfMarkCompound(occ.word) : occ.kind === "ruby" ? t.pdfMarkRuby : "";
         marks.push({
           pageIndex: occ.pageIndex,
           state,
