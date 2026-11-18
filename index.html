@@ -390,7 +390,7 @@ kbd.key-hint:empty { display: none; }
 .folded > :not(.panel-head) { display: none !important; }
 .folded > .panel-head { flex-direction: column; flex-wrap: nowrap; height: 100%; padding: 8px 2px; gap: 10px; align-items: center; justify-content: flex-start; border-bottom: 0; cursor: pointer; }
 .folded > .panel-head * { display: none; }
-.folded > .panel-head h2 { display: block; writing-mode: vertical-rl; letter-spacing: .2em; }
+.folded > .panel-head h2 { display: none; }
 .folded > .panel-head :has(> .fold-btn) { display: flex; }
 .folded > .panel-head .fold-btn { display: inline-flex; writing-mode: vertical-rl; padding: 8px 0; min-height: 0; width: 22px; border: 1px solid var(--line-strong); }
 
@@ -775,7 +775,7 @@ input[type="text"].invalid { border-color: var(--danger); box-shadow: 0 0 0 1px 
               <label class="check top"><input type="checkbox" id="opt-header" checked><span>保存時に見出し行を書き込む</span></label>
               <p class="note" id="header-note"></p>
               <p class="note" id="map-info"></p>
-              <label class="check top"><input type="checkbox" id="opt-listbase"><span>リストを基準に突き合わせる（突合せ確認）</span></label>
+              <label class="check top"><input type="checkbox" id="opt-listbase"><span id="opt-listbase-label">リストを基準に突き合わせる（突合せ確認）</span></label>
               <p class="note" id="listbase-note"></p>
               <div class="pending-box" id="pending-box" hidden>
                 <span class="sub-title">保留の振り分け</span>
@@ -1394,6 +1394,7 @@ const USER_SETTINGS = {
   spatial: { maxItemChars: 3, maxGap: 2.5, align: 0.35, sizeTol: 0.15, gapGrow: 1.8 },
   qualifierSlack: 2,
   termSearchDebounceMs: 250,
+  proofFill: "FFFFF2CC",
   editFill: "FFFDE3C8",
   shortcuts: {
     nextHit: ["PageDown", "ArrowRight"],
@@ -1651,6 +1652,19 @@ const USER_SETTINGS = {
     actPending: "保留の振り分けを反映中…",
     actListBase: "突合せの設定を反映中…",
     actFormat: "ページの書き方を反映中…",
+    listBaseLabel: "リストを基準に突き合わせる（突合せ確認）",
+    proofLabel: "突合せ校正（リストのページを「変更前」として残し、変更後と変更点を右の列に書く）",
+    proofNoteOn: (n, total) => `リストにページの記載がある用語：${total}件中 ${n}件。リストの列（用語・確定ページなど）は書き換えず「変更前」として残します。PDFの検索結果を「変更後」として、変更点とその理由と一緒に、リストの右側に追加する列に書きます。`,
+    proofNoteOff: "オフのときは、リストに書かれたページを使わず、アプリの判定でリストの列に転記します（リストの列を書き換えます）。",
+    proofReady: "このリストにはページが書かれています。ノンブルを指定して「検索して転記」を押すと、リストを変更前として突合せ校正します。",
+    proofAdd: (ps) => `追加：p.${ps}`,
+    proofRemove: (ps) => `削除：p.${ps}`,
+    proofReview: (ps) => `要確認（申し送り）：p.${ps}`,
+    proofNotFound: "PDFのこのページにこの語が見つからない",
+    proofNoPage: "PDFにないページ（ノンブルが見つからない）",
+    proofHeads: { pending: "変更前（確定）", fixes: "変更点" },
+    proofHeaderLabels: { after: "【変更後】確定ページ", held: "【変更後】申し送り", excluded: "【変更後】対象外", diff: "変更点", reason: "変更点の理由", note: "【変更後】備考" },
+    filterChanged: "変更あり",
     listBaseNoteEmpty: "リストにページが書かれていないため、アプリの判定で転記します。",
     listBaseNoteOn: (n, total) => `リストにページの記載がある用語：${total}件中 ${n}件。リストを基準にし、検索結果との過不足は「保留」の列に分けて転記します。リストの確定・申し送り・対象外の列は、振り分けるまで変えません。`,
     listBaseNoteOff: "オフのときは、リストに書かれたページを使わず、アプリの判定で転記します。",
@@ -1791,7 +1805,7 @@ const USER_SETTINGS = {
     keyReset: "初期設定に戻す",
     keyResetDone: "初期設定に戻しました。",
     keyClose: "閉じる",
-    keyAutoNext: "確定・申し送り・対象外をキーで決めたら、自動で次へ進む（「このページを」なら次の該当ページ、それ以外は次の語）",
+    keyAutoNext: "そのページで確かめる語が残っていなければ、自動で次の該当ページへ進む",
     keyScopeTitle: "キー（と「確定」「申し送り」「対象外」ボタン）で変える範囲",
     keyScopes: { occ: "この語だけを", pagestyle: "このページのこの書式を", page: "このページを", style: "この書式を（全ページ）" },
     keyScopeNote: {
@@ -1893,6 +1907,10 @@ const USER_SETTINGS = {
     viewerHintHold: "強調した箇所をクリックしても拾えます。",
     hitAdoptLabel: (p) => `p.${PageNo.label(p)} を外して申し送りへ`,
     hitHoldLabel: (p) => `p.${PageNo.label(p)} を拾って確定へ`,
+    notesProof: [
+      "突合せ校正：リストの列（用語・確定ページなど）は書き換えません。「変更前（確定）」はリストの確定ページ、「確定ページ・申し送り・対象外」はPDFの検索結果と目視確認で決めた「変更後」です。",
+      "保存すると、リストの右側に【変更後】確定ページ・【変更後】申し送り・【変更後】対象外・変更点・変更点の理由・【変更後】備考の列を追加して書き込みます。変更点のある行は、変更点のセルに色を付けます。"
+    ],
     notesAfterRun: [
       "確定ページ・申し送りページ・対象外ページ・備考・保留・訂正箇所・対象外の理由を、指定した列（初期値はC・D・F・E・G・H・I列）に書き込みます。備考には要確認の事項だけを1件1行で書き、対象外の理由は別の列に分けます。リストを基準にしたときは、検索結果との過不足を「保留」に分け、振り分けるまでリストの列は変えません。",
       "備考の列に元々書かれている内容は残し、その後ろに追記します。"
@@ -3909,6 +3927,29 @@ class TermResult {
     }
     (ne.extra || []).forEach((text, i) => noteLines.push({ key: `extra:${i}`, text }));
     const status = pendingPages.length ? "pending" : held.length || estimatedHits.length ? "review" : adopt.length ? "ok" : excluded.length || noNombre.length ? "excluded" : "none";
+    let proof = null;
+    if (opts.proof) {
+      const before = [...new Set(this.entry.list?.adopt || [])].sort(byNum);
+      const beforeSet = new Set(before);
+      const adoptSet = new Set(adopt);
+      const heldSet = new Set(held);
+      const exclSet = new Set(excluded);
+      const addedP = adopt.filter((p) => !beforeSet.has(p));
+      const removedP = before.filter((p) => !adoptSet.has(p) && !heldSet.has(p));
+      const lines = [];
+      const termLine = this.ctx.termChange ? this.ctx.termChange(this) : "";
+      if (termLine) lines.push(termLine);
+      if (addedP.length) lines.push(t.proofAdd(fmt(addedP)));
+      if (removedP.length) lines.push(t.proofRemove(fmt(removedP)));
+      if (held.length) lines.push(t.proofReview(fmt(held)));
+      const reasons = [...this.exclusionGroups(removedP.filter((p) => exclSet.has(p)), opts)];
+      const missing = removedP.filter((p) => !exclSet.has(p));
+      const noPage = missing.filter((p) => !(this.ctx.pageExists ? this.ctx.pageExists(p) : true));
+      const notFound = missing.filter((p) => !noPage.includes(p));
+      if (notFound.length) reasons.push([t.proofNotFound, notFound]);
+      if (noPage.length) reasons.push([t.proofNoPage, noPage]);
+      proof = { before: fmt(before), diff: lines.join("\n"), reason: reasons.map(([label, ps]) => t.excludedNote(fmt(ps), label)).join("\n") };
+    }
     const ai = this.aiSummary(opts);
     const raw = { adopt, hold: held, exclude: excluded, pending: pendingItems, exclGroups, noNombre: noNombreAll };
     const ed = this.textEdits;
@@ -3919,7 +3960,8 @@ class TermResult {
       pages: fmt(adopt), held: fmt(held), excluded: fmt(excluded),
       pending: pendingItems.map(([p, tag]) => t.pendingItem(p, tag.label)).join("、"), pendingCount: pendingItems.length,
       status, note: ed.note ?? noteLines.map((n) => n.text).join("\n"), noteLines, exclNote: ed.exclNote ?? exclNote, fontChoice: this.fontChoice, aiLabel: ai.label, aiCls: ai.cls,
-      fixes: ed.fixes ?? (this.ctx.fixes ? this.ctx.fixes(this, raw) : ""), raw
+      fixes: ed.fixes ?? (this.ctx.fixes ? this.ctx.fixes(this, raw) : ""), raw,
+      ...(proof ? { proof: true, pending: proof.before, pendingCount: 0, proofDiff: proof.diff, proofReason: proof.reason, fixes: [proof.diff, proof.reason].filter(Boolean).join("\n"), changed: !!proof.diff } : {})
     };
   }
 }
@@ -4198,9 +4240,59 @@ class ExcelIO {
     }
     return offset;
   }
-  async export(rows, { header, buildState } = {}) {
+  proofColumns(sheet) {
+    if (this.mapping.proof) return this.mapping.proof;
+    const used = Math.max(sheet.columnCount, this.mapping.term || 0, this.mapping.pages || 0);
+    const base = used + 1;
+    this.mapping.proof = { after: base, held: base + 1, excluded: base + 2, diff: base + 3, reason: base + 4, note: base + 5 };
+    return this.mapping.proof;
+  }
+  exportProof(wb, sheet, rows) {
+    const cols = this.proofColumns(sheet);
+    let offset = 0;
+    if (this.mapping.start <= 1) {
+      sheet.insertRow(1, []);
+      offset = 1;
+    }
+    const headerRow = sheet.getRow(this.mapping.start <= 1 ? 1 : this.mapping.start - 1);
+    for (const [role, label] of Object.entries(USER_SETTINGS.text.proofHeaderLabels)) {
+      const cell = headerRow.getCell(cols[role]);
+      cell.value = label;
+      cell.font = { ...(cell.font || {}), bold: true };
+    }
+    const wrap = (cell) => { cell.alignment = { ...(cell.alignment || {}), wrapText: true, vertical: "top" }; };
+    for (const r of rows) {
+      const row = sheet.getRow(r.row + offset);
+      if (r.termChanged && this.mapping.term && !ExcelIO.cellText(row.getCell(this.mapping.term)).trim()) row.getCell(this.mapping.term).value = r.term;
+      const put = (role, value) => {
+        const cell = row.getCell(cols[role]);
+        cell.value = value || null;
+        if (value) wrap(cell);
+      };
+      put("after", r.pages);
+      put("held", r.held);
+      put("excluded", r.excluded);
+      put("diff", r.proofDiff);
+      put("reason", r.proofReason);
+      put("note", r.note);
+      const diffCell = row.getCell(cols.diff);
+      diffCell.fill = r.proofDiff ? { type: "pattern", pattern: "solid", fgColor: { argb: USER_SETTINGS.proofFill } } : { type: "pattern", pattern: "none" };
+    }
+    return offset;
+  }
+  async export(rows, { header, buildState, proof } = {}) {
     const wb = await this.openWorkbook();
     const sheet = wb.worksheets[this.mapping.sheet];
+    if (proof) {
+      const offset = this.exportProof(wb, sheet, rows);
+      if (buildState) {
+        const { state, summary } = buildState(offset, new Map());
+        this.writeState(wb, state, summary);
+      }
+      const out = await wb.xlsx.writeBuffer();
+      const base = this.name.replace(/\.xlsx$/i, "");
+      return { blob: new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), name: `${base}${USER_SETTINGS.outputSuffix}.xlsx` };
+    }
     const { term, pages, held, note, excluded, pending, fixes, exclNote } = this.mapping;
     const offset = header ? this.writeHeader(sheet) : 0;
     const notesOut = new Map();
@@ -4306,6 +4398,7 @@ class ColumnMapper {
 
 // ===== RESULT VIEW =====
 class ResultView {
+  static PROOF_ORDER = [0, 1, 8, 3, 4, 5, 11, 6, 2, 7, 9, 10];
   static EDIT_ROLES = { "c-term": "term", "c-pages": "pages", "c-held": "held", "c-excluded": "excluded", "c-note": "note", "c-exnote": "exclNote", "c-fixes": "fixes" };
   constructor(app) {
     this.app = app;
@@ -4413,7 +4506,7 @@ class ResultView {
       e.stopPropagation();
       const ths = [...this.head.querySelectorAll("th")];
       if (!this.widths) this.widths = ths.map((th) => Math.round(th.getBoundingClientRect().width));
-      const i = parseInt(g.dataset.col, 10);
+      const i = ths.indexOf(g.closest("th"));
       this.drag = { i, x: e.clientX, w: this.widths[i], g };
       g.setPointerCapture(e.pointerId);
       g.classList.add("dragging");
@@ -4665,13 +4758,14 @@ class ResultView {
       title.append(badge);
     }
     this.renderSummary();
+    this.renderHeads();
     const anchor = this.captureAnchor();
     const trs = [];
     this.rows.forEach((r, index) => { if (this.passes(r) || (this.keepSelected && index === this.selected)) trs.push(this.buildRow(r, index)); });
     this.body.replaceChildren(...trs);
     this.restoreAnchor(anchor);
     this.renderFilterCount(trs.length);
-    const lines = this.isSample ? t.notesBefore : t.notesAfterRun;
+    const lines = this.isSample ? t.notesBefore : this.proofMode ? t.notesProof : t.notesAfterRun;
     UI.byId("notes").replaceChildren(...lines.map((s) => {
       const li = document.createElement("li");
       li.textContent = s;
@@ -4688,6 +4782,30 @@ class ResultView {
     const top = box.top + head;
     if (r.top >= top && r.bottom <= box.bottom) return;
     scroller.scrollTop += r.top - top - Math.max(0, (box.bottom - top - r.height) / 2);
+  }
+  renderHeads() {
+    const proof = !this.isSample && this.rows.some((r) => r.proof);
+    this.baseThs = this.baseThs || [...this.head.querySelectorAll("th")];
+    const ths = this.baseThs;
+    if (proof !== !!this.proofMode) {
+      this.proofMode = proof;
+      const tr = this.head.querySelector("tr");
+      tr.replaceChildren(...(proof ? ResultView.PROOF_ORDER.map((i) => ths[i]) : ths));
+      this.applyCollapse();
+    }
+    this.headTexts = this.headTexts || ths.map((th) => th.firstChild?.nodeValue || "");
+    const t = USER_SETTINGS.text;
+    const swap = { 8: "pending", 11: "fixes" };
+    for (const [i, role] of Object.entries(swap)) {
+      const th = ths[i];
+      if (!th?.firstChild) continue;
+      th.firstChild.nodeValue = proof ? t.proofHeads[role] : this.headTexts[i];
+    }
+    for (const o of this.filterCol.options) {
+      const base = USER_SETTINGS.text.filterCols.find(([v]) => v === o.value)?.[1];
+      if (o.value === "pending") o.textContent = proof ? t.proofHeads.pending : base;
+      if (o.value === "fixes") o.textContent = proof ? t.proofHeads.fixes : base;
+    }
   }
   captureAnchor() {
     const scroller = this.table.closest(".table-scroll");
@@ -4711,7 +4829,7 @@ class ResultView {
   }
   passes(r) {
     if (this.isSample) return true;
-    const st = this.filter === "all" || (this.filter === "ai" ? r.aiCls === "warn" || r.aiCls === "err" : r.status === this.filter);
+    const st = this.filter === "all" || (this.filter === "ai" ? r.aiCls === "warn" || r.aiCls === "err" : this.filter === "changed" ? !!r.changed : r.status === this.filter);
     return st && this.matchesWord(r);
   }
   renderFilterCount(shown) {
@@ -4721,15 +4839,16 @@ class ResultView {
   }
   renderSummary() {
     const t = USER_SETTINGS.text;
-    const counts = { all: this.rows.length, pending: 0, ok: 0, review: 0, excluded: 0, none: 0, ai: 0 };
-    this.rows.forEach((r) => { counts[r.status]++; if (r.aiCls === "warn" || r.aiCls === "err") counts.ai++; });
-    const keys = ["all", "pending", "ok", "review", "excluded", "none"].filter((k) => (k !== "excluded" && k !== "pending") || counts[k]).concat(counts.ai ? ["ai"] : []);
+    const counts = { all: this.rows.length, pending: 0, ok: 0, review: 0, excluded: 0, none: 0, ai: 0, changed: 0 };
+    this.rows.forEach((r) => { counts[r.status]++; if (r.aiCls === "warn" || r.aiCls === "err") counts.ai++; if (r.changed) counts.changed++; });
+    const proof = this.rows.some((r) => r.proof);
+    const keys = ["all"].concat(proof ? ["changed"] : [], ["pending", "ok", "review", "excluded", "none"].filter((k) => (k !== "excluded" && k !== "pending") || counts[k])).concat(counts.ai ? ["ai"] : []);
     this.summary.replaceChildren(...keys.map((key) => {
       const b = document.createElement("button");
       b.className = "chip";
       b.dataset.filter = key;
       b.setAttribute("aria-pressed", String(this.filter === key));
-      const label = key === "all" ? t.filterAll : key === "ai" ? t.filterAi : this.statusLabel(key);
+      const label = key === "all" ? t.filterAll : key === "ai" ? t.filterAi : key === "changed" ? t.filterChanged : this.statusLabel(key);
       b.textContent = `${label} ${counts[key]}`;
       return b;
     }));
@@ -4741,7 +4860,8 @@ class ResultView {
     tr.setAttribute("aria-selected", String(index === this.selected));
     const cells = [["c-row", r.row], ["c-term", r.term], ["c-font", null], ["c-pages", r.pages || "—"], ["c-held", r.held || ""], ["c-excluded", r.excluded || ""], ["c-state", null], ["c-ai", null], ["c-pending", null], ["c-note", r.note], ["c-exnote", r.exclNote || ""], ["c-fixes", r.fixes || ""]];
     const edited = new Set(r.editedCols || []);
-    for (const [cls, val] of cells) {
+    const ordered = this.proofMode ? ResultView.PROOF_ORDER.map((i) => cells[i]) : cells;
+    for (const [cls, val] of ordered) {
       const td = document.createElement("td");
       td.className = cls;
       const role = ResultView.EDIT_ROLES[cls];
@@ -4771,7 +4891,8 @@ class ResultView {
       } else if (cls === "c-font") {
         td.append(this.fontSelect(index, r.fontChoice || ""));
       } else if (cls === "c-pending") {
-        if (r.pendingCount) {
+        if (r.proof) td.textContent = r.pending || "";
+        else if (r.pendingCount) {
           const s = document.createElement("span");
           s.className = "ai-tag warn";
           s.textContent = USER_SETTINGS.text.pendingTag(r.pendingCount);
@@ -4908,6 +5029,7 @@ class PageViewer {
         if (!btn) return;
         const aim = this.aim && this.aim.pageNo === this.pageNo && !this.missingPage ? this.aim : null;
         this.app.applyScopedState(aim, btn.dataset.state, this.pageNo);
+        if (aim && btn.dataset.state !== "pending" && this.app.shortcuts.scope !== "page") this.afterDecide();
       },
       rules: (e) => {
         const btn = e.target.closest("button[data-rule]");
@@ -5442,7 +5564,34 @@ class PageViewer {
     const i = stops.findIndex((o) => this.styleKey(o) === k);
     return t.aimStyleLabel(i + 1, stops.length, word, this.aimGroup().length, this.aim.manual ? t.aimManualStyle : StyleRule.label(StyleRule.of(this.aim)), pageState);
   }
+  afterDecide() {
+    if (!this.result || this.missingPage || !this.aim) return false;
+    this.syncAim();
+    const k = (o) => (this.byStyle() ? this.styleKey(o) : o.key);
+    this.aimDone = this.aimDone || new Set();
+    this.aimDone.add(k(this.aim));
+    const state = this.result.stateOf(this.pageNo, this.app.currentOptions);
+    if (state === "exclude" || state === "pending") return false;
+    const stops = this.aimStops();
+    const cur = stops.findIndex((o) => k(o) === k(this.aim));
+    const group = (o) => (this.byStyle() ? this.aimOrder.filter((x) => k(x) === k(o)) : [o]);
+    for (let n = 1; n < stops.length; n++) {
+      const o = stops[(cur + n) % stops.length];
+      if (this.aimDone.has(k(o))) continue;
+      const hit = group(o).find((x) => this.hitClass(x) === state);
+      if (!hit) continue;
+      this.aim = hit;
+      this.markAim();
+      this.renderStateSeg();
+      this.scrollToAim();
+      return true;
+    }
+    this.markAim();
+    this.renderStateSeg();
+    return false;
+  }
   resetAim() {
+    this.aimDone = new Set();
     this.aimPage = this.pageIndex;
     this.aimResult = this.result;
     this.aimOrder = this.aimList();
@@ -7373,7 +7522,7 @@ class App {
       this.onMappingChanged();
       this.renderStateBox();
       const listed = this.entries.some((e) => e.list.hasAny);
-      this.setStatus(st ? "" : listed && !this.nombreResult ? t.listBaseReady : this.nombreResult || !this.pdfReady ? "" : t.needNombre);
+      this.setStatus(st ? "" : listed && !this.nombreResult ? (this.listOrigin === "premade" ? t.proofReady : t.listBaseReady) : this.nombreResult || !this.pdfReady ? "" : t.needNombre);
     } catch (err) {
       console.error(err);
       this.entries = [];
@@ -7414,6 +7563,13 @@ class App {
       }
       this.baselinePages = true;
     }
+  }
+  termChangeText(result) {
+    const t = USER_SETTINGS.text;
+    const entry = result.entry;
+    const b = this.baseline.get(entry.row);
+    if (!b) return entry.added || this.baseline.size ? t.fixAdded : "";
+    return b.term !== entry.term ? t.fixTerm(b.term, entry.term) : "";
   }
   fixesFor(result, raw) {
     const t = USER_SETTINGS.text;
@@ -7458,18 +7614,25 @@ class App {
     if (new Set(outs).size !== outs.length) return t.mapDuplicate;
     return "";
   }
+  listMode() {
+    const on = this.$("opt-listbase").checked;
+    const premade = this.listOrigin === "premade";
+    return { listBase: on && !premade, proof: on && premade };
+  }
   renderListBaseNote() {
     const t = USER_SETTINGS.text;
     const n = this.entries.filter((e) => e.list.hasAny).length;
     const box = this.$("opt-listbase");
     box.disabled = n === 0;
     if (n === 0) box.checked = false;
-    this.$("listbase-note").textContent = n === 0 ? t.listBaseNoteEmpty : box.checked ? t.listBaseNoteOn(n, this.entries.length) : t.listBaseNoteOff;
+    const premade = this.listOrigin === "premade";
+    this.$("opt-listbase-label").textContent = premade ? t.proofLabel : t.listBaseLabel;
+    this.$("listbase-note").textContent = n === 0 ? t.listBaseNoteEmpty : box.checked ? (premade ? t.proofNoteOn(n, this.entries.length) : t.listBaseNoteOn(n, this.entries.length)) : premade ? t.proofNoteOff : t.listBaseNoteOff;
   }
   onListBaseToggle() {
     this.renderListBaseNote();
     if (!this.currentOptions) return;
-    this.currentOptions = { ...this.currentOptions, listBase: this.$("opt-listbase").checked };
+    this.currentOptions = { ...this.currentOptions, ...this.listMode() };
     this.pipeline.set(App.STEP.save, false);
     this.recomputeAll(USER_SETTINGS.text.actListBase);
   }
@@ -8023,7 +8186,7 @@ class App {
       const occ = this.restoreManualOcc(a);
       if (occ) result.addManual(occ);
     }
-    const listBase = fromList && this.$("opt-listbase").checked;
+    const listBase = fromList && this.listMode().listBase;
     result.overrides = new Map((saved.overrides || []).filter(([p, o]) => !listBase || (o.state === "pending" ? result.listPending(p) : result.listStateOf(p) === o.state && !result.listPending(p))));
     result.occStates = new Map(Array.isArray(saved.occ) ? saved.occ : []);
     result.ruleDone = !!saved.ruleDone;
@@ -8068,7 +8231,7 @@ class App {
       excludeRuby: this.$("opt-ruby").checked,
       excludeHidden: this.$("opt-hidden").checked,
       spatial: this.$("opt-spatial").checked,
-      listBase: this.$("opt-listbase").checked,
+      ...this.listMode(),
       listNotes: this.listOrigin !== "premade",
       narrowed: !!fontSet || this.searchAreas.hasAny() || this.styleFilter.isNarrowed()
     };
@@ -8249,6 +8412,8 @@ class App {
       filterReason: (occ, fontChoice) => this.filterReason(occ, fontChoice),
       version: () => String(this.filterVersion),
       fixes: (r, raw) => this.fixesFor(r, raw),
+      termChange: (r) => this.termChangeText(r),
+      pageExists: (pageNo) => (this.nombreResult?.numbers || []).includes(pageNo),
       termEdited: () => {
         if (!this.baseline.size) return false;
         const b = this.baseline.get(source.row);
@@ -8414,7 +8579,8 @@ class App {
     const aim = viewer.aim && viewer.aim.pageNo === viewer.pageNo && !viewer.missingPage ? viewer.aim : null;
     if (a !== "pending" && aim) {
       this.applyScopedState(aim, a, viewer.pageNo);
-      if (this.shortcuts.autoNext) { if (this.shortcuts.scope === "page") viewer.step(1); else viewer.nextAim(1); }
+      const moved = this.shortcuts.scope !== "page" && viewer.afterDecide();
+      if (!moved && this.shortcuts.autoNext) viewer.step(1);
       return;
     }
     const seg = UI.byId("viewer-state");
@@ -8736,7 +8902,7 @@ class App {
     let blob, name;
     try {
       const rows = this.results.map((r) => r.compute(this.currentOptions));
-      ({ blob, name } = await this.excel.export(rows, { header: this.$("opt-header").checked, buildState: (offset, notes) => this.buildState(offset, notes) }));
+      ({ blob, name } = await this.excel.export(rows, { header: this.$("opt-header").checked, proof: !!this.currentOptions?.proof, buildState: (offset, notes) => this.buildState(offset, notes) }));
     } finally {
       this.activity.end();
     }
