@@ -1318,7 +1318,7 @@ const USER_SETTINGS = {
   headerWords: ["用語", "単語", "語句", "索引語", "さくいん", "索引", "項目", "ページ", "頁", "備考", "申し送り", "保留", "訂正箇所", "対象外の理由"],
   extraColumns: 3,
   compoundMaxSpan: 8,
-  outputSuffix: "_さくいん",
+  outputSuffixPattern: /(_さくいん|_\d{8})+$/,
   progressYieldEvery: 5,
   rubyBase: { reach: 3, ratio: 0.6, overhang: 0.5, minRise: 0.5, maxRise: 1.6 },
   rubyHeightRatio: 0.62,
@@ -4240,6 +4240,12 @@ class ExcelIO {
     }
     return offset;
   }
+  outputName() {
+    const d = new Date();
+    const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+    const base = this.name.replace(/\.xlsx$/i, "").replace(USER_SETTINGS.outputSuffixPattern, "");
+    return `${base}_${stamp}.xlsx`;
+  }
   proofColumns(sheet) {
     if (this.mapping.proof) return this.mapping.proof;
     const used = Math.max(sheet.columnCount, this.mapping.term || 0, this.mapping.pages || 0);
@@ -4290,8 +4296,7 @@ class ExcelIO {
         this.writeState(wb, state, summary);
       }
       const out = await wb.xlsx.writeBuffer();
-      const base = this.name.replace(/\.xlsx$/i, "");
-      return { blob: new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), name: `${base}${USER_SETTINGS.outputSuffix}.xlsx` };
+      return { blob: new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), name: this.outputName() };
     }
     const { term, pages, held, note, excluded, pending, fixes, exclNote } = this.mapping;
     const offset = header ? this.writeHeader(sheet) : 0;
@@ -4336,8 +4341,7 @@ class ExcelIO {
       this.writeState(wb, state, summary);
     }
     const out = await wb.xlsx.writeBuffer();
-    const base = this.name.replace(/\.xlsx$/i, "");
-    return { blob: new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), name: `${base}${USER_SETTINGS.outputSuffix}.xlsx` };
+    return { blob: new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), name: this.outputName() };
   }
 }
 
@@ -6884,7 +6888,8 @@ class SectionFolder {
 class PanelFolder {
   constructor(app) {
     this.app = app;
-    this.folded = new Set(Prefs.get("foldedPanels", []).filter((id) => UI.byId(id)));
+    this.folded = new Set();
+    Prefs.set("foldedPanels", []);
     this.onClick = (e) => {
       const btn = e.target.closest("[data-fold]");
       if (btn) { e.stopPropagation(); this.toggle(btn.dataset.fold); return; }
@@ -6908,7 +6913,6 @@ class PanelFolder {
     this.save();
   }
   save() {
-    Prefs.set("foldedPanels", [...this.folded]);
     this.render();
     this.app.viewer?.scheduleRender();
   }
